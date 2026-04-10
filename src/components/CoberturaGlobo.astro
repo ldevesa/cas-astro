@@ -1,0 +1,33 @@
+---
+// Componente de Cobertura Global con amCharts 5
+// Encapsula globo 3D, mapa de operaciones y mapa de centros de negocio
+---
+
+<section class="bg-[#131313] py-20 md:py-24 border-y border-outline-variant/10">
+  <div class="max-w-screen-2xl mx-auto px-8">
+    <div class="mb-10 md:mb-12">
+      <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-4">Global</p>
+      <h2 class="font-['Space_Grotesk'] text-4xl md:text-6xl font-black tracking-tight text-white leading-[0.95]">Cobertura</h2>
+    </div>
+    <div class="cas-globe-layout">
+      <aside class="cas-globe-sidebox">
+        <button class="cas-globe-btn active" id="showglobo" type="button">Alcance</button>
+        <button class="cas-globe-btn" id="showmap" type="button">Operaciones</button>
+        <button class="cas-globe-btn" id="showmap2" type="button">Centro de negocios</button>
+      </aside>
+      <div class="cas-global-globe-wrap">
+        <div class="cas-global-globe cas-map-pane" id="chartdivglobo"></div>
+        <div class="cas-global-globe cas-map-pane hidden" id="chartdivmap"></div>
+        <div class="cas-global-globe cas-map-pane hidden" id="chartdivmap2"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- amCharts CDN → datos → lógica (orden importa) -->
+<script is:inline src="https://cdn.amcharts.com/lib/5/index.js"></script>
+<script is:inline src="https://cdn.amcharts.com/lib/5/map.js"></script>
+<script is:inline src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+<script is:inline src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+<script is:inline src="/assets/globo/globo-data.js"></script>
+<script is:inline src="/assets/globo/globo.js"></script>

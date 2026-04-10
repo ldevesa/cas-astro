@@ -1,0 +1,30 @@
+---
+import { getClientes, getClienteLogo } from '../lib/wp';
+
+const clientes = await getClientes('es');
+---
+
+<section class="bg-[#131313] border-y border-white/5 py-16 overflow-hidden">
+  <p class="font-['Inter'] text-xs uppercase tracking-[0.4em] text-center text-[#ffb876] mb-10">
+    Nuestros Clientes
+  </p>
+  <!-- Dos copias del track para loop infinito sin salto -->
+  <div class="relative flex">
+    {[0, 1].map(() => (
+      <div class="flex shrink-0 gap-12 items-center pr-12 animate-marquee">
+        {clientes.map(c => (
+          getClienteLogo(c)
+            ? <img
+                src={getClienteLogo(c)}
+                alt={c.title.rendered}
+                class="h-21.25 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300 rounded-xl"
+                loading="lazy"
+              />
+            : <span class="font-['Space_Grotesk'] text-2xl font-black text-white/40 whitespace-nowrap">
+                {c.title.rendered}
+              </span>
+        ))}
+      </div>
+    ))}
+  </div>
+</section>

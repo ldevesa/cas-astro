@@ -1,0 +1,177 @@
+---
+// Componente: efecto ASCII/dot-matrix sobre video usando Three.js WebGL shader
+// Reemplaza el iframe de indexDinamic.html
+---
+
+<canvas id="heroCanvas" class="absolute inset-0 w-full h-full"></canvas>
+<div class="absolute top-[30px] left-[30px] text-[#f69220]/50 font-mono text-[10px] uppercase tracking-[3px] pointer-events-none">
+  Source: Local_Video // Mode: ASCII_Dynamic_Matrix
+</div>
+
+<script>
+  import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+
+  // Refs para poder limpiar en cada navegación
+  let rafId: number | null = null;
+  let renderer: THREE.WebGLRenderer | null = null;
+  let video: HTMLVideoElement | null = null;
+  let resizeHandler: (() => void) | null = null;
+  let mouseMoveHandler: ((e: MouseEvent) => void) | null = null;
+  let intersectionObserver: IntersectionObserver | null = null;
+
+  function destroyHero() {
+    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    if (resizeHandler) { window.removeEventListener('resize', resizeHandler); resizeHandler = null; }
+    if (mouseMoveHandler) { window.removeEventListener('mousemove', mouseMoveHandler); mouseMoveHandler = null; }
+    if (intersectionObserver) { intersectionObserver.disconnect(); intersectionObserver = null; }
+    if (video) { video.pause(); video.src = ''; video = null; }
+    if (renderer) { renderer.dispose(); renderer = null; }
+  }
+
+  function initHero() {
+    const canvas = document.getElementById('heroCanvas') as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    // Limpiar instancia previa si existiera
+    destroyHero();
+
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+    video = document.createElement('video');
+    video.src = '/Video.mp4';
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.crossOrigin = 'anonymous';
+    video.play().catch(() => {
+      window.addEventListener('click', () => video?.play(), { once: true });
+    });
+
+    const videoTex = new THREE.VideoTexture(video);
+    videoTex.minFilter = THREE.NearestFilter;
+    videoTex.magFilter = THREE.NearestFilter;
+
+    const vertexShader = `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = vec4(position, 1.0);
+      }
+    `;
+
+    const fragmentShader = `
+      uniform sampler2D tVideo;
+      uniform vec2 uResolution;
+      uniform vec2 uVideoRes;
+      uniform float uTime;
+      uniform vec2 uMouse;
+      varying vec2 vUv;
+
+      float getChar(float b, vec2 uv, vec2 globalUv) {
+        float radius = (1.0 - b) * 0.5;
+        return 1.0 - step(0.5 - radius, length(uv - 0.5));
+      }
+
+      void main() {
+        float cellSize = 10.0;
+        vec2 charGrid = uResolution / cellSize;
+        vec2 pc = fract(vUv * charGrid);
+        vec2 gridId = floor(vUv * charGrid);
+
+        float screenRatio = uResolution.x / uResolution.y;
+        float videoRatio  = uVideoRes.x / uVideoRes.y;
+
+        vec2 sampleUv = gridId / charGrid;
+        if (screenRatio > videoRatio) {
+          float scale = videoRatio / screenRatio;
+          sampleUv.y = (sampleUv.y - 0.5) * scale + 0.5;
+        } else {
+          float scale = screenRatio / videoRatio;
+          sampleUv.x = (sampleUv.x - 0.5) * scale + 0.5;
+        }
+
+        vec4 col = texture2D(tVideo, sampleUv);
+        float gray = dot(col.rgb, vec3(0.299, 0.587, 0.114));
+        gray = smoothstep(0.1, 0.9, gray);
+        gray = pow(gray, 1.2);
+
+        float mouseDist = distance(vUv, uMouse);
+        gray += smoothstep(0.2, 0.0, mouseDist) * 0.3;
+
+        float char = getChar(gray, pc, gridId);
+        vec3 finalColor = vec3(1.0, 0.58, 0.0) * char * gray;
+        finalColor *= 0.95 + 0.05 * sin(uTime * 20.0);
+
+        gl_FragColor = vec4(finalColor, 1.0);
+      }
+    `;
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        tVideo:      { value: videoTex },
+        uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+        uVideoRes:   { value: new THREE.Vector2(1280, 720) },
+        uTime:       { value: 0 },
+        uMouse:      { value: new THREE.Vector2(0.5, 0.5) },
+      },
+      vertexShader,
+      fragmentShader,
+    });
+
+    video.onloadedmetadata = () => {
+      material.uniforms.uVideoRes.value.set(video!.videoWidth, video!.videoHeight);
+    };
+
+    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+
+    resizeHandler = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      renderer!.setSize(w, h);
+      material.uniforms.uResolution.value.set(w, h);
+    };
+    window.addEventListener('resize', resizeHandler);
+
+    mouseMoveHandler = (e: MouseEvent) => {
+      material.uniforms.uMouse.value.x = e.clientX / window.innerWidth;
+      material.uniforms.uMouse.value.y = 1.0 - e.clientY / window.innerHeight;
+    };
+    window.addEventListener('mousemove', mouseMoveHandler);
+
+    // Pausar cuando no es visible (ahorra GPU)
+    // Usamos una flag para evitar la race condition play/pause
+    let playing = false;
+    intersectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!video) return;
+        if (e.isIntersecting && !playing) {
+          playing = true;
+          video.play().catch(() => { playing = false; });
+        } else if (!e.isIntersecting && playing) {
+          playing = false;
+          video.pause();
+        }
+      });
+    }, { threshold: 0.1 });
+    intersectionObserver.observe(canvas);
+
+    function animate(time: number) {
+      rafId = requestAnimationFrame(animate);
+      material.uniforms.uTime.value = time * 0.001;
+      renderer!.render(scene, camera);
+    }
+
+    resizeHandler();
+    animate(0);
+  }
+
+  // Inicializar en cada carga de página (cubre carga inicial + navegaciones View Transitions)
+  document.addEventListener('astro:page-load', initHero);
+
+  // Limpiar antes de que View Transitions reemplace el DOM
+  document.addEventListener('astro:before-swap', destroyHero);
+</script>

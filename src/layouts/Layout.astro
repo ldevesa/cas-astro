@@ -1,0 +1,211 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title = 'CAS | Contenidos Advertising',
+  description = 'Conectamos marcas con consumidores a través de experiencias memorables',
+  ogImage = '/og-default.jpg',
+} = Astro.props;
+
+const navLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Nosotros', href: '/nosotros' },
+  { label: 'Qué Hacemos', href: '/que-hacemos' },
+  { label: 'Casos', href: '/casos' },
+  { label: 'Clientes', href: '/clientes' },
+  { label: 'Carreras', href: '/carreras' },
+  { label: 'Contacto', href: '/contacto' },
+];
+---
+
+<!doctype html>
+<html lang="es" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Inter:wght@400;700;900&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
+    <link rel="stylesheet" href="/assets/globo/globo.css" />
+    <title>{title}</title>
+    <ClientRouter />
+  </head>
+
+  <body class="bg-surface-lowest text-on-surface">
+
+    <!-- ── Navigation (Glass Rail) ── -->
+    <header class="bg-surface-container/70 backdrop-blur-xl sticky top-0 z-50 w-full">
+      <nav class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+
+        <!-- Logo -->
+        <a href="/">
+          <img src="/img/logo-cas.svg" alt="CAS" class="h-10 w-auto" />
+        </a>
+
+        <!-- Desktop links -->
+        <div class="hidden md:flex gap-8 items-center">
+          {navLinks.map(link => (
+            <a
+              href={link.href}
+              class="font-['Space_Grotesk'] font-bold tracking-tighter text-outline hover:text-primary transition-colors duration-300"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+
+        <!-- CTA desktop -->
+        <button class="hidden md:block bg-primary-container text-on-primary-fixed font-['Space_Grotesk'] font-bold tracking-tighter px-6 py-2 hover:shadow-[0_0_20px_rgba(246,146,32,0.4)] transition-shadow">
+          Contacto
+        </button>
+
+        <!-- Hamburger (mobile) -->
+        <button id="hamburger" class="md:hidden flex flex-col gap-1.5 justify-center items-center p-2" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
+          <span class="ham-line"></span>
+          <span class="ham-line"></span>
+          <span class="ham-line"></span>
+        </button>
+      </nav>
+
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="md:hidden bg-surface-low/95 backdrop-blur-xl border-t border-outline-variant/20" style="max-height:0;overflow:hidden;transition:max-height 0.4s ease,opacity 0.3s ease;opacity:0;">
+        <div class="flex flex-col px-8 py-6 gap-6 max-w-screen-2xl mx-auto">
+          {navLinks.map(link => (
+            <a href={link.href} class="font-['Space_Grotesk'] font-bold tracking-tighter text-gray-300 hover:text-[#ffb876] transition-colors duration-300 text-lg">
+              {link.label}
+            </a>
+          ))}
+          <div class="pt-2 border-t border-outline-variant/20">
+            <button class="w-full bg-primary-container text-on-primary-fixed font-['Space_Grotesk'] font-bold tracking-tighter px-6 py-3 hover:shadow-[0_0_20px_rgba(246,146,32,0.4)] transition-all">
+              Contacto
+            </button>
+          </div>
+          </li>
+        </ul>
+      </div>
+    </header>
+
+    <!-- ── Page content ── -->
+    <main>
+      <slot />
+    </main>
+
+    <!-- ── Footer ── -->
+    <footer class="bg-surface-lowest relative overflow-hidden" id="contacto-footer">
+
+      <!-- CAS watermark -->
+      <div class="absolute inset-0 flex items-center justify-center select-none overflow-hidden pointer-events-none">
+        <span class="text-[12rem] md:text-[24rem] font-black leading-none text-white opacity-5 font-['Space_Grotesk']">CAS</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-16 px-12 py-24 w-full relative z-10">
+
+        <!-- Contacto / Oficinas -->
+        <div>
+          <h4 class="font-['Space_Grotesk'] font-black text-4xl text-primary-container mb-8">CONTACTO</h4>
+          <div class="space-y-6">
+            <div class="hover:translate-x-2 transition-transform duration-300">
+              <p class="font-['Space_Grotesk'] text-xs uppercase tracking-[0.2em] text-primary-container mb-1">Buenos Aires</p>
+              <p class="font-['Space_Grotesk'] text-gray-400 text-sm">Echeverría 760, Vte. López, Bs. As.</p>
+            </div>
+            <div class="hover:translate-x-2 transition-transform duration-300">
+              <p class="font-['Space_Grotesk'] text-xs uppercase tracking-[0.2em] text-primary-container mb-1">Ciudad de México</p>
+              <p class="font-['Space_Grotesk'] text-gray-400 text-sm">Av. Homero 1804, of. 204, Polanco, CDMX</p>
+            </div>
+            <div class="hover:translate-x-2 transition-transform duration-300">
+              <p class="font-['Space_Grotesk'] text-xs uppercase tracking-[0.2em] text-primary-container mb-1">Madrid</p>
+              <p class="font-['Space_Grotesk'] text-gray-400 text-sm">C/ O'Donnell N°14 enpta, 28009</p>
+            </div>
+            <div class="hover:translate-x-2 transition-transform duration-300">
+              <p class="font-['Space_Grotesk'] text-xs uppercase tracking-[0.2em] text-primary-container mb-1">Miami</p>
+              <p class="font-['Space_Grotesk'] text-gray-400 text-sm">1000 Brickell Ave, Suite 905, FL 33131</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navegación -->
+        <div>
+          <h4 class="font-['Space_Grotesk'] font-black text-xl text-white mb-8 uppercase tracking-widest">Navegación</h4>
+          <div class="flex flex-col gap-4">
+            {navLinks.map((link, i) => (
+              <a
+                href={link.href}
+                class={`font-['Space_Grotesk'] uppercase tracking-tight font-bold hover:text-primary-container transition-all ${i === 0 ? 'text-white' : 'text-gray-500'}`}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Seguinos -->
+        <div>
+          <h4 class="font-['Space_Grotesk'] font-black text-xl text-white mb-8 uppercase tracking-widest">Seguinos</h4>
+          <div class="flex flex-col gap-4">
+            <a class="font-['Space_Grotesk'] uppercase tracking-tight text-gray-500 hover:text-primary-container transition-all" href="https://www.instagram.com/contenidos.ad" target="_blank" rel="noopener">Instagram</a>
+            <a class="font-['Space_Grotesk'] uppercase tracking-tight text-gray-500 hover:text-primary-container transition-all" href="https://www.linkedin.com/company/contenidosad/" target="_blank" rel="noopener">LinkedIn</a>
+            <a class="font-['Space_Grotesk'] uppercase tracking-tight text-gray-500 hover:text-primary-container transition-all" href="https://contenidosad.com/careers/" target="_blank" rel="noopener">Carreras</a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="px-12 py-8 border-t border-white/5 relative z-10">
+        <p class="font-['Space_Grotesk'] text-[10px] uppercase tracking-[0.5em] text-gray-600">
+          © {new Date().getFullYear()} CAS - Contenidos Advertising. Todos los derechos reservados.
+        </p>
+      </div>
+
+    </footer>
+
+  </body>
+</html>
+
+<script>
+  // Mobile hamburger
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  hamburger?.addEventListener('click', () => {
+    const isOpen = mobileMenu?.classList.toggle('open') ?? false;
+    if (mobileMenu) {
+      mobileMenu.style.maxHeight = isOpen ? '500px' : '0';
+      mobileMenu.style.opacity = isOpen ? '1' : '0';
+    }
+    hamburger.classList.toggle('open', isOpen);
+    hamburger.setAttribute('aria-expanded', String(isOpen));
+  });
+  mobileMenu?.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.style.maxHeight = '0';
+      mobileMenu.style.opacity = '0';
+      hamburger?.classList.remove('open');
+      hamburger?.setAttribute('aria-expanded', 'false');
+    });
+  });
+</script>
+
+<style>
+  .ham-line {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: #e5e2e1;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform-origin: center;
+  }
+  #hamburger.open .ham-line:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+  #hamburger.open .ham-line:nth-child(2) { opacity: 0; }
+  #hamburger.open .ham-line:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+</style>

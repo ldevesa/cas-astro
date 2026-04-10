@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unseen Pro Visualizer - Fixed Proportions</title>
+    <style>
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            overflow: hidden; background-color: #000; 
+        }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        #ui {
+            position: absolute; top: 30px; left: 30px;
+            color: rgba(246, 146, 32, 0.5);
+            font-family: 'Courier New', monospace;
+            font-size: 10px; pointer-events: none;
+            text-transform: uppercase; letter-spacing: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">Source: Local_Video // Mode: ASCII_Dynamic_Matrix</div>
+    <canvas id="mainCanvas"></canvas>
+
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+
+        const canvas = document.querySelector('#mainCanvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+        const video = document.createElement('video');
+        video.src = 'Video.mp4';
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.crossOrigin = "anonymous";
+        
+        video.play().catch(() => {
+            window.addEventListener('click', () => video.play(), {once: true});
+        });
+
+        const videoTex = new THREE.VideoTexture(video);
+        videoTex.minFilter = THREE.NearestFilter;
+        videoTex.magFilter = THREE.NearestFilter;
+
+        // VERTEX SHADER: Solo maneja la posición del plano
+        const vertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = vec4(position, 1.0);
+            }
+        `;
+
+        // FRAGMENT SHADER: Maneja la proporción cuadrada de las letras y el cover del video
+        const fragmentShader = `
+            uniform sampler2D tVideo;
+            uniform vec2 uResolution;
+            uniform vec2 uVideoRes;
+            uniform float uTime;
+            uniform vec2 uMouse;
+            varying vec2 vUv;
+
+            /* float getChar(float b, vec2 uv, vec2 globalUv) {
+                // El ruido ahora usa la posición global para que cada celda sea única
+                float n = fract(sin(dot(floor(globalUv), vec2(12.9898, 78.233))) * 43758.5453);
+                float level = floor(b * 8.0 + n * 1.5); 
+                
+                if (level < 1.0) return 0.0;
+                if (level < 2.0) return step(0.45, length(uv - 0.5));
+                if (level < 3.0) return step(0.1, abs(uv.y - 0.5)) * step(0.4, abs(uv.x - 0.5));
+                if (level < 4.0) return step(0.2, abs(uv.x - 0.5 + uv.y - 0.5));
+                if (level < 6.0) return step(0.3, length(uv - 0.5)) - step(0.4, length(uv - 0.5));
+                if (level < 8.0) return step(0.1, max(abs(uv.x - 0.5), abs(uv.y - 0.5)));
+                return 1.0;
+            } */
+
+            float getChar(float b, vec2 uv, vec2 globalUv) {
+                // El radio del punto depende DIRECTAMENTE del brillo del píxel
+                // Si es oscuro, el radio es pequeño. Si es claro, el punto llena la celda.
+                float radius = (1.0 - b) * 0.5;
+                
+                // Dibujamos un círculo perfecto en el centro de la celda
+                return 1.0 - step(0.5 - radius, length(uv - 0.5));
+            }
+
+            /* float getChar(float b, vec2 uv, vec2 globalUv) {
+                // Umbral estricto: Si el brillo es menor a 0.5, es espacio vacío.
+                // Si es mayor, es un bloque sólido.
+                return step(0.5, b);
+            } */
+
+            /* float getChar(float b, vec2 uv, vec2 globalUv) {
+                float n = fract(sin(dot(floor(globalUv + uTime * 0.1), vec2(12.9898, 78.233))) * 43758.5453);
+                float level = floor(b * 5.0 + n * 0.5); 
+                
+                if (level < 1.0) return 0.0; // Espacio
+                if (level < 2.0) return step(0.3, length(uv - 0.5)) - step(0.4, length(uv - 0.5)); // Círculo "O"
+                if (level < 3.0) return step(0.1, abs(uv.y - 0.5)) + step(0.1, abs(uv.x - 0.5)); // Cruz "+"
+                if (level < 4.0) return step(0.2, abs(uv.x - 0.5 + uv.y - 0.5)) + step(0.2, abs(-uv.x + 0.5 + uv.y - 0.5)); // Equis "X"
+                return 1.0; // Bloque "#"
+            } */
+
+            void main() {
+                // 1. FORZAR CARACTERES CUADRADOS
+                float cellSize = 10.0;
+                // Calculamos cuántas celdas caben basándonos en píxeles reales, no en UVs 0-1
+                vec2 charGrid = uResolution / cellSize;
+                vec2 pc = fract(vUv * charGrid); // UV local de la letra (0 a 1)
+                vec2 gridId = floor(vUv * charGrid); // ID de la celda
+
+                // 2. LÓGICA DE VIDEO "COVER" DENTRO DEL SHADER
+                // Esto asegura que el video no se estire pero las letras sigan siendo cuadradas
+                float screenRatio = uResolution.x / uResolution.y;
+                float videoRatio = uVideoRes.x / uVideoRes.y;
+                vec2 uvVideo = vUv;
+
+                if (screenRatio > videoRatio) {
+                    float scale = videoRatio / screenRatio;
+                    uvVideo.y = (uvVideo.y - 0.5) * scale + 0.5;
+                } else {
+                    float scale = screenRatio / videoRatio;
+                    uvVideo.x = (uvVideo.x - 0.5) * scale + 0.5;
+                }
+
+                // Muestreamos el video usando el ID de la celda para que toda la letra tenga el mismo color
+                // Pero corregimos el muestreo con la lógica de aspect ratio anterior
+                vec2 sampleUv = gridId / charGrid;
+                if (screenRatio > videoRatio) {
+                    float scale = videoRatio / screenRatio;
+                    sampleUv.y = (sampleUv.y - 0.5) * scale + 0.5;
+                } else {
+                    float scale = screenRatio / videoRatio;
+                    sampleUv.x = (sampleUv.x - 0.5) * scale + 0.5;
+                }
+
+                vec4 col = texture2D(tVideo, sampleUv);
+                float gray = dot(col.rgb, vec3(0.299, 0.587, 0.114));
+
+                // Contraste y brillo
+                gray = smoothstep(0.1, 0.9, gray);
+                gray = pow(gray, 1.2); 
+
+                // Interacción Mouse
+                float mouseDist = distance(vUv, uMouse);
+                float mouseEffect = smoothstep(0.2, 0.0, mouseDist);
+                gray += mouseEffect * 0.3;
+
+                float char = getChar(gray, pc, gridId);
+
+                vec3 finalColor = vec3(1.0, 0.58, 0.0) * char * gray;
+                finalColor *= 0.95 + 0.05 * sin(uTime * 20.0);
+
+                gl_FragColor = vec4(finalColor, 1.0);
+            }
+        `;
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                tVideo: { value: videoTex },
+                uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                uVideoRes: { value: new THREE.Vector2(1280, 720) }, // Default 720p
+                uTime: { value: 0 },
+                uMouse: { value: new THREE.Vector2(0.5, 0.5) }
+            },
+            vertexShader,
+            fragmentShader
+        });
+
+        video.onloadedmetadata = () => {
+            material.uniforms.uVideoRes.value.set(video.videoWidth, video.videoHeight);
+        };
+
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+        scene.add(mesh);
+
+        function onResize() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            renderer.setSize(w, h);
+            material.uniforms.uResolution.value.set(w, h);
+        }
+
+        window.addEventListener('resize', onResize);
+        
+        window.addEventListener('mousemove', (e) => {
+            material.uniforms.uMouse.value.x = e.clientX / window.innerWidth;
+            material.uniforms.uMouse.value.y = 1.0 - (e.clientY / window.innerHeight);
+        });
+
+        function animate(time) {
+            requestAnimationFrame(animate);
+            material.uniforms.uTime.value = time * 0.001;
+            renderer.render(scene, camera);
+        }
+
+        onResize();
+        animate();
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            });
+        }, { threshold: 0.1 });
+
+        observer.observe(canvas);
+    </script>
+</body>
+</html>
