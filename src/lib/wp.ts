@@ -119,7 +119,6 @@ export function getStaticSiteData(): SiteData {
     socialLinks: [
       { platform: 'Instagram', url: 'https://www.instagram.com/contenidos.ad' },
       { platform: 'LinkedIn', url: 'https://www.linkedin.com/company/contenidosad/' },
-      { platform: 'Carreras', url: 'https://contenidosad.com/careers/' },
     ],
   };
 }
