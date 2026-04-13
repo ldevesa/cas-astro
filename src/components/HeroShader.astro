@@ -35,14 +35,18 @@
     // Limpiar instancia previa si existiera
     destroyHero();
 
-    // Dynamic import: Three.js se carga como chunk separado, no bloquea el render inicial
-    const THREE = await import('three');
+    // Dynamic import con named exports: Vite tree-shakes lo que no se usa
+    const {
+      WebGLRenderer, Scene, OrthographicCamera,
+      VideoTexture, NearestFilter,
+      ShaderMaterial, Vector2, Mesh, PlaneGeometry
+    } = await import('three');
 
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
+    renderer = new WebGLRenderer({ canvas, antialias: false });
     renderer.setPixelRatio(window.devicePixelRatio);
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const scene = new Scene();
+    const camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
     video = document.createElement('video');
     video.src = '/Video.mp4';
@@ -54,9 +58,9 @@
       window.addEventListener('click', () => video?.play(), { once: true });
     });
 
-    const videoTex = new THREE.VideoTexture(video);
-    videoTex.minFilter = THREE.NearestFilter;
-    videoTex.magFilter = THREE.NearestFilter;
+    const videoTex = new VideoTexture(video);
+    videoTex.minFilter = NearestFilter;
+    videoTex.magFilter = NearestFilter;
 
     const vertexShader = `
       varying vec2 vUv;
@@ -113,13 +117,13 @@
       }
     `;
 
-    const material = new THREE.ShaderMaterial({
+    const material = new ShaderMaterial({
       uniforms: {
         tVideo:      { value: videoTex },
-        uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-        uVideoRes:   { value: new THREE.Vector2(1280, 720) },
+        uResolution: { value: new Vector2(window.innerWidth, window.innerHeight) },
+        uVideoRes:   { value: new Vector2(1280, 720) },
         uTime:       { value: 0 },
-        uMouse:      { value: new THREE.Vector2(0.5, 0.5) },
+        uMouse:      { value: new Vector2(0.5, 0.5) },
       },
       vertexShader,
       fragmentShader,
@@ -129,7 +133,7 @@
       material.uniforms.uVideoRes.value.set(video!.videoWidth, video!.videoHeight);
     };
 
-    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+    scene.add(new Mesh(new PlaneGeometry(2, 2), material));
 
     resizeHandler = () => {
       const w = window.innerWidth;
