@@ -16,9 +16,11 @@
     "@astrojs/vercel": "^10.0.4",
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.1.5",
-    "tailwindcss": "^4.2.2"
+    "tailwindcss": "^4.2.2",
+    "three": "^0.183.2"
   },
   "devDependencies": {
-    "@types/node": "^25.6.0"
+    "@types/node": "^25.6.0",
+    "@types/three": "^0.183.1"
   }
 }
