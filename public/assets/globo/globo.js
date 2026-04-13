@@ -210,6 +210,9 @@
     showView("globo");
   }
 
+  // Exponer para que el loader lazy pueda llamarla después de cargar los scripts
+  window.initCasGlobe = initCasGlobe;
+
   // astro:page-load dispara en carga inicial y en cada navegación con View Transitions
   document.addEventListener("astro:page-load", initCasGlobe);
 })();
