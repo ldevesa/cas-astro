@@ -25,11 +25,7 @@ const { offices } = getStaticSiteData();
           <h2 class="font-['Space_Grotesk'] font-black text-3xl text-white tracking-tight mb-2">Conte-nos seu projeto</h2>
           <p class="font-['Plus_Jakarta_Sans'] text-gray-400 mb-10">Respondemos em menos de 24 horas úteis.</p>
 
-          <form action="https://formsubmit.co/info@contenidosad.com" method="POST" class="flex flex-col gap-6">
-            <input type="hidden" name="_subject" value="Nova mensagem do site CAS" />
-            <input type="hidden" name="_captcha" value="false" />
-            <input type="hidden" name="_next" value="https://contenidosad.com/gracias" />
-            <input type="text" name="_honey" style="display:none" />
+          <form id="contact-form" class="flex flex-col gap-6">
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
@@ -63,9 +59,10 @@ const { offices } = getStaticSiteData();
               <textarea name="mensagem" required rows="5" class="w-full bg-[#1a1a1a] border border-white/10 text-white font-['Plus_Jakarta_Sans'] px-4 py-3 rounded-xl focus:outline-none focus:border-[#F69220] transition-colors resize-none" placeholder="Conte-nos sobre seu projeto..."></textarea>
             </div>
 
-            <button type="submit" class="w-full bg-[#F69220] text-white font-['Space_Grotesk'] font-black uppercase tracking-widest py-4 rounded-xl hover:brightness-110 transition-all duration-300">
+            <button type="submit" id="submit-btn" class="w-full bg-[#F69220] text-white font-['Space_Grotesk'] font-black uppercase tracking-widest py-4 rounded-xl hover:brightness-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
               Enviar mensagem
             </button>
+            <p id="form-msg" class="hidden text-sm font-['Plus_Jakarta_Sans'] text-center"></p>
           </form>
         </div>
 
@@ -106,3 +103,32 @@ const { offices } = getStaticSiteData();
   </section>
 
 </Layout>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const btn  = document.getElementById('submit-btn') as HTMLButtonElement;
+  const msg  = document.getElementById('form-msg') as HTMLParagraphElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+    msg.className = 'hidden';
+
+    const res = await fetch('/api/contact', { method: 'POST', body: new FormData(form) });
+    const json = await res.json();
+
+    if (json.ok) {
+      msg.textContent = 'Mensagem enviada! Responderemos em breve.';
+      msg.className = 'text-sm font-[\'Plus_Jakarta_Sans\'] text-center text-green-400';
+      form.reset();
+      btn.textContent = 'Enviar mensagem';
+      btn.disabled = false;
+    } else {
+      msg.textContent = json.error ?? 'Ocorreu um erro. Tente novamente.';
+      msg.className = 'text-sm font-[\'Plus_Jakarta_Sans\'] text-center text-red-400';
+      btn.textContent = 'Enviar mensagem';
+      btn.disabled = false;
+    }
+  });
+</script>
