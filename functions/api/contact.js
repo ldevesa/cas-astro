@@ -5,11 +5,14 @@
 export async function onRequestPost({ request, env }) {
   const data = await request.formData();
 
-  const nombre   = data.get('nombre')?.trim()  ?? data.get('name')?.trim()    ?? '';
-  const empresa  = data.get('empresa')?.trim() ?? data.get('company')?.trim() ?? '';
-  const email    = data.get('email')?.trim()   ?? '';
-  const servicio = data.get('servicio')        ?? data.get('service')         ?? '';
-  const mensaje  = data.get('mensaje')?.trim() ?? data.get('message')?.trim() ?? '';
+  const nombre   = data.get('nombre')?.trim()   ?? data.get('name')?.trim()    ?? '';
+  const empresa  = data.get('empresa')?.trim()  ?? data.get('company')?.trim() ?? '';
+  const email    = data.get('email')?.trim()    ?? '';
+  const telefono = data.get('telefono')?.trim() ?? data.get('phone')?.trim()   ?? '';
+  const cargo    = data.get('cargo')?.trim()    ?? data.get('role')?.trim()    ?? '';
+  const pais     = data.get('pais')?.trim()     ?? data.get('country')?.trim() ?? '';
+  const servicio = data.get('servicio')         ?? data.get('service')         ?? '';
+  const mensaje  = data.get('mensaje')?.trim()  ?? data.get('message')?.trim() ?? '';
 
   if (!nombre || !email || !mensaje) {
     return Response.json({ ok: false, error: 'Faltan campos obligatorios.' }, { status: 400 });
@@ -37,7 +40,10 @@ export async function onRequestPost({ request, env }) {
     <table cellpadding="6" style="border-collapse:collapse;">
       <tr><td><strong>Nombre:</strong></td><td>${nombre}</td></tr>
       ${empresa  ? `<tr><td><strong>Empresa:</strong></td><td>${empresa}</td></tr>` : ''}
+      ${cargo    ? `<tr><td><strong>Cargo:</strong></td><td>${cargo}</td></tr>` : ''}
+      ${pais     ? `<tr><td><strong>País:</strong></td><td>${pais}</td></tr>` : ''}
       <tr><td><strong>Email:</strong></td><td>${email}</td></tr>
+      ${telefono ? `<tr><td><strong>Teléfono:</strong></td><td>${telefono}</td></tr>` : ''}
       ${servicio ? `<tr><td><strong>Servicio:</strong></td><td>${servicio}</td></tr>` : ''}
       <tr><td valign="top"><strong>Mensaje:</strong></td><td>${mensaje.replace(/\n/g, '<br>')}</td></tr>
     </table>

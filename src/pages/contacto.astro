@@ -69,6 +69,22 @@ const { offices } = getStaticSiteData();
               />
             </div>
 
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label class="block font-['Inter'] text-xs uppercase tracking-wider text-gray-500 mb-2">Teléfono</label>
+                <input type="tel" name="telefono" class="w-full bg-[#1a1a1a] border border-white/10 text-white font-['Plus_Jakarta_Sans'] px-4 py-3 rounded-xl focus:outline-none focus:border-[#F69220] transition-colors" placeholder="+54 11 0000-0000" />
+              </div>
+              <div>
+                <label class="block font-['Inter'] text-xs uppercase tracking-wider text-gray-500 mb-2">Cargo</label>
+                <input type="text" name="cargo" class="w-full bg-[#1a1a1a] border border-white/10 text-white font-['Plus_Jakarta_Sans'] px-4 py-3 rounded-xl focus:outline-none focus:border-[#F69220] transition-colors" placeholder="Tu cargo" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-['Inter'] text-xs uppercase tracking-wider text-gray-500 mb-2">País</label>
+              <input type="text" name="pais" class="w-full bg-[#1a1a1a] border border-white/10 text-white font-['Plus_Jakarta_Sans'] px-4 py-3 rounded-xl focus:outline-none focus:border-[#F69220] transition-colors" placeholder="Tu país" />
+            </div>
+
             <div>
               <label class="block font-['Inter'] text-xs uppercase tracking-wider text-gray-500 mb-2">¿Qué necesitás?</label>
               <select
@@ -97,7 +113,7 @@ const { offices } = getStaticSiteData();
             <button
               type="submit"
               id="submit-btn"
-              class="w-full bg-[#F69220] text-white font-['Space_Grotesk'] font-black uppercase tracking-widest py-4 rounded-xl hover:brightness-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full bg-[#F69220] text-white font-['Space_Grotesk'] font-black uppercase tracking-widest py-4 rounded-xl hover:brightness-110 transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Enviar mensaje
             </button>
@@ -180,6 +196,7 @@ const { offices } = getStaticSiteData();
       form.reset();
       btn.textContent = 'Enviar mensaje';
       btn.disabled = false;
+      setTimeout(() => { window.location.href = '/gracias'; }, 3000);
     } else {
       msg.textContent = json.error ?? 'Hubo un error. Intentá de nuevo.';
       msg.className = 'text-sm font-[\'Plus_Jakarta_Sans\'] text-center text-red-400';
