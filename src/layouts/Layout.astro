@@ -202,26 +202,30 @@ const siteData  = getStaticSiteData();
 </html>
 
 <script>
-  // Mobile hamburger
-  const hamburger = document.getElementById('hamburger');
-  const mobileMenu = document.getElementById('mobile-menu');
-  hamburger?.addEventListener('click', () => {
-    const isOpen = mobileMenu?.classList.toggle('open') ?? false;
-    if (mobileMenu) {
+  // Mobile hamburger — re-inicializar en cada navegación (View Transitions)
+  function initHamburger() {
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (!hamburger || !mobileMenu) return;
+
+    hamburger.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('open');
       mobileMenu.style.maxHeight = isOpen ? '600px' : '0';
       mobileMenu.style.opacity = isOpen ? '1' : '0';
-    }
-    hamburger.classList.toggle('open', isOpen);
-    hamburger.setAttribute('aria-expanded', String(isOpen));
-  });
-  mobileMenu?.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      mobileMenu.style.maxHeight = '0';
-      mobileMenu.style.opacity = '0';
-      hamburger?.classList.remove('open');
-      hamburger?.setAttribute('aria-expanded', 'false');
+      hamburger.classList.toggle('open', isOpen);
+      hamburger.setAttribute('aria-expanded', String(isOpen));
     });
-  });
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.style.maxHeight = '0';
+        mobileMenu.style.opacity = '0';
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initHamburger);
 </script>
 
 <style>
