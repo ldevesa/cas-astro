@@ -65,6 +65,12 @@ const t = {
       if (loaded) return;
       loaded = true;
 
+      // Cargar globo.css de forma no bloqueante
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/assets/globo/globo.css';
+      document.head.appendChild(link);
+
       const srcs = [
         'https://cdn.amcharts.com/lib/5/index.js',
         'https://cdn.amcharts.com/lib/5/map.js',
