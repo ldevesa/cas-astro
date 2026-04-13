@@ -1,0 +1,108 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getStaticSiteData } from '../../lib/wp';
+
+const { offices } = getStaticSiteData();
+---
+
+<Layout
+  title="Contact | CAS Contenidos Advertising"
+  description="Get in touch with CAS. Offices in Buenos Aires, Mexico City, Madrid and Miami."
+>
+
+  <section class="bg-[#0a0a0a] pt-16 pb-20 border-b border-white/5">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <p class="font-['Inter'] text-xs uppercase tracking-[0.4em] text-[#ffb876] mb-4">Let's connect</p>
+      <h1 class="font-['Space_Grotesk'] font-black text-6xl md:text-9xl tracking-tighter leading-[0.9] text-white">Contact</h1>
+    </div>
+  </section>
+
+  <section class="bg-[#131313] py-24">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+
+        <div>
+          <h2 class="font-['Space_Grotesk'] font-black text-3xl text-white tracking-tight mb-2">Tell us about your project</h2>
+          <p class="font-['Plus_Jakarta_Sans'] text-gray-400 mb-10">We respond within 24 business hours.</p>
+
+          <form action="https://formsubmit.co/info@contenidosad.com" method="POST" class="flex flex-col gap-6">
+            <input type="hidden" name="_subject" value="New message from the CAS website" />
+            <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_next" value="https://contentad.net/thank-you" />
+            <input type="text" name="_honey" style="display:none" />
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label class="block font-['Inter'] text-xs uppercase tracking-wider text-gray-500 mb-2">Name *</label>
+                <input type="text" name="name" required class="w-full bg-[#1a1a1a] border border-white/10 text-white font-['Plus_Jakarta_Sans'] px-4 py-3 rounded-xl focus:outline-none focus:border-[#F69220] transition-colors" placeholder="Your name" />
+              </div>
+              <div>
+                <label class="block font-['Inter'] text-xs uppercase tracking-wider text-gray-500 mb-2">Company</label>
+                <input type="text" name="company" class="w-full bg-[#1a1a1a] border border-white/10 text-white font-['Plus_Jakarta_Sans'] px-4 py-3 rounded-xl focus:outline-none focus:border-[#F69220] transition-colors" placeholder="Your company name" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-['Inter'] text-xs uppercase tracking-wider text-gray-500 mb-2">Email *</label>
+              <input type="email" name="email" required class="w-full bg-[#1a1a1a] border border-white/10 text-white font-['Plus_Jakarta_Sans'] px-4 py-3 rounded-xl focus:outline-none focus:border-[#F69220] transition-colors" placeholder="you@email.com" />
+            </div>
+
+            <div>
+              <label class="block font-['Inter'] text-xs uppercase tracking-wider text-gray-500 mb-2">What do you need?</label>
+              <select name="service" class="w-full bg-[#1a1a1a] border border-white/10 text-gray-400 font-['Plus_Jakarta_Sans'] px-4 py-3 rounded-xl focus:outline-none focus:border-[#F69220] transition-colors">
+                <option value="">Select a service</option>
+                <option value="experience">Brand Experience</option>
+                <option value="trade">Trade Marketing & Points of Sale</option>
+                <option value="digital">Digital Signage</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block font-['Inter'] text-xs uppercase tracking-wider text-gray-500 mb-2">Message *</label>
+              <textarea name="message" required rows="5" class="w-full bg-[#1a1a1a] border border-white/10 text-white font-['Plus_Jakarta_Sans'] px-4 py-3 rounded-xl focus:outline-none focus:border-[#F69220] transition-colors resize-none" placeholder="Tell us about your project..."></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-[#F69220] text-white font-['Space_Grotesk'] font-black uppercase tracking-widest py-4 rounded-xl hover:brightness-110 transition-all duration-300">
+              Send message
+            </button>
+          </form>
+        </div>
+
+        <div class="flex flex-col gap-12">
+          <div>
+            <h3 class="font-['Space_Grotesk'] font-black text-xl text-white uppercase tracking-widest mb-8">Our offices</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {offices.map(office => (
+                <div class="bg-[#111111] border border-white/5 rounded-2xl p-6 hover:border-[#F69220]/30 transition-colors duration-300">
+                  <p class="font-['Space_Grotesk'] text-xs uppercase tracking-[0.2em] text-[#ffb876] mb-2">{office.city}</p>
+                  <p class="font-['Plus_Jakarta_Sans'] text-gray-400 text-sm leading-relaxed">{office.address}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div class="bg-[#111111] border border-white/5 rounded-2xl p-8">
+            <h3 class="font-['Space_Grotesk'] font-black text-xl text-white mb-4">Direct contact</h3>
+            <div class="flex flex-col gap-4">
+              <a href="mailto:info@contenidosad.com" class="flex items-center gap-3 font-['Plus_Jakarta_Sans'] text-gray-400 hover:text-[#ffb876] transition-colors">
+                <span class="material-symbols-outlined text-xl text-[#F69220]">mail</span>
+                info@contenidosad.com
+              </a>
+              <a href="https://www.linkedin.com/company/contenidosad/" target="_blank" rel="noopener" class="flex items-center gap-3 font-['Plus_Jakarta_Sans'] text-gray-400 hover:text-[#ffb876] transition-colors">
+                <span class="material-symbols-outlined text-xl text-[#F69220]">open_in_new</span>
+                LinkedIn
+              </a>
+              <a href="https://www.instagram.com/contenidos.ad" target="_blank" rel="noopener" class="flex items-center gap-3 font-['Plus_Jakarta_Sans'] text-gray-400 hover:text-[#ffb876] transition-colors">
+                <span class="material-symbols-outlined text-xl text-[#F69220]">photo_camera</span>
+                Instagram
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</Layout>

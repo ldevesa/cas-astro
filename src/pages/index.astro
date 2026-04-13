@@ -91,7 +91,7 @@ const casos = await getCasos('es', 6);
     <div class="relative z-10 w-full max-w-6xl px-8 text-center">
       <p class="font-['Inter'] text-xs uppercase tracking-[0.4em] text-[#ffb876] mb-16 opacity-60">Qué Hacemos</p>
       <ul class="flex flex-col items-center gap-2">
-        <li class="service-item-trigger group py-4 w-full border-b border-white/10" data-target="bg-experience">
+        <a href="/experiencia-de-marca" class="service-item-trigger group py-4 w-full border-b border-white/10 block" data-target="bg-experience">
           <div class="flex items-center justify-between max-w-4xl mx-auto px-4">
             <span class="font-['Space_Grotesk'] text-5xl md:text-8xl font-bold tracking-tighter text-white/40 group-hover:text-white transition-all duration-500 group-hover:translate-x-4">Experience</span>
             <div class="opacity-0 group-hover:opacity-100 transition-all duration-500 text-right">
@@ -99,8 +99,8 @@ const casos = await getCasos('es', 6);
               <p class="font-['Plus_Jakarta_Sans'] text-sm text-white/60 max-w-xs">Realidades inmersivas físicas y digitales que redefinen la interacción humana.</p>
             </div>
           </div>
-        </li>
-        <li class="service-item-trigger group py-4 w-full border-b border-white/10" data-target="bg-trade">
+        </a>
+        <a href="/trade-marketing" class="service-item-trigger group py-4 w-full border-b border-white/10 block" data-target="bg-trade">
           <div class="flex items-center justify-between max-w-4xl mx-auto px-4">
             <span class="font-['Space_Grotesk'] text-5xl md:text-8xl font-bold tracking-tighter text-white/40 group-hover:text-white transition-all duration-500 group-hover:translate-x-4">Trade</span>
             <div class="opacity-0 group-hover:opacity-100 transition-all duration-500 text-right">
@@ -108,8 +108,8 @@ const casos = await getCasos('es', 6);
               <p class="font-['Plus_Jakarta_Sans'] text-sm text-white/60 max-w-xs">Estrategias comerciales de alta velocidad que disruptan el equilibrio del mercado.</p>
             </div>
           </div>
-        </li>
-        <li class="service-item-trigger group py-4 w-full" data-target="bg-digital">
+        </a>
+        <a href="/carteleria" class="service-item-trigger group py-4 w-full block" data-target="bg-digital">
           <div class="flex items-center justify-between max-w-4xl mx-auto px-4">
             <span class="font-['Space_Grotesk'] text-5xl md:text-8xl font-bold tracking-tighter text-white/40 group-hover:text-white transition-all duration-500 group-hover:translate-x-4">Digital</span>
             <div class="opacity-0 group-hover:opacity-100 transition-all duration-500 text-right">
@@ -117,8 +117,79 @@ const casos = await getCasos('es', 6);
               <p class="font-['Plus_Jakarta_Sans'] text-sm text-white/60 max-w-xs">Arquitectura next-gen para la web descentralizada y conectada.</p>
             </div>
           </div>
-        </li>
+        </a>
       </ul>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       NOSOTROS
+  ══════════════════════════════════════════════ -->
+  <section class="bg-surface-lowest py-32 border-y border-white/5" id="nosotros">
+    <div class="max-w-screen-2xl mx-auto px-8">
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
+
+        <!-- Texto principal -->
+        <div>
+          <p class="font-['Inter'] text-xs uppercase tracking-[0.4em] text-[#ffb876] mb-6">Quiénes somos</p>
+          <h2 class="font-['Space_Grotesk'] font-black text-5xl md:text-7xl tracking-tighter leading-[0.9] text-white mb-10">
+            Somos CAS.
+          </h2>
+          <div class="space-y-6 font-['Plus_Jakarta_Sans'] text-gray-400 text-lg leading-relaxed">
+            <p>
+              Somos una agencia de comunicación especializada en <strong class="text-white">experiencias de marca, trade marketing y cartelería digital</strong>. Trabajamos con las marcas más exigentes del mundo para crear momentos que la gente recuerda.
+            </p>
+            <p>
+              Nacimos en Buenos Aires y hoy operamos con equipos propios en <strong class="text-white">Argentina, México, España y Estados Unidos</strong>. Esa presencia regional nos permite ejecutar proyectos de escala global con conocimiento local.
+            </p>
+            <p>
+              No tercerizamos la creatividad ni la producción. Todo nace y se ejecuta dentro de CAS, lo que nos da control total sobre cada detalle de cada proyecto.
+            </p>
+          </div>
+        </div>
+
+        <!-- Equipo / números -->
+        <div class="flex flex-col gap-6">
+
+          <!-- Stats -->
+          <div class="grid grid-cols-2 gap-4">
+            {[
+              { num: '+25', label: 'Años de experiencia' },
+              { num: '+38', label: 'Marcas en cartera' },
+              { num: '4', label: 'Oficinas propias' },
+              { num: '3', label: 'Disciplinas integradas' },
+            ].map(stat => (
+              <div class="bg-[#131313] border border-white/5 rounded-2xl p-8">
+                <p class="font-['Space_Grotesk'] font-black text-5xl text-[#F69220] tracking-tight mb-1">{stat.num}</p>
+                <p class="font-['Inter'] text-xs uppercase tracking-wider text-gray-500">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <!-- Perfiles del equipo -->
+          <div class="bg-[#131313] border border-white/5 rounded-2xl p-8">
+            <h3 class="font-['Space_Grotesk'] font-black text-xl text-white mb-6 uppercase tracking-widest">Nuestro equipo</h3>
+            <div class="flex flex-col gap-4">
+              {[
+                { area: 'Estrategia & Cuentas', desc: 'Directores de marca y planners que entienden el negocio del cliente.' },
+                { area: 'Creatividad', desc: 'Directores de arte, diseñadores y conceptualistas.' },
+                { area: 'Producción', desc: 'Productores, proveedores y técnicos especializados.' },
+                { area: 'Tecnología', desc: 'Desarrolladores e integradores de sistemas digitales.' },
+              ].map(perfil => (
+                <div class="flex gap-4 items-start pb-4 border-b border-white/5 last:border-0 last:pb-0">
+                  <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#F69220] shrink-0"></span>
+                  <div>
+                    <p class="font-['Space_Grotesk'] font-bold text-white text-sm">{perfil.area}</p>
+                    <p class="font-['Plus_Jakarta_Sans'] text-gray-500 text-sm mt-0.5">{perfil.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   </section>
 

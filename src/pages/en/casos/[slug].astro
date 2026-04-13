@@ -1,0 +1,148 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import {
+  getAllCasos, getCasoBySlug, type WPCaso,
+  getCasoImage, getCasoImageAlt,
+  getCasoResumen, getCasoSubtitulo, getCasoMercado, getCasoYoutubeId, getCasoGallery,
+} from '../../../lib/wp';
+
+export async function getStaticPaths() {
+  const casos = await getAllCasos('en');
+  return casos.map((c, i) => ({
+    params: { slug: decodeURIComponent(c.slug) },
+    props: {
+      relatedSlugs: [...casos.slice(0, i), ...casos.slice(i + 1)]
+        .slice(0, 3)
+        .map(r => decodeURIComponent(r.slug)),
+    },
+  }));
+}
+
+interface Props { relatedSlugs?: string[]; }
+const { relatedSlugs = [] } = Astro.props;
+const { slug } = Astro.params;
+
+const [caso, ...relatedResults] = await Promise.all([
+  getCasoBySlug(slug, 'en'),
+  ...relatedSlugs.map((s: string) => getCasoBySlug(s, 'en')),
+]);
+
+if (!caso) return Astro.redirect('/en/casos');
+
+const related = relatedResults.filter((c): c is WPCaso => c !== null && c !== undefined);
+const heroImg     = getCasoImage(caso);
+const heroAlt     = getCasoImageAlt(caso);
+const title       = caso.title.rendered;
+const ogImage     = caso.yoast_head_json?.og_image?.[0]?.url ?? heroImg;
+const description = caso.yoast_head_json?.og_description ?? caso.excerpt.rendered.replace(/<[^>]+>/g, '').trim();
+const resumen     = getCasoResumen(caso);
+const subtitulo   = getCasoSubtitulo(caso);
+const mercado     = getCasoMercado(caso);
+const youtubeId   = getCasoYoutubeId(caso);
+const gallery     = getCasoGallery(caso);
+---
+
+<Layout title={`${title} — CAS`} description={description} ogImage={ogImage}>
+
+  <section class="relative w-full h-[70vh] min-h-120 flex items-end overflow-hidden">
+    <img src={heroImg} alt={heroAlt} class="absolute inset-0 w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-linear-to-t from-surface-lowest via-surface-lowest/60 to-transparent"></div>
+    <div class="relative z-10 w-full max-w-screen-2xl mx-auto px-8 pb-16">
+      <a href="/en/casos" class="inline-flex items-center gap-2 font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-6 opacity-70 hover:opacity-100 transition-opacity">
+        <span class="material-symbols-outlined text-sm leading-none">arrow_back</span>
+        All cases
+      </a>
+      <h1 class="font-['Space_Grotesk'] font-black text-4xl md:text-6xl lg:text-7xl tracking-[-0.04em] leading-[0.95] text-white max-w-4xl" set:html={title} />
+      {subtitulo && <p class="mt-4 font-['Plus_Jakarta_Sans'] text-lg md:text-xl text-white/60">{subtitulo}</p>}
+    </div>
+  </section>
+
+  <section class="bg-surface-lowest py-20 md:py-28">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+        <div class="lg:col-span-7 flex flex-col gap-10">
+          <div>
+            <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-6 opacity-70">About the case</p>
+            <div class="font-['Plus_Jakarta_Sans'] text-xl md:text-2xl lg:text-[1.65rem] text-white/80 leading-[1.55] caso-content" set:html={caso.content.rendered} />
+          </div>
+          {resumen && (
+            <div>
+              <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-6 opacity-70">Summary</p>
+              <p class="font-['Plus_Jakarta_Sans'] text-lg md:text-xl text-white/60 leading-[1.6]">{resumen}</p>
+            </div>
+          )}
+        </div>
+        <aside class="lg:col-span-5 flex flex-col gap-8 lg:sticky lg:top-28">
+          {mercado && (
+            <div class="border-l-2 border-[#ffb876]/40 pl-6">
+              <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-2 opacity-70">Market</p>
+              <p class="font-['Space_Grotesk'] text-2xl font-bold text-white">{mercado}</p>
+            </div>
+          )}
+          <div class="overflow-hidden rounded-2xl aspect-4/3">
+            <img src={heroImg} alt={heroAlt} class="w-full h-full object-cover" loading="eager" />
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  {youtubeId && (
+    <section class="bg-surface-lowest pb-20 md:pb-28">
+      <div class="max-w-screen-2xl mx-auto px-8">
+        <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-8 opacity-70">Video</p>
+        <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-black">
+          <iframe src={`https://www.youtube.com/embed/${youtubeId}?rel=0&modestbranding=1`} title={title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="absolute inset-0 w-full h-full" loading="lazy" />
+        </div>
+      </div>
+    </section>
+  )}
+
+  {gallery.length > 0 && (
+    <section class="bg-surface-lowest pb-20 md:pb-28">
+      <div class="max-w-screen-2xl mx-auto px-8">
+        <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-8 opacity-70">Gallery</p>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+          {gallery.map((img, i) => (
+            <div class={`overflow-hidden rounded-xl bg-[#131313] ${i === 0 ? 'col-span-2 md:col-span-2 aspect-video' : 'aspect-4/3'}`}>
+              <img src={img} alt={`${title} — photo ${i + 1}`} class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {related.length > 0 && (
+    <section class="bg-[#131313] py-20 md:py-28 border-t border-white/5">
+      <div class="max-w-screen-2xl mx-auto px-8">
+        <div class="flex justify-between items-end mb-14">
+          <div>
+            <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-3 opacity-70">Keep exploring</p>
+            <h2 class="font-['Space_Grotesk'] text-3xl md:text-5xl font-black tracking-tight text-white leading-[0.95]">More cases</h2>
+          </div>
+          <a href="/en/casos" class="hidden md:inline-flex items-center gap-2 text-on-surface-variant font-['Inter'] text-sm uppercase tracking-[0.2em] hover:text-[#ffb876] transition-colors">
+            View all <span class="material-symbols-outlined text-base leading-none">arrow_forward</span>
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {related.map((c: WPCaso) => (
+            <a href={`/en/casos/${c.slug}`} class="group block">
+              <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-5">
+                <img src={getCasoImage(c)} alt={getCasoImageAlt(c)} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+              </div>
+              <h3 class="font-['Space_Grotesk'] text-xl font-bold tracking-tight text-white group-hover:text-[#ffb876] transition-colors" set:html={c.title.rendered} />
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+</Layout>
+
+<style>
+  .caso-content :global(p) { margin-bottom: 1.25em; }
+  .caso-content :global(span) { font-weight: inherit !important; }
+</style>

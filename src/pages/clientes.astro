@@ -1,0 +1,74 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getClientes, getClienteLogo } from '../lib/wp';
+
+const clientes = await getClientes('es');
+const clientesConLogo = clientes.filter(c => getClienteLogo(c));
+---
+
+<Layout
+  title="Clientes | CAS Contenidos Advertising"
+  description="Más de 38 marcas líderes confían en CAS para sus experiencias de marca, trade marketing y cartelería digital."
+>
+
+  <!-- Hero -->
+  <section class="relative min-h-[50vh] flex items-end pb-20 overflow-hidden bg-black">
+    <div class="absolute inset-0 bg-[#0a0a0a]"></div>
+    <div class="absolute inset-0 flex items-center justify-center select-none pointer-events-none overflow-hidden">
+      <span class="text-[20rem] font-black leading-none text-white opacity-[0.03] font-['Space_Grotesk']">CAS</span>
+    </div>
+    <div class="relative z-10 max-w-screen-2xl mx-auto px-8 w-full">
+      <p class="font-['Inter'] text-xs uppercase tracking-[0.4em] text-[#ffb876] mb-4">Quienes confían en nosotros</p>
+      <h1 class="font-['Space_Grotesk'] font-black text-6xl md:text-9xl tracking-tighter leading-[0.9] text-white">
+        Clientes
+      </h1>
+    </div>
+  </section>
+
+  <!-- Contador -->
+  <section class="bg-[#F69220] py-8">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <p class="font-['Space_Grotesk'] font-black text-2xl text-white tracking-tight">
+        {clientesConLogo.length}+ marcas líderes en Argentina, México, España y Miami
+      </p>
+    </div>
+  </section>
+
+  <!-- Grid de logos -->
+  <section class="bg-[#131313] py-24">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-px bg-white/5">
+        {clientesConLogo.map(cliente => (
+          <div class="group bg-[#131313] hover:bg-[#1a1a1a] transition-colors duration-300 p-8 flex items-center justify-center aspect-square">
+            <img
+              src={getClienteLogo(cliente)}
+              alt={cliente.title.rendered}
+              title={cliente.title.rendered}
+              class="w-full max-w-[120px] h-auto object-contain opacity-50 group-hover:opacity-100 transition-opacity duration-300 filter grayscale group-hover:grayscale-0"
+              loading="lazy"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA casos -->
+  <section class="bg-[#0e0e0e] py-24 border-t border-white/5">
+    <div class="max-w-screen-2xl mx-auto px-8 text-center">
+      <h2 class="font-['Space_Grotesk'] font-black text-4xl md:text-6xl tracking-tight text-white leading-[0.95] mb-6">
+        Conocé los proyectos
+      </h2>
+      <p class="font-['Plus_Jakarta_Sans'] text-gray-400 text-lg mb-10 max-w-xl mx-auto">
+        Cada marca tiene su historia. Mirá cómo ayudamos a nuestros clientes a conectar con sus audiencias.
+      </p>
+      <a
+        href="/casos"
+        class="inline-block bg-white text-black font-['Space_Grotesk'] font-black uppercase tracking-widest px-12 py-5 hover:bg-[#ffb876] transition-all duration-300"
+      >
+        Ver casos
+      </a>
+    </div>
+  </section>
+
+</Layout>

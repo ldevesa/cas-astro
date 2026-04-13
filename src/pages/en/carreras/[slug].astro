@@ -1,0 +1,72 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCarreras, getCarreraBySlug } from '../../../lib/wp';
+
+export async function getStaticPaths() {
+  const carreras = await getCarreras('en');
+  return carreras.map(c => ({ params: { slug: c.slug } }));
+}
+
+const { slug } = Astro.params;
+const carrera = await getCarreraBySlug(slug, 'en');
+if (!carrera) return Astro.redirect('/en/carreras');
+
+const categoriaLabel: Record<string, string> = { junior: 'Junior', semi: 'Mid-Level', senior: 'Senior' };
+const tipoLabel: Record<string, string> = { fulltime: 'Full Time', parttime: 'Part Time', freelance: 'Freelance' };
+---
+
+<Layout
+  title={`${carrera.title.rendered} | CAS Careers`}
+  description={`Open position at CAS: ${carrera.title.rendered}. ${carrera.acf?.area_trabajo ?? ''} · ${carrera.acf?.tipo ?? ''}`}
+>
+
+  <section class="bg-[#0a0a0a] pt-16 pb-12 border-b border-white/5">
+    <div class="max-w-screen-xl mx-auto px-8">
+      <a href="/en/carreras" class="inline-flex items-center gap-2 font-['Inter'] text-xs uppercase tracking-wider text-gray-500 hover:text-[#ffb876] transition-colors mb-12">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Careers
+      </a>
+      <div class="flex flex-wrap gap-2 mb-6">
+        {carrera.acf?.area_trabajo && <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{carrera.acf.area_trabajo}</span>}
+        {carrera.acf?.categoria && <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{categoriaLabel[carrera.acf.categoria] ?? carrera.acf.categoria}</span>}
+        {carrera.acf?.tipo && <span class="font-['Inter'] text-xs uppercase tracking-wider px-3 py-1 rounded-full" style="color: #F69220; border: 1px solid rgba(246,146,32,0.3);">{tipoLabel[carrera.acf.tipo] ?? carrera.acf.tipo}</span>}
+      </div>
+      <h1 class="font-['Space_Grotesk'] font-black text-4xl md:text-6xl tracking-tight leading-[0.95] text-white" set:html={carrera.title.rendered} />
+    </div>
+  </section>
+
+  <section class="bg-[#131313] py-16">
+    <div class="max-w-screen-xl mx-auto px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-16">
+        <div class="lg:col-span-2">
+          <div class="prose prose-invert prose-lg max-w-none prose-headings:font-['Space_Grotesk'] prose-headings:font-black prose-headings:tracking-tight prose-p:font-['Plus_Jakarta_Sans'] prose-p:text-gray-300 prose-p:leading-relaxed prose-li:font-['Plus_Jakarta_Sans'] prose-li:text-gray-300 prose-strong:text-white prose-strong:font-bold prose-a:text-[#ffb876] prose-a:no-underline hover:prose-a:underline" set:html={carrera.content.rendered} />
+        </div>
+        <aside class="lg:col-span-1">
+          <div class="sticky top-28 bg-[#111111] border border-white/10 rounded-2xl p-8">
+            <h3 class="font-['Space_Grotesk'] font-black text-xl text-white mb-2">Interested?</h3>
+            <p class="font-['Plus_Jakarta_Sans'] text-gray-400 text-sm mb-8 leading-relaxed">
+              Send us your CV and tell us why you are the right person for this role.
+            </p>
+            <a
+              href={`mailto:rrhh@contenidosad.com?subject=Application: ${carrera.title.rendered}`}
+              class="block text-center bg-[#F69220] text-white font-['Space_Grotesk'] font-black uppercase tracking-widest px-6 py-4 hover:brightness-110 transition-all duration-300 rounded-xl mb-4"
+            >Apply now</a>
+            <a href="/en/carreras" class="block text-center border border-white/10 text-gray-400 font-['Space_Grotesk'] font-bold uppercase tracking-wider text-sm px-6 py-3 hover:border-white/30 hover:text-white transition-all duration-300 rounded-xl">
+              View all positions
+            </a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<style is:global>
+  .prose ul { padding-left: 1.25rem; }
+  .prose ul li { list-style-type: disc; }
+  .prose ul li::marker { color: #F69220; }
+  .prose h2 { font-size: 1.5rem; margin-top: 2.5rem; margin-bottom: 1rem; color: white; }
+  .prose h3 { font-size: 1.2rem; margin-top: 2rem; margin-bottom: 0.75rem; color: white; }
+  .prose p { margin-bottom: 1rem; }
+</style>

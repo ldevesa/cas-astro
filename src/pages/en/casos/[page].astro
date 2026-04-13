@@ -1,0 +1,55 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCasosPage, getCasoImage, getCasoImageAlt } from '../../../lib/wp';
+
+export async function getStaticPaths() {
+  const { totalPages } = await getCasosPage(1, 6, 'en');
+  return Array.from({ length: totalPages }, (_, i) => ({
+    params: { page: String(i + 1) },
+  }));
+}
+
+const currentPage = parseInt(Astro.params.page, 10);
+const PER_PAGE = 6;
+const { casos, total, totalPages } = await getCasosPage(currentPage, PER_PAGE, 'en');
+const hasPrev = currentPage > 1;
+const hasNext = currentPage < totalPages;
+const prevUrl = currentPage === 2 ? '/en/casos' : `/en/casos/${currentPage - 1}`;
+const nextUrl = `/en/casos/${currentPage + 1}`;
+---
+
+<Layout title={`Cases — Page ${currentPage} | CAS`} description="Explore all cases and works by CAS.">
+  <section class="bg-[#131313] pt-32 pb-24">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <div class="mb-16">
+        <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-4">Work</p>
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <h1 class="font-['Space_Grotesk'] text-4xl md:text-6xl font-black tracking-tight text-white leading-[0.95]">Cases</h1>
+          <p class="font-['Inter'] text-xs uppercase tracking-[0.2em] text-gray-500">{total} works · page {currentPage} of {totalPages}</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {casos.map(caso => (
+          <a href={`/en/casos/${caso.slug}`} class="case-card group block">
+            <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-6">
+              <img alt={getCasoImageAlt(caso)} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={getCasoImage(caso)} loading="lazy" />
+            </div>
+            <div class="space-y-2">
+              <h2 class="font-['Space_Grotesk'] text-2xl font-bold tracking-tight text-white group-hover:text-[#ffb876] transition-colors" set:html={caso.title.rendered} />
+              {caso.excerpt.rendered && <p class="text-gray-500 text-sm font-['Plus_Jakarta_Sans'] line-clamp-2" set:html={caso.excerpt.rendered} />}
+            </div>
+          </a>
+        ))}
+      </div>
+      <nav class="mt-20 flex items-center justify-center gap-3">
+        {hasPrev ? <a href={prevUrl} class="font-['Space_Grotesk'] font-bold uppercase tracking-widest text-xs px-6 py-3 border border-white/20 text-white hover:border-[#ffb876] hover:text-[#ffb876] transition-all">← Previous</a> : <span class="font-['Space_Grotesk'] font-bold uppercase tracking-widest text-xs px-6 py-3 border border-white/5 text-gray-700 cursor-not-allowed">← Previous</span>}
+        <div class="flex gap-2">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+            <a href={n === 1 ? '/en/casos' : `/en/casos/${n}`} class={`w-10 h-10 flex items-center justify-center font-['Space_Grotesk'] font-bold text-sm transition-all ${n === currentPage ? 'bg-[#f69220] text-black' : 'border border-white/20 text-gray-400 hover:border-[#ffb876] hover:text-[#ffb876]'}`}>{n}</a>
+          ))}
+        </div>
+        {hasNext ? <a href={nextUrl} class="font-['Space_Grotesk'] font-bold uppercase tracking-widest text-xs px-6 py-3 border border-white/20 text-white hover:border-[#ffb876] hover:text-[#ffb876] transition-all">Next →</a> : <span class="font-['Space_Grotesk'] font-bold uppercase tracking-widest text-xs px-6 py-3 border border-white/5 text-gray-700 cursor-not-allowed">Next →</span>}
+      </nav>
+    </div>
+  </section>
+</Layout>

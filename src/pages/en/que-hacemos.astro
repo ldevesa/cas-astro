@@ -1,0 +1,132 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const services = [
+  {
+    id: 'experience',
+    num: '01',
+    label: 'Experience',
+    title: 'Brand Experience',
+    href: '/en/experiencia-de-marca',
+    color: '#F69220',
+    description: 'We create moments people want to live and share. We design activations, events, and immersive experiences that emotionally connect brands with their audiences in the real world.',
+    bullets: [
+      'BTL activations and events',
+      'Immersive and interactive installations',
+      'Pop-ups and brand spaces',
+      'Product launches',
+      'Point-of-sale experiences',
+    ],
+    video: '/video/experience.mp4',
+  },
+  {
+    id: 'trade',
+    num: '02',
+    label: 'Trade',
+    title: 'Trade Marketing & Points of Sale',
+    href: '/en/trade-marketing',
+    color: '#EA2227',
+    description: 'We transform every commercial touchpoint into a connection opportunity. We develop strategies and materials that drive purchase decisions and strengthen brand presence in the channel.',
+    bullets: [
+      'POP materials design and production',
+      'Display strategy and merchandising',
+      'Channel training and activation',
+      'Sales force incentive programs',
+      'Point-of-sale audits and follow-up',
+    ],
+    video: '/video/trade.mp4',
+  },
+  {
+    id: 'digital',
+    num: '03',
+    label: 'Digital',
+    title: 'Digital Signage',
+    href: '/en/carteleria',
+    color: '#F69220',
+    description: 'We take visual communication to the next level. We design and implement digital signage solutions that elevate the experience in physical spaces, from single screens to networks of hundreds of displays.',
+    bullets: [
+      'Content design for digital screens',
+      'Digital signage network installation and management',
+      'Content management software (CMS)',
+      'Real-time data integration',
+      'Maintenance and technical support',
+    ],
+    video: '/video/digital.mp4',
+  },
+];
+---
+
+<Layout
+  title="What We Do | CAS Contenidos Advertising"
+  description="Brand Experience, Trade Marketing and Digital Signage. We connect brands with consumers through memorable experiences."
+>
+
+  <section class="relative min-h-[60vh] flex items-end pb-20 overflow-hidden bg-black">
+    <div class="absolute inset-0">
+      <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-30">
+        <source src="/video/experience.mp4" type="video/mp4" />
+      </video>
+      <div class="absolute inset-0 bg-linear-to-t from-black via-black/60 to-black/30"></div>
+    </div>
+    <div class="relative z-10 max-w-screen-2xl mx-auto px-8 w-full">
+      <p class="font-['Inter'] text-xs uppercase tracking-[0.4em] text-[#ffb876] mb-4">What we do</p>
+      <h1 class="font-['Space_Grotesk'] font-black text-6xl md:text-9xl tracking-tighter leading-[0.9] text-white">What We<br />Do</h1>
+    </div>
+  </section>
+
+  <section class="bg-[#131313] py-20 border-b border-white/5">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <p class="font-['Plus_Jakarta_Sans'] text-xl md:text-2xl text-gray-300 leading-relaxed max-w-3xl">
+        At CAS we work across three disciplines that complement each other to create
+        complete communication ecosystems. Each project integrates strategy,
+        creativity, and top-tier execution.
+      </p>
+    </div>
+  </section>
+
+  {services.map((s, i) => (
+    <section class={`${i % 2 === 0 ? 'bg-surface-lowest' : 'bg-[#131313]'} py-24 border-b border-white/5`} id={s.id}>
+      <div class="max-w-screen-2xl mx-auto px-8">
+        <div class={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${i % 2 !== 0 ? 'lg:[direction:rtl]' : ''}`}>
+          <div class="relative aspect-video rounded-2xl overflow-hidden lg:[direction:ltr]">
+            <video autoplay muted loop playsinline class="w-full h-full object-cover">
+              <source src={s.video} type="video/mp4" />
+            </video>
+            <div class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
+            <div class="absolute bottom-6 left-6">
+              <span class="font-['Inter'] text-xs uppercase tracking-[0.4em]" style={`color: ${s.color}`}>{s.num}</span>
+              <p class="font-['Space_Grotesk'] font-black text-4xl text-white tracking-tighter">{s.label}</p>
+            </div>
+          </div>
+          <div class="lg:[direction:ltr]">
+            <h2 class="font-['Space_Grotesk'] font-black text-4xl md:text-5xl tracking-tight leading-[0.95] text-white mb-6">{s.title}</h2>
+            <p class="font-['Plus_Jakarta_Sans'] text-lg text-gray-400 leading-relaxed mb-10">{s.description}</p>
+            <ul class="flex flex-col gap-3 mb-10">
+              {s.bullets.map(b => (
+                <li class="flex items-start gap-3 font-['Plus_Jakarta_Sans'] text-gray-300 text-sm">
+                  <span class="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={`background: ${s.color}`}></span>
+                  {b}
+                </li>
+              ))}
+            </ul>
+            <a href={s.href} class="inline-flex items-center gap-2 font-['Space_Grotesk'] font-bold text-sm uppercase tracking-widest hover:gap-4 transition-all duration-300" style={`color: ${s.color}`}>
+              Learn more <span class="material-symbols-outlined text-base">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <section class="bg-[#F69220] py-24">
+    <div class="max-w-screen-2xl mx-auto px-8 text-center">
+      <h2 class="font-['Space_Grotesk'] font-black text-5xl md:text-7xl tracking-tighter text-white leading-[0.9] mb-10">
+        Have a project<br />in mind?
+      </h2>
+      <a href="/en/contacto" class="inline-block bg-black text-white font-['Space_Grotesk'] font-black uppercase tracking-widest px-12 py-5 hover:bg-white hover:text-black transition-all duration-300">
+        Let's talk
+      </a>
+    </div>
+  </section>
+
+</Layout>

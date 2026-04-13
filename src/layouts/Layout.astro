@@ -1,6 +1,9 @@
 ---
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
+import { getStaticSiteData } from '../lib/wp';
+import { useTranslations, getLangSwitcherPaths, getLang } from '../i18n/utils';
+import { languages } from '../i18n/ui';
 
 interface Props {
   title?: string;
@@ -14,19 +17,28 @@ const {
   ogImage = '/og-default.jpg',
 } = Astro.props;
 
+const locale = Astro.currentLocale ?? 'es';
+const lang   = getLang(locale);
+const t      = useTranslations(locale);
+
+const prefix = lang === 'es' ? '' : `/${lang}`;
+
 const navLinks = [
-  { label: 'Home', href: '/' },
-  { label: 'Nosotros', href: '/nosotros' },
-  { label: 'Qué Hacemos', href: '/que-hacemos' },
-  { label: 'Casos', href: '/casos' },
-  { label: 'Clientes', href: '/clientes' },
-  { label: 'Carreras', href: '/carreras' },
-  { label: 'Contacto', href: '/contacto' },
+  { label: t.nav.home,     href: `${prefix}/` },
+  { label: t.nav.about,    href: `${prefix}/#nosotros` },
+  { label: t.nav.services, href: `${prefix}/que-hacemos` },
+  { label: t.nav.cases,    href: `${prefix}/casos` },
+  { label: t.nav.clients,  href: `${prefix}/clientes` },
+  { label: t.nav.careers,  href: `${prefix}/carreras` },
+  { label: t.nav.contact,  href: `${prefix}/contacto` },
 ];
+
+const langPaths = getLangSwitcherPaths(Astro.url.pathname);
+const siteData  = getStaticSiteData();
 ---
 
 <!doctype html>
-<html lang="es" class="dark">
+<html lang={lang} class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -45,16 +57,16 @@ const navLinks = [
 
   <body class="bg-surface-lowest text-on-surface">
 
-    <!-- ── Navigation (Glass Rail) ── -->
+    <!-- ── Navigation ── -->
     <header class="bg-surface-container/70 backdrop-blur-xl sticky top-0 z-50 w-full">
       <nav class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
 
         <!-- Logo -->
-        <a href="/">
+        <a href={`${prefix}/`}>
           <img src="/img/logo-cas.svg" alt="CAS" class="h-10 w-auto" />
         </a>
 
-        <!-- Desktop links -->
+        <!-- Desktop links + lang switcher -->
         <div class="hidden md:flex gap-8 items-center">
           {navLinks.map(link => (
             <a
@@ -64,12 +76,23 @@ const navLinks = [
               {link.label}
             </a>
           ))}
-        </div>
 
-        <!-- CTA desktop -->
-        <button class="hidden md:block bg-primary-container text-on-primary-fixed font-['Space_Grotesk'] font-bold tracking-tighter px-6 py-2 hover:shadow-[0_0_20px_rgba(246,146,32,0.4)] transition-shadow">
-          Contacto
-        </button>
+          <!-- Language switcher -->
+          <div class="flex items-center gap-1 border-l border-white/10 pl-6">
+            {(Object.keys(languages) as (keyof typeof languages)[]).map(l => (
+              <a
+                href={langPaths[l]}
+                class={`font-['Inter'] text-[10px] uppercase tracking-wider px-2 py-1 rounded transition-colors ${
+                  lang === l
+                    ? 'text-[#F69220] bg-[#F69220]/10 font-bold'
+                    : 'text-gray-500 hover:text-white'
+                }`}
+              >
+                {l}
+              </a>
+            ))}
+          </div>
+        </div>
 
         <!-- Hamburger (mobile) -->
         <button id="hamburger" class="md:hidden flex flex-col gap-1.5 justify-center items-center p-2" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
@@ -87,13 +110,22 @@ const navLinks = [
               {link.label}
             </a>
           ))}
-          <div class="pt-2 border-t border-outline-variant/20">
-            <button class="w-full bg-primary-container text-on-primary-fixed font-['Space_Grotesk'] font-bold tracking-tighter px-6 py-3 hover:shadow-[0_0_20px_rgba(246,146,32,0.4)] transition-all">
-              Contacto
-            </button>
+          <!-- Mobile lang switcher -->
+          <div class="flex items-center gap-3 pt-4 border-t border-white/10">
+            {(Object.keys(languages) as (keyof typeof languages)[]).map(l => (
+              <a
+                href={langPaths[l]}
+                class={`font-['Inter'] text-xs uppercase tracking-wider px-3 py-1 rounded border transition-colors ${
+                  lang === l
+                    ? 'text-[#F69220] border-[#F69220]/30 bg-[#F69220]/10'
+                    : 'text-gray-500 border-white/10 hover:text-white'
+                }`}
+              >
+                {languages[l]}
+              </a>
+            ))}
           </div>
-          </li>
-        </ul>
+        </div>
       </div>
     </header>
 
@@ -114,30 +146,20 @@ const navLinks = [
 
         <!-- Contacto / Oficinas -->
         <div>
-          <h4 class="font-['Space_Grotesk'] font-black text-4xl text-primary-container mb-8">CONTACTO</h4>
+          <h4 class="font-['Space_Grotesk'] font-black text-4xl text-primary-container mb-8">{t.footer.contact}</h4>
           <div class="space-y-6">
-            <div class="hover:translate-x-2 transition-transform duration-300">
-              <p class="font-['Space_Grotesk'] text-xs uppercase tracking-[0.2em] text-primary-container mb-1">Buenos Aires</p>
-              <p class="font-['Space_Grotesk'] text-gray-400 text-sm">Echeverría 760, Vte. López, Bs. As.</p>
-            </div>
-            <div class="hover:translate-x-2 transition-transform duration-300">
-              <p class="font-['Space_Grotesk'] text-xs uppercase tracking-[0.2em] text-primary-container mb-1">Ciudad de México</p>
-              <p class="font-['Space_Grotesk'] text-gray-400 text-sm">Av. Homero 1804, of. 204, Polanco, CDMX</p>
-            </div>
-            <div class="hover:translate-x-2 transition-transform duration-300">
-              <p class="font-['Space_Grotesk'] text-xs uppercase tracking-[0.2em] text-primary-container mb-1">Madrid</p>
-              <p class="font-['Space_Grotesk'] text-gray-400 text-sm">C/ O'Donnell N°14 enpta, 28009</p>
-            </div>
-            <div class="hover:translate-x-2 transition-transform duration-300">
-              <p class="font-['Space_Grotesk'] text-xs uppercase tracking-[0.2em] text-primary-container mb-1">Miami</p>
-              <p class="font-['Space_Grotesk'] text-gray-400 text-sm">1000 Brickell Ave, Suite 905, FL 33131</p>
-            </div>
+            {siteData.offices.map(office => (
+              <div class="hover:translate-x-2 transition-transform duration-300">
+                <p class="font-['Space_Grotesk'] text-xs uppercase tracking-[0.2em] text-primary-container mb-1">{office.city}</p>
+                <p class="font-['Space_Grotesk'] text-gray-400 text-sm">{office.address}</p>
+              </div>
+            ))}
           </div>
         </div>
 
         <!-- Navegación -->
         <div>
-          <h4 class="font-['Space_Grotesk'] font-black text-xl text-white mb-8 uppercase tracking-widest">Navegación</h4>
+          <h4 class="font-['Space_Grotesk'] font-black text-xl text-white mb-8 uppercase tracking-widest">{t.footer.navigation}</h4>
           <div class="flex flex-col gap-4">
             {navLinks.map((link, i) => (
               <a
@@ -150,13 +172,13 @@ const navLinks = [
           </div>
         </div>
 
-        <!-- Seguinos -->
+        <!-- Redes sociales -->
         <div>
-          <h4 class="font-['Space_Grotesk'] font-black text-xl text-white mb-8 uppercase tracking-widest">Seguinos</h4>
+          <h4 class="font-['Space_Grotesk'] font-black text-xl text-white mb-8 uppercase tracking-widest">{t.footer.follow}</h4>
           <div class="flex flex-col gap-4">
-            <a class="font-['Space_Grotesk'] uppercase tracking-tight text-gray-500 hover:text-primary-container transition-all" href="https://www.instagram.com/contenidos.ad" target="_blank" rel="noopener">Instagram</a>
-            <a class="font-['Space_Grotesk'] uppercase tracking-tight text-gray-500 hover:text-primary-container transition-all" href="https://www.linkedin.com/company/contenidosad/" target="_blank" rel="noopener">LinkedIn</a>
-            <a class="font-['Space_Grotesk'] uppercase tracking-tight text-gray-500 hover:text-primary-container transition-all" href="https://contenidosad.com/careers/" target="_blank" rel="noopener">Carreras</a>
+            {siteData.socialLinks.map(link => (
+              <a class="font-['Space_Grotesk'] uppercase tracking-tight text-gray-500 hover:text-primary-container transition-all" href={link.url} target="_blank" rel="noopener">{link.platform}</a>
+            ))}
           </div>
         </div>
 
@@ -180,7 +202,7 @@ const navLinks = [
   hamburger?.addEventListener('click', () => {
     const isOpen = mobileMenu?.classList.toggle('open') ?? false;
     if (mobileMenu) {
-      mobileMenu.style.maxHeight = isOpen ? '500px' : '0';
+      mobileMenu.style.maxHeight = isOpen ? '600px' : '0';
       mobileMenu.style.opacity = isOpen ? '1' : '0';
     }
     hamburger.classList.toggle('open', isOpen);

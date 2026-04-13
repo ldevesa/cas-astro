@@ -1,5 +1,14 @@
-const WP_BASE = import.meta.env.PUBLIC_WP_URL ?? 'https://contenidosad.com';
-const API = `${WP_BASE}/wp-json/wp/v2`;
+const WP_ES_PT = import.meta.env.PUBLIC_WP_URL ?? 'https://contenidosad.com';
+const WP_EN   = import.meta.env.PUBLIC_WP_URL_EN ?? 'https://contentad.net';
+
+function getAPIBase(lang: string): string {
+  return `${lang === 'en' ? WP_EN : WP_ES_PT}/wp-json/wp/v2`;
+}
+
+/** Returns `lang=xx&` for ES/PT; empty string for EN (separate install). */
+function lp(lang: string): string {
+  return lang !== 'en' ? `lang=${lang}&` : '';
+}
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -40,52 +49,59 @@ export interface WPMedia {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-async function apiFetch<T>(path: string): Promise<T> {
-  const res = await fetch(`${API}${path}`);
-  if (!res.ok) throw new Error(`WP API error: ${res.status} ${path}`);
-  return res.json() as Promise<T>;
+async function apiFetch<T>(url: string, retries = 3): Promise<T> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const res = await fetch(url);
+    if (res.ok) return res.json() as Promise<T>;
+    if (attempt === retries) throw new Error(`WP API error: ${res.status} ${url}`);
+    await new Promise(r => setTimeout(r, attempt * 1000));
+  }
+  throw new Error('WP API error: max retries reached');
 }
 
 // ── Pages ─────────────────────────────────────────────────────────────────────
 
 export async function getPageBySlug(slug: string, lang = 'es'): Promise<WPPage | null> {
-  const pages = await apiFetch<WPPage[]>(`/pages?slug=${slug}&lang=${lang}&_embed`);
+  const api = getAPIBase(lang);
+  const pages = await apiFetch<WPPage[]>(`${api}/pages?slug=${slug}&${lp(lang)}_embed`);
   return pages[0] ?? null;
 }
 
 export async function getAllPages(lang = 'es'): Promise<WPPage[]> {
-  return apiFetch<WPPage[]>(`/pages?lang=${lang}&per_page=20&_embed`);
+  const api = getAPIBase(lang);
+  return apiFetch<WPPage[]>(`${api}/pages?${lp(lang)}per_page=20&_embed`);
 }
 
-// ── Posts / Casos ─────────────────────────────────────────────────────────────
+// ── Posts ─────────────────────────────────────────────────────────────────────
 
 export async function getPosts(lang = 'es', perPage = 12): Promise<WPPost[]> {
-  return apiFetch<WPPost[]>(`/posts?lang=${lang}&per_page=${perPage}&_embed`);
+  const api = getAPIBase(lang);
+  return apiFetch<WPPost[]>(`${api}/posts?${lp(lang)}per_page=${perPage}&_embed`);
 }
 
 export async function getPostBySlug(slug: string, lang = 'es'): Promise<WPPost | null> {
-  const posts = await apiFetch<WPPost[]>(`/posts?slug=${slug}&lang=${lang}&_embed`);
+  const api = getAPIBase(lang);
+  const posts = await apiFetch<WPPost[]>(`${api}/posts?slug=${slug}&${lp(lang)}_embed`);
   return posts[0] ?? null;
 }
 
 // ── Media ─────────────────────────────────────────────────────────────────────
 
-export async function getMedia(id: number): Promise<WPMedia | null> {
+export async function getMedia(id: number, lang = 'es'): Promise<WPMedia | null> {
   if (!id) return null;
   try {
-    return await apiFetch<WPMedia>(`/media/${id}`);
+    const api = getAPIBase(lang);
+    return await apiFetch<WPMedia>(`${api}/media/${id}`);
   } catch {
     return null;
   }
 }
 
-// ── Site info (scraping the HTML for content in PHP templates) ────────────────
+// ── Site info ─────────────────────────────────────────────────────────────────
 
 export interface SiteData {
   headline: string;
   subheadline: string;
-  intro: string;
-  services: { name: string; slug: string; description: string }[];
   offices: { city: string; address: string }[];
   socialLinks: { platform: string; url: string }[];
 }
@@ -94,38 +110,16 @@ export function getStaticSiteData(): SiteData {
   return {
     headline: 'Conectamos marcas con consumidores a través de experiencias memorables',
     subheadline: 'Captar la atención del consumidor',
-    intro:
-      'La comunicación evolucionó. Los enfoques de hace diez años ya no funcionan. Necesitamos ideas excepcionales, distintas, entretenidas, emocionantes y audaces. Las experiencias reales se expanden en línea y a través de todos los puntos de contacto.',
-    services: [
-      {
-        name: 'Experiencia de Marca',
-        slug: 'experiencia-de-marca',
-        description:
-          'Creamos experiencias inmersivas que conectan marcas con consumidores de manera auténtica y memorable.',
-      },
-      {
-        name: 'Trade Marketing y Puntos de Venta',
-        slug: 'trade-marketing',
-        description:
-          'Transformamos los puntos de venta en espacios de conexión que impulsan la decisión de compra.',
-      },
-      {
-        name: 'Cartelería Digital',
-        slug: 'carteleria',
-        description:
-          'Soluciones de señalización y comunicación visual que elevan la experiencia en cada espacio.',
-      },
-    ],
     offices: [
-      { city: 'Buenos Aires', address: 'Echeverria 760, Vte. Lopez' },
-      { city: 'Mexico City', address: 'Av. Homero 1804, Polanco' },
-      { city: 'Madrid', address: "C/ O'donnell N°14" },
-      { city: 'Miami', address: '1000 Brickell Ave, Suite 905' },
+      { city: 'Buenos Aires', address: 'Echeverría 760, Vte. López, Bs. As.' },
+      { city: 'Ciudad de México', address: 'Av. Homero 1804, of. 204, Polanco, CDMX' },
+      { city: 'Madrid', address: "C/ O'Donnell N°14 enpta, 28009" },
+      { city: 'Miami', address: '1000 Brickell Ave, Suite 905, FL 33131' },
     ],
     socialLinks: [
-      { platform: 'Instagram', url: 'https://www.instagram.com/contenidosadvertising' },
-      { platform: 'LinkedIn', url: 'https://www.linkedin.com/company/contenidos-advertising' },
-      { platform: 'YouTube', url: 'https://www.youtube.com/contenidosadvertising' },
+      { platform: 'Instagram', url: 'https://www.instagram.com/contenidos.ad' },
+      { platform: 'LinkedIn', url: 'https://www.linkedin.com/company/contenidosad/' },
+      { platform: 'Carreras', url: 'https://contenidosad.com/careers/' },
     ],
   };
 }
@@ -144,12 +138,12 @@ export interface WPCaso {
     og_description?: string;
   };
   acf?: {
-    resumen?:         string;
-    subtitulo?:       string;
-    mercados?:        string;
-    titulo_mercado?:  string;
-    post_campana?:    string;  // iframe HTML con el embed de YouTube
-    image_carousel?:  { image: { url: string; alt: string } }[] | false;
+    resumen?:        string;
+    subtitulo?:      string;
+    mercados?:       string;
+    titulo_mercado?: string;
+    post_campana?:   string;
+    image_carousel?: { image: { url: string; alt: string } }[] | false;
   };
   _embedded?: {
     'wp:featuredmedia'?: { source_url: string; alt_text: string }[];
@@ -158,15 +152,18 @@ export interface WPCaso {
 }
 
 export async function getCasos(lang = 'es', perPage = 6): Promise<WPCaso[]> {
-  return apiFetch<WPCaso[]>(`/casos?lang=${lang}&per_page=${perPage}&_embed`);
+  const api = getAPIBase(lang);
+  return apiFetch<WPCaso[]>(`${api}/casos?${lp(lang)}per_page=${perPage}&_embed`);
 }
 
 export async function getAllCasos(lang = 'es'): Promise<WPCaso[]> {
-  return apiFetch<WPCaso[]>(`/casos?lang=${lang}&per_page=100&_embed`);
+  const api = getAPIBase(lang);
+  return apiFetch<WPCaso[]>(`${api}/casos?${lp(lang)}per_page=100&_embed`);
 }
 
 export async function getCasoBySlug(slug: string, lang = 'es'): Promise<WPCaso | null> {
-  const casos = await apiFetch<WPCaso[]>(`/casos?slug=${slug}&lang=${lang}&_embed`);
+  const api = getAPIBase(lang);
+  const casos = await apiFetch<WPCaso[]>(`${api}/casos?slug=${slug}&${lp(lang)}_embed`);
   return casos[0] ?? null;
 }
 
@@ -177,13 +174,12 @@ export interface CasosPage {
 }
 
 export async function getCasosPage(page = 1, perPage = 6, lang = 'es'): Promise<CasosPage> {
-  const res = await fetch(
-    `${API}/casos?lang=${lang}&per_page=${perPage}&page=${page}&_embed`
-  );
+  const api = getAPIBase(lang);
+  const res = await fetch(`${api}/casos?${lp(lang)}per_page=${perPage}&page=${page}&_embed`);
   if (!res.ok) throw new Error(`WP API error: ${res.status} /casos`);
-  const total = parseInt(res.headers.get('X-WP-Total') ?? '0', 10);
+  const total      = parseInt(res.headers.get('X-WP-Total') ?? '0', 10);
   const totalPages = parseInt(res.headers.get('X-WP-TotalPages') ?? '1', 10);
-  const casos = await res.json() as WPCaso[];
+  const casos      = await res.json() as WPCaso[];
   return { casos, total, totalPages };
 }
 
@@ -221,6 +217,32 @@ export function getCasoImageAlt(caso: WPCaso): string {
   return caso?._embedded?.['wp:featuredmedia']?.[0]?.alt_text || caso?.title?.rendered || '';
 }
 
+// ── Carreras (custom post type) ───────────────────────────────────────────────
+
+export interface WPCarrera {
+  id: number;
+  slug: string;
+  title: { rendered: string };
+  content: { rendered: string };
+  acf?: {
+    tipo?: string;
+    area_trabajo?: string;
+    categoria?: string;
+    fecha?: string;
+  };
+}
+
+export async function getCarreras(lang = 'es'): Promise<WPCarrera[]> {
+  const api = getAPIBase(lang);
+  return apiFetch<WPCarrera[]>(`${api}/carreras?${lp(lang)}per_page=50`);
+}
+
+export async function getCarreraBySlug(slug: string, lang = 'es'): Promise<WPCarrera | null> {
+  const api = getAPIBase(lang);
+  const items = await apiFetch<WPCarrera[]>(`${api}/carreras?slug=${slug}&${lp(lang)}`);
+  return items[0] ?? null;
+}
+
 // ── Clientes (custom post type) ───────────────────────────────────────────────
 
 export interface WPCliente {
@@ -232,7 +254,8 @@ export interface WPCliente {
 }
 
 export async function getClientes(lang = 'es'): Promise<WPCliente[]> {
-  return apiFetch<WPCliente[]>(`/clientes?lang=${lang}&per_page=100&_embed`);
+  const api = getAPIBase(lang);
+  return apiFetch<WPCliente[]>(`${api}/clientes?${lp(lang)}per_page=100&_embed`);
 }
 
 export function getClienteLogo(cliente: WPCliente): string {

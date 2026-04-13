@@ -1,0 +1,24 @@
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Fuentes — cache 1 año
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Assets compilados por Astro — cache 1 año (tienen hash en el nombre)
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Videos — cache 7 días
+/video/*
+  Cache-Control: public, max-age=604800
+
+/Video.mp4
+  Cache-Control: public, max-age=604800
+
+# Imágenes — cache 7 días
+/img/*
+  Cache-Control: public, max-age=604800

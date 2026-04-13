@@ -1,0 +1,278 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCasos, getCasoImage, getCasoImageAlt } from '../../lib/wp';
+import ClientesCarousel from '../../components/ClientesCarousel.astro';
+import HeroShader from '../../components/HeroShader.astro';
+import CoberturaGlobo from '../../components/CoberturaGlobo.astro';
+
+const casos = await getCasos('pt', 6);
+---
+
+<Layout
+  title="CAS | Conectamos marcas com consumidores através de experiências memoráveis"
+  description="Conectamos marcas com consumidores através de experiências memoráveis"
+>
+
+  <!-- HERO -->
+  <section class="relative h-screen w-full flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 z-0 opacity-60">
+      <HeroShader />
+      <div class="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-[#131313]"></div>
+    </div>
+    <div class="relative z-10 container mx-auto px-8 text-center">
+      <h1 class="font-['Space_Grotesk'] font-black text-2xl md:text-[3.33rem] leading-[0.85] tracking-[-0.06em] text-white" style="text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        Conectamos marcas com consumidores através de experiências memoráveis
+      </h1>
+    </div>
+    <div class="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce">
+      <span class="material-symbols-outlined text-white/40 text-4xl">south</span>
+    </div>
+  </section>
+
+  <!-- CONSUMER ATTENTION -->
+  <section class="w-full bg-[#131313]">
+    <div class="grid grid-cols-1 lg:grid-cols-2 min-h-[80vh] lg:min-h-screen">
+      <div class="relative min-h-80 lg:min-h-screen overflow-hidden">
+        <img alt="Consumidor em ambiente urbano" class="w-full h-full object-cover" src="/img/pexels-pamanjoe-35226372.jpg" />
+        <div class="absolute inset-0 bg-linear-to-r from-black/50 via-black/20 to-transparent"></div>
+      </div>
+      <div class="relative bg-[#F69220] text-white px-7 md:px-10 lg:px-12 xl:px-16 py-10 md:py-12 lg:py-14 flex items-center">
+        <div class="w-full">
+          <h2 class="font-['Space_Grotesk'] font-black text-[clamp(2rem,4vw,5rem)] leading-[0.95] tracking-tight mb-7 md:mb-8">
+            Captar a atenção do consumidor .
+          </h2>
+          <div class="space-y-5 md:space-y-6 font-['Plus_Jakarta_Sans'] text-[clamp(1rem,1.32vw,1.9rem)] leading-[1.3]">
+            <p>A comunicação mudou porque nós mudamos, já não somos os mesmos. Continuar comunicando da mesma forma que há 10 anos seria um grande erro para qualquer marca.</p>
+            <p>Hoje mais do que nunca são necessárias <strong>ideias excepcionais</strong>, diferentes, divertidas, emocionantes, impactantes e corajosas para capturar a mente do consumidor.</p>
+            <p>A preferência das marcas já não se baseia em um spot de TV, hoje <strong>o principal driver é o produto em si e as experiências</strong>. Mas <strong>a chave não é apenas a ideia, mas também a execução</strong> em todos os pontos de contato onde o consumidor encontra a marca.</p>
+            <p>Na CAS propomos ir além do tradicional, pensamos grandes ideias para <strong>conectar as marcas com os consumidores através de experiências reais</strong>, que depois continuam expandindo no mundo online e nos demais sistemas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVIÇOS INTERATIVOS -->
+  <section class="relative min-h-screen w-full overflow-hidden bg-black flex flex-col justify-center items-center py-24" id="services-interactive">
+    <div class="absolute inset-0 z-0">
+      <div class="absolute inset-0 bg-[#131313] transition-opacity duration-700 opacity-100" id="bg-default">
+        <img alt="" class="w-full h-full object-cover opacity-30" src="/img/pexels-pamanjoe-35226372.jpg" />
+      </div>
+      <div class="service-bg absolute inset-0 bg-[#F69220] transition-opacity duration-500 opacity-0 pointer-events-none" id="bg-experience">
+        <video muted loop playsinline preload="none" class="w-full h-full object-cover mix-blend-multiply opacity-60">
+          <source src="/video/experience.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div class="service-bg absolute inset-0 bg-[#F69220] transition-opacity duration-500 opacity-0 pointer-events-none" id="bg-trade">
+        <video muted loop playsinline preload="none" class="w-full h-full object-cover mix-blend-multiply opacity-60">
+          <source src="/video/trade.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div class="service-bg absolute inset-0 bg-[#F69220] transition-opacity duration-500 opacity-0 pointer-events-none" id="bg-digital">
+        <video muted loop playsinline preload="none" class="w-full h-full object-cover mix-blend-overlay opacity-60">
+          <source src="/video/digital.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div class="absolute inset-0 bg-linear-to-t from-black via-black/40 to-black/80 z-1"></div>
+    </div>
+    <div class="relative z-10 w-full max-w-6xl px-8 text-center">
+      <p class="font-['Inter'] text-xs uppercase tracking-[0.4em] text-[#ffb876] mb-16 opacity-60">O que fazemos</p>
+      <ul class="flex flex-col items-center gap-2">
+        <a href="/pt/experiencia-de-marca" class="service-item-trigger group py-4 w-full border-b border-white/10 block" data-target="bg-experience">
+          <div class="flex items-center justify-between max-w-4xl mx-auto px-4">
+            <span class="font-['Space_Grotesk'] text-5xl md:text-8xl font-bold tracking-tighter text-white/40 group-hover:text-white transition-all duration-500 group-hover:translate-x-4">Experience</span>
+            <div class="opacity-0 group-hover:opacity-100 transition-all duration-500 text-right">
+              <span class="font-['Inter'] text-xs uppercase tracking-[0.3em] text-[#F69220] block mb-1">01</span>
+              <p class="font-['Plus_Jakarta_Sans'] text-sm text-white/60 max-w-xs">Realidades imersivas físicas e digitais que redefinem a interação humana.</p>
+            </div>
+          </div>
+        </a>
+        <a href="/pt/trade-marketing" class="service-item-trigger group py-4 w-full border-b border-white/10 block" data-target="bg-trade">
+          <div class="flex items-center justify-between max-w-4xl mx-auto px-4">
+            <span class="font-['Space_Grotesk'] text-5xl md:text-8xl font-bold tracking-tighter text-white/40 group-hover:text-white transition-all duration-500 group-hover:translate-x-4">Trade</span>
+            <div class="opacity-0 group-hover:opacity-100 transition-all duration-500 text-right">
+              <span class="font-['Inter'] text-xs uppercase tracking-[0.3em] text-[#EA2227] block mb-1">02</span>
+              <p class="font-['Plus_Jakarta_Sans'] text-sm text-white/60 max-w-xs">Estratégias comerciais de alta velocidade que disruptam o equilíbrio do mercado.</p>
+            </div>
+          </div>
+        </a>
+        <a href="/pt/carteleria" class="service-item-trigger group py-4 w-full block" data-target="bg-digital">
+          <div class="flex items-center justify-between max-w-4xl mx-auto px-4">
+            <span class="font-['Space_Grotesk'] text-5xl md:text-8xl font-bold tracking-tighter text-white/40 group-hover:text-white transition-all duration-500 group-hover:translate-x-4">Digital</span>
+            <div class="opacity-0 group-hover:opacity-100 transition-all duration-500 text-right">
+              <span class="font-['Inter'] text-xs uppercase tracking-[0.3em] text-[#F69220] block mb-1">03</span>
+              <p class="font-['Plus_Jakarta_Sans'] text-sm text-white/60 max-w-xs">Arquitetura next-gen para a web descentralizada e conectada.</p>
+            </div>
+          </div>
+        </a>
+      </ul>
+    </div>
+  </section>
+
+  <!-- SOBRE NÓS -->
+  <section class="bg-surface-lowest py-32 border-y border-white/5" id="nosotros">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
+        <div>
+          <p class="font-['Inter'] text-xs uppercase tracking-[0.4em] text-[#ffb876] mb-6">Quem somos</p>
+          <h2 class="font-['Space_Grotesk'] font-black text-5xl md:text-7xl tracking-tighter leading-[0.9] text-white mb-10">Somos a CAS.</h2>
+          <div class="space-y-6 font-['Plus_Jakarta_Sans'] text-gray-400 text-lg leading-relaxed">
+            <p>Somos uma agência de comunicação especializada em <strong class="text-white">experiências de marca, trade marketing e comunicação visual digital</strong>. Trabalhamos com as marcas mais exigentes do mundo para criar momentos que as pessoas lembram.</p>
+            <p>Nascemos em Buenos Aires e hoje operamos com equipes próprias na <strong class="text-white">Argentina, México, Espanha e Estados Unidos</strong>. Essa presença regional nos permite executar projetos de escala global com conhecimento local.</p>
+            <p>Não terceirizamos a criatividade nem a produção. Tudo nasce e se executa dentro da CAS, o que nos dá controle total sobre cada detalhe de cada projeto.</p>
+          </div>
+        </div>
+        <div class="flex flex-col gap-6">
+          <div class="grid grid-cols-2 gap-4">
+            {[
+              { num: '+25', label: 'Anos de experiência' },
+              { num: '+38', label: 'Marcas em carteira' },
+              { num: '4',   label: 'Escritórios próprios' },
+              { num: '3',   label: 'Disciplinas integradas' },
+            ].map(stat => (
+              <div class="bg-[#131313] border border-white/5 rounded-2xl p-8">
+                <p class="font-['Space_Grotesk'] font-black text-5xl text-[#F69220] tracking-tight mb-1">{stat.num}</p>
+                <p class="font-['Inter'] text-xs uppercase tracking-wider text-gray-500">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+          <div class="bg-[#131313] border border-white/5 rounded-2xl p-8">
+            <h3 class="font-['Space_Grotesk'] font-black text-xl text-white mb-6 uppercase tracking-widest">Nossa equipe</h3>
+            <div class="flex flex-col gap-4">
+              {[
+                { area: 'Estratégia & Contas', desc: 'Diretores de marca e planners que entendem o negócio do cliente.' },
+                { area: 'Criatividade', desc: 'Diretores de arte, designers e conceitualizadores.' },
+                { area: 'Produção', desc: 'Produtores, fornecedores e técnicos especializados.' },
+                { area: 'Tecnologia', desc: 'Desenvolvedores e integradores de sistemas digitais.' },
+              ].map(perfil => (
+                <div class="flex gap-4 items-start pb-4 border-b border-white/5 last:border-0 last:pb-0">
+                  <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#F69220] shrink-0"></span>
+                  <div>
+                    <p class="font-['Space_Grotesk'] font-bold text-white text-sm">{perfil.area}</p>
+                    <p class="font-['Plus_Jakarta_Sans'] text-gray-500 text-sm mt-0.5">{perfil.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CASES -->
+  <section class="bg-[#131313] py-32" id="casos">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+        <div>
+          <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-4">Work</p>
+          <h2 class="font-['Space_Grotesk'] text-4xl md:text-6xl font-black tracking-tight text-white leading-[0.95]">Cases</h2>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {casos.map(caso => (
+          <a href={`/pt/casos/${caso.slug}`} class="case-card group block">
+            <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-6">
+              <img alt={getCasoImageAlt(caso)} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={getCasoImage(caso)} loading="lazy" />
+            </div>
+            <div class="space-y-2">
+              <h3 class="font-['Space_Grotesk'] text-2xl font-bold tracking-tight text-white group-hover:text-[#ffb876] transition-colors" set:html={caso.title.rendered} />
+              {caso.excerpt.rendered && (
+                <p class="text-on-surface-variant text-sm font-['Plus_Jakarta_Sans'] line-clamp-2" set:html={caso.excerpt.rendered} />
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
+      <div class="mt-20 text-center">
+        <a class="inline-block bg-white text-black font-['Space_Grotesk'] font-black uppercase tracking-widest px-12 py-5 hover:bg-[#ffb876] transition-all duration-300" href="/pt/casos">Ver todos os cases</a>
+      </div>
+    </div>
+  </section>
+
+  <CoberturaGlobo />
+  <ClientesCarousel />
+
+  <!-- CONTATO + MAPA -->
+  <section class="bg-[#131313] py-20 md:py-24 border-y border-outline-variant/10">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+        <aside class="rounded-2xl border border-white/10 bg-[#111111] p-8 md:p-10 flex flex-col justify-between">
+          <div>
+            <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-4">Contato</p>
+            <h3 class="font-['Space_Grotesk'] text-4xl md:text-5xl font-black tracking-tight leading-[0.95] text-white">Deixe sua mensagem!</h3>
+            <p class="mt-6 text-on-surface-variant font-['Plus_Jakarta_Sans'] text-lg">Estamos em Esteban Echeverria 760, B1603 Villa Martelli, Província de Buenos Aires.</p>
+          </div>
+          <div class="mt-10 flex flex-col sm:flex-row lg:flex-col gap-4">
+            <a class="inline-flex justify-center items-center bg-[#ffb876] text-on-primary font-['Space_Grotesk'] font-black uppercase tracking-[0.08em] px-8 py-4 rounded-xl hover:brightness-110 transition-all" href="#contacto-footer">Fale conosco</a>
+            <a class="inline-flex justify-center items-center border border-white/20 text-white font-['Space_Grotesk'] font-bold uppercase tracking-[0.08em] px-8 py-4 rounded-xl hover:bg-white hover:text-black transition-all" href="https://maps.google.com/?q=Esteban+Echeverria+760,+B1603+Villa+Martelli,+Provincia+de+Buenos+Aires" rel="noopener" target="_blank">Ver no Google Maps</a>
+          </div>
+        </aside>
+        <div class="rounded-2xl border border-white/10 bg-[#111111] overflow-hidden p-3 md:p-4">
+          <div class="relative w-full h-105 md:h-130 rounded-xl overflow-hidden">
+            <img alt="Mapa de localização da CAS" class="w-full h-full object-cover" loading="lazy" src="/assets/maps/contacto.svg" />
+            <div class="absolute left-[50.03%] top-[49.8%] -translate-x-1/2 -translate-y-full pointer-events-none">
+              <div class="relative flex items-center justify-center">
+                <span class="absolute w-10 h-10 rounded-full bg-[#F69220]/25 animate-ping"></span>
+                <span class="absolute w-6 h-6 rounded-full bg-[#F69220]/40"></span>
+                <span class="w-4 h-4 rounded-full bg-[#F69220] border-2 border-[#111111]"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARREIRAS CTA -->
+  <section class="relative py-20 md:py-28 border-y border-white/10 overflow-hidden">
+    <img alt="Equipe CAS" class="absolute inset-0 w-full h-full object-cover" loading="lazy" src="/img/pexels-pamanjoe-35226372.jpg" />
+    <div class="absolute inset-0 bg-[#090909]/70"></div>
+    <div class="absolute inset-0 bg-linear-to-r from-[#0c0c0c]/75 via-[#0c0c0c]/45 to-[#0c0c0c]/75"></div>
+    <div class="relative z-10 max-w-screen-2xl mx-auto px-8 text-center">
+      <h3 class="font-['Space_Grotesk'] text-4xl md:text-6xl font-black tracking-tight leading-[0.95] text-white">Conheça as vagas disponíveis</h3>
+      <a
+        class="mt-10 inline-flex items-center justify-center rounded-full px-10 py-4 text-white font-['Space_Grotesk'] text-2xl md:text-4xl font-bold bg-linear-to-r from-[#f5a623] to-[#f15a49] hover:brightness-110 transition-all"
+        style="box-shadow: 0 0 35px rgba(246,146,32,0.45);"
+        href="https://contenidosad.com/careers/"
+        rel="noopener"
+        target="_blank"
+      >Faça parte do time!</a>
+    </div>
+  </section>
+
+</Layout>
+
+<script>
+  function initServiceHover() {
+    const triggers = document.querySelectorAll('.service-item-trigger');
+    const backgrounds = document.querySelectorAll<HTMLElement>('.service-bg');
+    const defaultBg = document.getElementById('bg-default');
+    if (!triggers.length) return;
+    triggers.forEach(trigger => {
+      trigger.addEventListener('mouseenter', () => {
+        const targetId = trigger.getAttribute('data-target');
+        backgrounds.forEach(bg => {
+          const video = bg.querySelector('video');
+          if (bg.id === targetId) {
+            bg.classList.replace('opacity-0', 'opacity-100');
+            if (video) video.play().catch(() => {});
+          } else {
+            bg.classList.replace('opacity-100', 'opacity-0');
+            if (video) video.play().then(() => video.pause()).catch(() => {});
+          }
+        });
+        defaultBg?.classList.replace('opacity-100', 'opacity-0');
+      });
+      trigger.addEventListener('mouseleave', () => {
+        backgrounds.forEach(bg => {
+          bg.classList.replace('opacity-100', 'opacity-0');
+          const video = bg.querySelector('video');
+          if (video) video.play().then(() => video.pause()).catch(() => {});
+        });
+        defaultBg?.classList.replace('opacity-0', 'opacity-100');
+      });
+    });
+  }
+  document.addEventListener('astro:page-load', initServiceHover);
+</script>

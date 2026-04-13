@@ -1,0 +1,176 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCasos, getCasoImage, getCasoImageAlt } from '../../lib/wp';
+
+const casos = await getCasos('pt', 6);
+
+const capacidades = [
+  { icon: '/img/iconos/carteleria/1_fotos.svg',        text: 'Criar grupos (playlists) de vídeos e imagens.' },
+  { icon: '/img/iconos/carteleria/2_clima.svg',        text: 'Discriminar o conteúdo de cada tela por clima e horário.' },
+  { icon: '/img/iconos/carteleria/3_segmentacion.svg', text: 'Segmentar por local ou tipo de dispositivo.' },
+  { icon: '/img/iconos/carteleria/4_control.svg',      text: 'Ter controle sobre o funcionamento de cada tela, pois envia avisos em caso de erros.' },
+  { icon: '/img/iconos/carteleria/5_dividir.svg',      text: 'Dividir a tela e mostrar conteúdos diferentes.' },
+];
+
+const sectores = [
+  {
+    title: 'Retail',
+    img: '/img/carteleria/retail.jpg',
+    reverse: false,
+    text: 'Chamar a atenção do consumidor no ponto de venda é fundamental para gerar maiores vendas, mas alcançar isso é cada vez mais difícil devido à quantidade de estímulos aos quais está exposto dentro de uma loja.\n\nPor isso mesmo é fundamental gerar uma conexão com o que está mais acostumado a ver: as telas. Seja em sua própria loja ou onde compete com outras marcas, a chave é a tela e o que você conta nela.\n\nA CAS ajuda a identificar oportunidades e aproveitá-las. Somos especialistas na geração e administração de conteúdos em pontos de venda. Segmentamos por loja, tipo de tela, localização do suporte e mais.',
+  },
+  {
+    title: 'Banking',
+    img: '/img/carteleria/banking.jpg',
+    reverse: true,
+    text: 'Dê aos seus clientes as informações que precisam em tempo real para que tenham a melhor experiência em sua visita ao banco.\n\nCom nosso serviço de content management, mantemos as telas atualizadas e gerenciamos todo o conteúdo para otimizar a comunicação entre banco e cliente.\n\nAcrescentamos as notificações do banco central e as próprias de cada banco com material de comunicação da entidade e a geração de conteúdo ad hoc para ter um material que cumpra com as normas, comunique e entretenha seus clientes.',
+  },
+  {
+    title: 'Fast Food',
+    img: '/img/carteleria/fastfood.jpg',
+    reverse: false,
+    text: 'Um local moderno que responda às últimas tendências do setor precisa de comunicação digital instantânea e telas interativas para realizar os pedidos. Administramos o conteúdo reproduzido em cada uma das telas, segmentando por horário de cada refeição, localização geográfica do local, promoções especiais e mais.\n\nÉ uma solução integral, pois centralizamos a emissão de informação de milhares de telas.',
+  },
+  {
+    title: 'Sinalização Exterior',
+    img: '/img/carteleria/exterior.jpg',
+    reverse: true,
+    text: 'Atraímos o cliente que se encontra no exterior com sinalização digital interativa. Mostramos sua marca de uma forma que se destaca dos suportes tradicionais que não têm a possibilidade de movimento ou de mudar no transcorrer do dia.',
+  },
+  {
+    title: 'Corporativo',
+    img: '/img/carteleria/corporativo.jpg',
+    reverse: false,
+    text: 'Oferecemos uma solução 360 para a dificuldade de comunicar a grandes comunidades dispersas em diferentes localizações.\n\nUtilize as telas dentro de sua empresa para manter a comunicação interna e externa sempre atualizada. Para uma comunicação mais efetiva, as telas digitais podem ser atualizadas instantaneamente em cada um dos escritórios.\n\nMantenha seus clientes e a equipe de sua empresa sempre informados.',
+  },
+];
+---
+
+<Layout
+  title="Comunicação Visual Digital | CAS Contenidos Advertising"
+  description="Acreditamos que a interação através do conteúdo é a chave para melhorar qualquer tipo de comunicação. Soluções integrais de comunicação visual digital para retail, banking, fast food e mais."
+>
+
+  <section class="bg-black">
+    <div class="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
+      <div class="min-h-80 lg:min-h-screen bg-cover" style="background-image: url('/img/carteleria.jpg'); background-position: center left; background-size: cover"></div>
+      <div class="flex items-center px-10 md:px-16 py-20">
+        <div>
+          <a href="/pt/que-hacemos" class="inline-flex items-center gap-2 font-['Inter'] text-xs uppercase tracking-wider text-gray-500 hover:text-[#ffb876] transition-colors mb-10">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            O que fazemos
+          </a>
+          <h1 class="font-['Space_Grotesk'] font-black text-5xl md:text-6xl tracking-tighter leading-[0.9] text-[#F69220] mb-10">
+            Comunicação<br />Visual Digital
+          </h1>
+          <div class="space-y-5 font-['Plus_Jakarta_Sans'] text-white text-base leading-relaxed">
+            <p>Acreditamos que a interação através do conteúdo é a chave para melhorar qualquer tipo de comunicação, seja entre as marcas e seus consumidores, uma empresa e seus funcionários, uma companhia e seus clientes ou qualquer organização com seus integrantes.</p>
+            <p>A complexidade do plano de ação a aplicar é proporcional ao tamanho da marca ou empresa. A utilização da comunicação cresce em relação à expansão: quanto maior for, mais países e cidades cobre, mais público ou locais tem para fazer chegar sua mensagem. E aqui surge a necessidade de contar com um sistema integral que ofereça uma solução.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-[#f5f5f5] py-20">
+    <div class="max-w-7xl mx-auto px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div>
+          <h3 class="font-['Space_Grotesk'] font-black text-2xl text-[#26c6da] mb-4"><span class="font-light">1</span> . Desenvolvimento de conteúdos</h3>
+          <p class="font-['Plus_Jakarta_Sans'] text-gray-700 text-lg leading-relaxed">Temos uma equipe especializada na criação de conceitos, design e edição que desenvolverá o conteúdo a ser emitido nas telas.</p>
+        </div>
+        <div>
+          <h3 class="font-['Space_Grotesk'] font-black text-2xl text-[#F69220] mb-4"><span class="font-light">2</span> . Equipamentos</h3>
+          <p class="font-['Plus_Jakarta_Sans'] text-gray-700 text-lg leading-relaxed">Oferecemos os equipamentos mais sofisticados sob medida para cada necessidade. Como especialistas, recomendamos as melhores opções para criar uma experiência memorável.</p>
+        </div>
+        <div>
+          <h3 class="font-['Space_Grotesk'] font-black text-2xl text-[#EA2227] mb-4"><span class="font-light">3</span> . Centro de gestão de conteúdo</h3>
+          <p class="font-['Plus_Jakarta_Sans'] text-gray-700 text-lg leading-relaxed">Através de nossa plataforma de Content Manager centralizamos toda a gestão do conteúdo digital.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-[#F69220] py-20">
+    <div class="max-w-7xl mx-auto px-8">
+      <h4 class="font-['Space_Grotesk'] font-black text-2xl text-white mb-12">Contamos com um servidor que nos permite administrar e controlar o que se deseja mostrar:</h4>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+        {capacidades.map(c => (
+          <div class="bg-white rounded-2xl p-6 flex flex-col gap-4">
+            <img src={c.icon} alt="" class="w-14 h-14 object-contain" />
+            <p class="font-['Plus_Jakarta_Sans'] text-gray-700 text-sm leading-relaxed">{c.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-[#f5f5f5] py-12 text-center border-y border-gray-200">
+    <div class="max-w-3xl mx-auto px-8">
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl text-black tracking-tight">
+        Oferecemos uma solução integral cobrindo todas as instâncias do processo:
+      </h3>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 md:grid-cols-3">
+    <div class="bg-[#26c6da] text-white text-center px-10 py-16">
+      <span class="material-symbols-outlined text-5xl mb-6 block">lightbulb</span>
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl uppercase tracking-widest mb-4">Planejamento</h3>
+      <p class="font-['Plus_Jakarta_Sans'] leading-relaxed">Estratégia e proposta criativa da ação.<br />Levantamento de localizações.<br />Desenvolvimento do sistema de comunicação.</p>
+    </div>
+    <div class="bg-[#F69220] text-white text-center px-10 py-16">
+      <span class="material-symbols-outlined text-5xl mb-6 block">polyline</span>
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl uppercase tracking-widest mb-4">Implementação</h3>
+      <p class="font-['Plus_Jakarta_Sans'] leading-relaxed">Compra e instalação do equipamento.<br />Criação da grade de conteúdo.<br />Desenvolvimento e criação do conteúdo.<br />Administração a partir do centro de gestão.</p>
+    </div>
+    <div class="bg-[#EA2227] text-white text-center px-10 py-16">
+      <span class="material-symbols-outlined text-5xl mb-6 block">photo_camera</span>
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl uppercase tracking-widest mb-4">Controle</h3>
+      <p class="font-['Plus_Jakarta_Sans'] leading-relaxed">Contamos com uma equipe para o controle em toda a região.<br />Criação de relatórios.</p>
+    </div>
+  </section>
+
+  <section class="bg-[#f5f5f5] py-24">
+    <div class="max-w-7xl mx-auto px-8 flex flex-col gap-24">
+      {sectores.map(s => (
+        <div class={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${s.reverse ? 'lg:[direction:rtl]' : ''}`}>
+          <div class="lg:[direction:ltr]">
+            <img src={s.img} alt={s.title} class="w-full rounded-2xl shadow-xl object-cover" loading="lazy" />
+          </div>
+          <div class="lg:[direction:ltr]">
+            <h3 class="font-['Space_Grotesk'] font-black text-4xl text-[#F69220] tracking-tight mb-6">{s.title}</h3>
+            <div class="space-y-4 font-['Plus_Jakarta_Sans'] text-gray-700 text-base leading-relaxed">
+              {s.text.split('\n\n').map(p => <p>{p}</p>)}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="bg-black py-24">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <h2 class="font-['Space_Grotesk'] font-black text-5xl md:text-7xl tracking-tight text-white text-center mb-16">
+        Cases de Sucesso <span class="text-[#F69220]">.</span>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {casos.map(caso => (
+          <a href={`/pt/casos/${caso.slug}`} class="group block">
+            <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-4">
+              <img alt={getCasoImageAlt(caso)} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={getCasoImage(caso)} loading="lazy" />
+              <div class="absolute inset-0 bg-linear-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                <span class="font-['Space_Grotesk'] font-bold text-white text-sm uppercase tracking-widest">Ver case</span>
+              </div>
+            </div>
+            <h3 class="font-['Space_Grotesk'] font-bold text-lg text-white group-hover:text-[#ffb876] transition-colors tracking-tight" set:html={caso.title.rendered} />
+          </a>
+        ))}
+      </div>
+      <div class="text-center mt-16">
+        <a href="/pt/casos" class="inline-block border border-white/20 text-white font-['Space_Grotesk'] font-black uppercase tracking-widest px-12 py-5 hover:bg-white hover:text-black transition-all duration-300">Ver todos os cases</a>
+      </div>
+    </div>
+  </section>
+
+</Layout>

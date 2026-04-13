@@ -1,0 +1,154 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const services = [
+  {
+    id: 'experience',
+    num: '01',
+    label: 'Experience',
+    title: 'Experiencia de Marca',
+    href: '/experiencia-de-marca',
+    color: '#F69220',
+    description: 'Creamos momentos que las personas quieren vivir y compartir. Diseñamos activaciones, eventos y experiencias inmersivas que conectan emocionalmente a las marcas con sus audiencias en el mundo real.',
+    bullets: [
+      'Activaciones y eventos BTL',
+      'Instalaciones inmersivas e interactivas',
+      'Pop-ups y espacios de marca',
+      'Lanzamientos de producto',
+      'Experiencias en punto de venta',
+    ],
+    video: '/video/experience.mp4',
+  },
+  {
+    id: 'trade',
+    num: '02',
+    label: 'Trade',
+    title: 'Trade Marketing y Puntos de Venta',
+    href: '/trade-marketing',
+    color: '#EA2227',
+    description: 'Transformamos cada punto de contacto comercial en una oportunidad de conexión. Desarrollamos estrategias y materiales que impulsan la decisión de compra y fortalecen la presencia de marca en el canal.',
+    bullets: [
+      'Diseño y producción de materiales POP',
+      'Estrategia de exhibición y merchandising',
+      'Capacitación y activación de canales',
+      'Programas de incentivos para la fuerza de ventas',
+      'Auditoría y seguimiento en punto de venta',
+    ],
+    video: '/video/trade.mp4',
+  },
+  {
+    id: 'digital',
+    num: '03',
+    label: 'Digital',
+    title: 'Cartelería Digital',
+    href: '/carteleria',
+    color: '#F69220',
+    description: 'Llevamos la comunicación visual al siguiente nivel. Diseñamos e implementamos soluciones de señalización digital que elevan la experiencia en espacios físicos, desde pantallas individuales hasta redes de cientos de displays.',
+    bullets: [
+      'Diseño de contenido para pantallas digitales',
+      'Instalación y gestión de redes de digital signage',
+      'Software de gestión de contenido (CMS)',
+      'Integración con datos en tiempo real',
+      'Mantenimiento y soporte técnico',
+    ],
+    video: '/video/digital.mp4',
+  },
+];
+---
+
+<Layout
+  title="Qué Hacemos | CAS Contenidos Advertising"
+  description="Experiencia de Marca, Trade Marketing y Cartelería Digital. Conectamos marcas con consumidores a través de experiencias memorables."
+>
+
+  <!-- Hero -->
+  <section class="relative min-h-[60vh] flex items-end pb-20 overflow-hidden bg-black">
+    <div class="absolute inset-0">
+      <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-30">
+        <source src="/video/experience.mp4" type="video/mp4" />
+      </video>
+      <div class="absolute inset-0 bg-linear-to-t from-black via-black/60 to-black/30"></div>
+    </div>
+    <div class="relative z-10 max-w-screen-2xl mx-auto px-8 w-full">
+      <p class="font-['Inter'] text-xs uppercase tracking-[0.4em] text-[#ffb876] mb-4">Lo que hacemos</p>
+      <h1 class="font-['Space_Grotesk'] font-black text-6xl md:text-9xl tracking-tighter leading-[0.9] text-white">
+        Qué<br />Hacemos
+      </h1>
+    </div>
+  </section>
+
+  <!-- Intro -->
+  <section class="bg-[#131313] py-20 border-b border-white/5">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <p class="font-['Plus_Jakarta_Sans'] text-xl md:text-2xl text-gray-300 leading-relaxed max-w-3xl">
+        En CAS trabajamos en tres disciplinas que se complementan para crear
+        ecosistemas de comunicación completos. Cada proyecto integra estrategia,
+        creatividad y ejecución de primer nivel.
+      </p>
+    </div>
+  </section>
+
+  <!-- Servicios -->
+  {services.map((s, i) => (
+    <section class={`${i % 2 === 0 ? 'bg-surface-lowest' : 'bg-[#131313]'} py-24 border-b border-white/5`} id={s.id}>
+      <div class="max-w-screen-2xl mx-auto px-8">
+        <div class={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${i % 2 !== 0 ? 'lg:[direction:rtl]' : ''}`}>
+
+          <!-- Video -->
+          <div class="relative aspect-video rounded-2xl overflow-hidden lg:[direction:ltr]">
+            <video autoplay muted loop playsinline class="w-full h-full object-cover">
+              <source src={s.video} type="video/mp4" />
+            </video>
+            <div class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
+            <div class="absolute bottom-6 left-6">
+              <span class="font-['Inter'] text-xs uppercase tracking-[0.4em]" style={`color: ${s.color}`}>{s.num}</span>
+              <p class="font-['Space_Grotesk'] font-black text-4xl text-white tracking-tighter">{s.label}</p>
+            </div>
+          </div>
+
+          <!-- Texto -->
+          <div class="lg:[direction:ltr]">
+            <h2 class="font-['Space_Grotesk'] font-black text-4xl md:text-5xl tracking-tight leading-[0.95] text-white mb-6">
+              {s.title}
+            </h2>
+            <p class="font-['Plus_Jakarta_Sans'] text-lg text-gray-400 leading-relaxed mb-10">
+              {s.description}
+            </p>
+            <ul class="flex flex-col gap-3 mb-10">
+              {s.bullets.map(b => (
+                <li class="flex items-start gap-3 font-['Plus_Jakarta_Sans'] text-gray-300 text-sm">
+                  <span class="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={`background: ${s.color}`}></span>
+                  {b}
+                </li>
+              ))}
+            </ul>
+            <a
+              href={s.href}
+              class="inline-flex items-center gap-2 font-['Space_Grotesk'] font-bold text-sm uppercase tracking-widest hover:gap-4 transition-all duration-300"
+              style={`color: ${s.color}`}
+            >
+              Ver más <span class="material-symbols-outlined text-base">arrow_forward</span>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <!-- CTA -->
+  <section class="bg-[#F69220] py-24">
+    <div class="max-w-screen-2xl mx-auto px-8 text-center">
+      <h2 class="font-['Space_Grotesk'] font-black text-5xl md:text-7xl tracking-tighter text-white leading-[0.9] mb-10">
+        ¿Tenés un proyecto<br />en mente?
+      </h2>
+      <a
+        href="/contacto"
+        class="inline-block bg-black text-white font-['Space_Grotesk'] font-black uppercase tracking-widest px-12 py-5 hover:bg-white hover:text-black transition-all duration-300"
+      >
+        Hablemos
+      </a>
+    </div>
+  </section>
+
+</Layout>

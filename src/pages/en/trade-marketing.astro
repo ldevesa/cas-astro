@@ -1,0 +1,131 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCasos, getCasoImage, getCasoImageAlt } from '../../lib/wp';
+
+const casos = await getCasos('en', 6);
+
+const solutions = [
+  { icon: '/img/iconos/soluciones/1_experiencia.svg', text: 'We develop the user experience within the space.' },
+  { icon: '/img/iconos/soluciones/2_locales.svg',     text: 'We design locations externally and internally.' },
+  { icon: '/img/iconos/soluciones/3_manual.svg',      text: 'We create a brand application and user experience manual for locations.' },
+  { icon: '/img/iconos/soluciones/4_instalacion.svg', text: 'We produce and install everything from signage to furniture and all brand elements.' },
+  { icon: '/img/iconos/soluciones/5_contenido.svg',   text: 'We generate and manage content.' },
+  { icon: '/img/iconos/soluciones/6_folleteria.svg',  text: 'We develop and produce all collateral and communication elements within the location.' },
+  { icon: '/img/iconos/soluciones/7_control.svg',     text: 'We monitor compliance with all established parameters.' },
+];
+---
+
+<Layout
+  title="Trade Marketing & Points of Sale | CAS Contenidos Advertising"
+  description="We develop integral solutions for points of sale and customer service centers, based on 3 axes: accessibility, spaces, and interaction."
+>
+
+  <section class="bg-black">
+    <div class="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
+      <div class="min-h-80 lg:min-h-screen bg-cover bg-center" style="background-image: url('/img/experiencia-venta.jpg')"></div>
+      <div class="flex items-center px-10 md:px-16 py-20">
+        <div>
+          <a href="/en/que-hacemos" class="inline-flex items-center gap-2 font-['Inter'] text-xs uppercase tracking-wider text-gray-500 hover:text-[#ffb876] transition-colors mb-10">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            What We Do
+          </a>
+          <h1 class="font-['Space_Grotesk'] font-black text-5xl md:text-6xl tracking-tighter leading-[0.9] text-[#F69220] mb-10">
+            Trade Marketing<br />&amp; Points of Sale
+          </h1>
+          <div class="space-y-5 font-['Plus_Jakarta_Sans'] text-white text-base leading-relaxed">
+            <p>A spectacular product, from an excellent brand, with great communication and better distribution can collapse with a poor point-of-sale experience.</p>
+            <p>Trade is the last link in the chain and one of the most important for achieving sales.</p>
+            <p>Poor display, lack of communication, or any other shortcoming at the point of sale can make a product fail.</p>
+            <p>At CAS, we develop integral solutions for points of sale and customer service centers, based on 3 axes: <strong class="text-[#F69220]">accessibility, spaces, and interaction.</strong></p>
+            <p>With our team of specialists, we create and execute the entire process: from prior analysis, creativity, design of pieces or elements, production and installation, to subsequent control of what was executed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-[#F69220] py-20">
+    <div class="max-w-7xl mx-auto px-8">
+      <h2 class="font-['Space_Grotesk'] font-black text-4xl md:text-5xl text-white tracking-tight mb-2">Solutions <span class="text-black">.</span></h2>
+      <p class="font-['Plus_Jakarta_Sans'] text-white/80 text-lg mb-14">We develop integral solutions for points of sale and customer service centers.</p>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {solutions.map(s => (
+          <div class="bg-white rounded-2xl p-6 flex flex-col gap-4">
+            <img src={s.icon} alt="" class="w-12 h-12 object-contain" />
+            <p class="font-['Plus_Jakarta_Sans'] text-gray-700 text-sm leading-relaxed">{s.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white py-20">
+    <div class="max-w-7xl mx-auto px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div>
+          <h3 class="font-['Space_Grotesk'] font-black text-2xl text-[#26c6da] mb-4"><span class="font-light">1</span> . Accessibility</h3>
+          <p class="font-['Plus_Jakarta_Sans'] text-gray-700 text-lg leading-relaxed">We invite the public to <strong>connect with the brand</strong> and interact with your products.</p>
+        </div>
+        <div>
+          <h3 class="font-['Space_Grotesk'] font-black text-2xl text-[#EA2227] mb-4"><span class="font-light">2</span> . Interaction</h3>
+          <p class="font-['Plus_Jakarta_Sans'] text-gray-700 text-lg leading-relaxed">The experience makes <strong>the client get involved</strong>, take something more than the product, and thus brand recall is built.</p>
+        </div>
+        <div>
+          <h3 class="font-['Space_Grotesk'] font-black text-2xl text-[#F69220] mb-4"><span class="font-light">3</span> . Spaces</h3>
+          <p class="font-['Plus_Jakarta_Sans'] text-gray-700 text-lg leading-relaxed"><strong>We create spaces</strong> for a total brand experience, with the exact furniture to generate a unique experience.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-[#f5f5f5] py-12 text-center border-y border-gray-200">
+    <div class="max-w-3xl mx-auto px-8">
+      <h4 class="font-['Space_Grotesk'] font-black text-2xl text-black tracking-tight">
+        We provide an integral solution covering all stages of the process:
+      </h4>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 md:grid-cols-3">
+    <div class="bg-[#26c6da] text-white text-center px-10 py-16">
+      <span class="material-symbols-outlined text-5xl mb-6 block">lightbulb</span>
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl uppercase tracking-widest mb-4">Planning</h3>
+      <p class="font-['Plus_Jakarta_Sans'] leading-relaxed">Strategy and creative proposal for the action.</p>
+    </div>
+    <div class="bg-[#F69220] text-white text-center px-10 py-16">
+      <span class="material-symbols-outlined text-5xl mb-6 block">polyline</span>
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl uppercase tracking-widest mb-4">Implementation</h3>
+      <p class="font-['Plus_Jakarta_Sans'] leading-relaxed">Production, installation and development of the action.</p>
+    </div>
+    <div class="bg-[#EA2227] text-white text-center px-10 py-16">
+      <span class="material-symbols-outlined text-5xl mb-6 block">photo_camera</span>
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl uppercase tracking-widest mb-4">Control</h3>
+      <p class="font-['Plus_Jakarta_Sans'] leading-relaxed">Control and monitoring of the action across the entire region.</p>
+    </div>
+  </section>
+
+  <section class="bg-black py-24">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <h2 class="font-['Space_Grotesk'] font-black text-5xl md:text-7xl tracking-tight text-white text-center mb-16">
+        Success Cases <span class="text-[#F69220]">.</span>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {casos.map(caso => (
+          <a href={`/en/casos/${caso.slug}`} class="group block">
+            <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-4">
+              <img alt={getCasoImageAlt(caso)} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={getCasoImage(caso)} loading="lazy" />
+              <div class="absolute inset-0 bg-linear-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                <span class="font-['Space_Grotesk'] font-bold text-white text-sm uppercase tracking-widest">View case</span>
+              </div>
+            </div>
+            <h3 class="font-['Space_Grotesk'] font-bold text-lg text-white group-hover:text-[#ffb876] transition-colors tracking-tight" set:html={caso.title.rendered} />
+          </a>
+        ))}
+      </div>
+      <div class="text-center mt-16">
+        <a href="/en/casos" class="inline-block border border-white/20 text-white font-['Space_Grotesk'] font-black uppercase tracking-widest px-12 py-5 hover:bg-white hover:text-black transition-all duration-300">View all cases</a>
+      </div>
+    </div>
+  </section>
+
+</Layout>

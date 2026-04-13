@@ -1,0 +1,131 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCasos, getCasoImage, getCasoImageAlt } from '../../lib/wp';
+
+const casos = await getCasos('pt', 6);
+
+const soluciones = [
+  { icon: '/img/iconos/soluciones/1_experiencia.svg', text: 'Desenvolvemos a experiência do usuário dentro do espaço.' },
+  { icon: '/img/iconos/soluciones/2_locales.svg',     text: 'Projetamos externa e internamente os locais.' },
+  { icon: '/img/iconos/soluciones/3_manual.svg',      text: 'Criamos um manual de aplicação de marca e experiência do usuário nos locais.' },
+  { icon: '/img/iconos/soluciones/4_instalacion.svg', text: 'Produzimos e instalamos desde a marquise até o mobiliário e todos os elementos de marca.' },
+  { icon: '/img/iconos/soluciones/5_contenido.svg',   text: 'Geramos e administramos o conteúdo.' },
+  { icon: '/img/iconos/soluciones/6_folleteria.svg',  text: 'Desenvolvemos e produzimos toda a folheteria e elementos de comunicação dentro do local.' },
+  { icon: '/img/iconos/soluciones/7_control.svg',     text: 'Controlamos que todos os parâmetros estabelecidos sejam cumpridos.' },
+];
+---
+
+<Layout
+  title="Trade Marketing e Pontos de Venda | CAS Contenidos Advertising"
+  description="Desenvolvemos soluções integrais para pontos de venda e centros de atendimento ao cliente, baseando-nos em 3 eixos: acessibilidade, espaços e interação."
+>
+
+  <section class="bg-black">
+    <div class="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
+      <div class="min-h-80 lg:min-h-screen bg-cover bg-center" style="background-image: url('/img/experiencia-venta.jpg')"></div>
+      <div class="flex items-center px-10 md:px-16 py-20">
+        <div>
+          <a href="/pt/que-hacemos" class="inline-flex items-center gap-2 font-['Inter'] text-xs uppercase tracking-wider text-gray-500 hover:text-[#ffb876] transition-colors mb-10">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            O que fazemos
+          </a>
+          <h1 class="font-['Space_Grotesk'] font-black text-5xl md:text-6xl tracking-tighter leading-[0.9] text-[#F69220] mb-10">
+            Trade Marketing<br />e Pontos de Venda
+          </h1>
+          <div class="space-y-5 font-['Plus_Jakarta_Sans'] text-white text-base leading-relaxed">
+            <p>Um produto espetacular, de uma excelente marca, com uma ótima comunicação e uma melhor distribuição pode desmoronar com uma má experiência no ponto de venda.</p>
+            <p>O Trade é o último elo da cadeia e um dos fundamentais para alcançar as vendas.</p>
+            <p>Uma má exibição, falta de comunicação ou qualquer outra falha no ponto de venda pode fazer com que um produto seja um fracasso.</p>
+            <p>Na CAS desenvolvemos soluções integrais para pontos de venda e centros de atendimento ao cliente, baseando-nos em 3 eixos: <strong class="text-[#F69220]">acessibilidade, espaços e interação.</strong></p>
+            <p>Com nossa equipe de especialistas criamos e executamos todo o processo: desde a análise prévia, a criatividade, o design das peças ou elementos, a produção e instalação, até o posterior controle do executado.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-[#F69220] py-20">
+    <div class="max-w-7xl mx-auto px-8">
+      <h2 class="font-['Space_Grotesk'] font-black text-4xl md:text-5xl text-white tracking-tight mb-2">Soluções <span class="text-black">.</span></h2>
+      <p class="font-['Plus_Jakarta_Sans'] text-white/80 text-lg mb-14">Desenvolvemos soluções integrais para pontos de venda e centros de atendimento ao cliente.</p>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {soluciones.map(s => (
+          <div class="bg-white rounded-2xl p-6 flex flex-col gap-4">
+            <img src={s.icon} alt="" class="w-12 h-12 object-contain" />
+            <p class="font-['Plus_Jakarta_Sans'] text-gray-700 text-sm leading-relaxed">{s.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white py-20">
+    <div class="max-w-7xl mx-auto px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div>
+          <h3 class="font-['Space_Grotesk'] font-black text-2xl text-[#26c6da] mb-4"><span class="font-light">1</span> . Acessibilidade</h3>
+          <p class="font-['Plus_Jakarta_Sans'] text-gray-700 text-lg leading-relaxed">Convidamos o público a <strong>conectar com a marca</strong> e interagir com seus produtos.</p>
+        </div>
+        <div>
+          <h3 class="font-['Space_Grotesk'] font-black text-2xl text-[#EA2227] mb-4"><span class="font-light">2</span> . Interação</h3>
+          <p class="font-['Plus_Jakarta_Sans'] text-gray-700 text-lg leading-relaxed">A experiência faz com que <strong>o cliente se envolva</strong>, leve algo mais além do produto e assim constrói recordação de marca.</p>
+        </div>
+        <div>
+          <h3 class="font-['Space_Grotesk'] font-black text-2xl text-[#F69220] mb-4"><span class="font-light">3</span> . Espaços</h3>
+          <p class="font-['Plus_Jakarta_Sans'] text-gray-700 text-lg leading-relaxed"><strong>Criamos espaços</strong> para uma vivência total da marca, com o mobiliário exato para gerar uma experiência única.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-[#f5f5f5] py-12 text-center border-y border-gray-200">
+    <div class="max-w-3xl mx-auto px-8">
+      <h4 class="font-['Space_Grotesk'] font-black text-2xl text-black tracking-tight">
+        Oferecemos uma solução integral cobrindo todas as instâncias do processo:
+      </h4>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 md:grid-cols-3">
+    <div class="bg-[#26c6da] text-white text-center px-10 py-16">
+      <span class="material-symbols-outlined text-5xl mb-6 block">lightbulb</span>
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl uppercase tracking-widest mb-4">Planejamento</h3>
+      <p class="font-['Plus_Jakarta_Sans'] leading-relaxed">Estratégia e proposta criativa da ação.</p>
+    </div>
+    <div class="bg-[#F69220] text-white text-center px-10 py-16">
+      <span class="material-symbols-outlined text-5xl mb-6 block">polyline</span>
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl uppercase tracking-widest mb-4">Implementação</h3>
+      <p class="font-['Plus_Jakarta_Sans'] leading-relaxed">Produção, instalação e desenvolvimento da ação.</p>
+    </div>
+    <div class="bg-[#EA2227] text-white text-center px-10 py-16">
+      <span class="material-symbols-outlined text-5xl mb-6 block">photo_camera</span>
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl uppercase tracking-widest mb-4">Controle</h3>
+      <p class="font-['Plus_Jakarta_Sans'] leading-relaxed">Para o controle e monitoramento da ação, em toda a região.</p>
+    </div>
+  </section>
+
+  <section class="bg-black py-24">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <h2 class="font-['Space_Grotesk'] font-black text-5xl md:text-7xl tracking-tight text-white text-center mb-16">
+        Cases de Sucesso <span class="text-[#F69220]">.</span>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {casos.map(caso => (
+          <a href={`/pt/casos/${caso.slug}`} class="group block">
+            <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-4">
+              <img alt={getCasoImageAlt(caso)} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={getCasoImage(caso)} loading="lazy" />
+              <div class="absolute inset-0 bg-linear-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                <span class="font-['Space_Grotesk'] font-bold text-white text-sm uppercase tracking-widest">Ver case</span>
+              </div>
+            </div>
+            <h3 class="font-['Space_Grotesk'] font-bold text-lg text-white group-hover:text-[#ffb876] transition-colors tracking-tight" set:html={caso.title.rendered} />
+          </a>
+        ))}
+      </div>
+      <div class="text-center mt-16">
+        <a href="/pt/casos" class="inline-block border border-white/20 text-white font-['Space_Grotesk'] font-black uppercase tracking-widest px-12 py-5 hover:bg-white hover:text-black transition-all duration-300">Ver todos os cases</a>
+      </div>
+    </div>
+  </section>
+
+</Layout>

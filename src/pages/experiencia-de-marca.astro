@@ -1,0 +1,125 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCasos, getCasoImage, getCasoImageAlt } from '../lib/wp';
+
+const casos = await getCasos('es', 6);
+---
+
+<Layout
+  title="Experiencia de Marca | CAS Contenidos Advertising"
+  description="Frente a los nuevos comportamientos de los consumidores y a los paradigmas de la vieja comunicación, surge la experiencia como principal driver de awareness, preferencia y lealtad hacia las marcas."
+>
+
+  <!-- Hero: imagen + texto -->
+  <section class="bg-black">
+    <div class="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
+
+      <!-- Imagen -->
+      <div
+        class="min-h-80 lg:min-h-screen bg-cover bg-center"
+        style="background-image: url('/img/experiencia-marca.jpg')"
+      ></div>
+
+      <!-- Contenido -->
+      <div class="flex items-center px-10 md:px-16 py-20">
+        <div>
+          <a href="/que-hacemos" class="inline-flex items-center gap-2 font-['Inter'] text-xs uppercase tracking-wider text-gray-500 hover:text-[#ffb876] transition-colors mb-10">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            Qué Hacemos
+          </a>
+
+          <h1 class="font-['Space_Grotesk'] font-black text-5xl md:text-6xl tracking-tighter leading-[0.9] text-[#F69220] mb-10">
+            Experiencia<br />de Marca
+          </h1>
+
+          <div class="space-y-5 font-['Plus_Jakarta_Sans'] text-white text-base leading-relaxed mb-12">
+            <p>Frente a los nuevos comportamientos de los consumidores y a los paradigmas de la vieja comunicación, surge la experiencia como principal driver de awareness, preferencia y lealtad hacia las marcas.</p>
+            <p>Hoy es imposible pensar en un Plan de Marketing sin su bajada de experiencia.</p>
+            <p>Todas las marcas en mayor o menor medida deben pensar en cómo acercarse al consumidor e interactuar con ellos, para generar ese engagement que le permita generar ventas futuras y sostenerse en el tiempo.</p>
+            <p>Desde CAS creamos y ejecutamos esas experiencias que logran conectar con el consumidor, lo cual da como resultado el incremento del posicionamiento de marca.</p>
+            <p class="text-gray-400">Para lograr los objetivos en cada proyecto tenemos nuestra metodología basada en <strong class="text-white">4 pilares claves:</strong></p>
+          </div>
+
+          <!-- 4 pilares -->
+          <div class="grid grid-cols-2 gap-6">
+            {[
+              { key: 'Think.', desc: 'Responder y evidenciar el propósito de la marca, su razón de existir.' },
+              { key: 'Sense.', desc: 'Producir experiencias inmersivas que estimulen a los cinco sentidos.' },
+              { key: 'Feel.',  desc: 'Tener un impacto emocional.' },
+              { key: 'Connect.', desc: 'Generar un sentimiento de pertenencia e identificación con la marca.' },
+            ].map(p => (
+              <div>
+                <p class="font-['Space_Grotesk'] font-black text-[#F69220] text-lg">{p.key}</p>
+                <p class="font-['Plus_Jakarta_Sans'] text-white text-sm leading-relaxed mt-1">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Solución integral -->
+  <section class="bg-[#f5f5f5] py-20 text-center">
+    <div class="max-w-3xl mx-auto px-8">
+      <h2 class="font-['Space_Grotesk'] font-black text-3xl md:text-4xl tracking-tight text-black leading-tight">
+        Brindamos una solución integral cubriendo todas las instancias del proceso:
+      </h2>
+    </div>
+  </section>
+
+  <!-- 3 etapas -->
+  <section class="grid grid-cols-1 md:grid-cols-3">
+    <div class="bg-[#26c6da] text-white text-center px-10 py-16">
+      <span class="material-symbols-outlined text-5xl mb-6 block">lightbulb</span>
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl uppercase tracking-widest mb-4">Planificación</h3>
+      <p class="font-['Plus_Jakarta_Sans'] leading-relaxed">Estrategia y propuesta creativa de la acción.</p>
+    </div>
+    <div class="bg-[#F69220] text-white text-center px-10 py-16">
+      <span class="material-symbols-outlined text-5xl mb-6 block">polyline</span>
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl uppercase tracking-widest mb-4">Implementación</h3>
+      <p class="font-['Plus_Jakarta_Sans'] leading-relaxed">Relevamiento, diseño, producción, instalación y desarrollo de la acción.</p>
+    </div>
+    <div class="bg-[#EA2227] text-white text-center px-10 py-16">
+      <span class="material-symbols-outlined text-5xl mb-6 block">photo_camera</span>
+      <h3 class="font-['Space_Grotesk'] font-black text-2xl uppercase tracking-widest mb-4">Control</h3>
+      <p class="font-['Plus_Jakarta_Sans'] leading-relaxed">Contamos con un equipo para el control y monitoreo de la acción, en toda la región.</p>
+    </div>
+  </section>
+
+  <!-- Casos de éxito -->
+  <section class="bg-black py-24">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <h2 class="font-['Space_Grotesk'] font-black text-5xl md:text-7xl tracking-tight text-white text-center mb-16">
+        Casos de Éxito <span class="text-[#F69220]">.</span>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {casos.map(caso => (
+          <a href={`/casos/${caso.slug}`} class="group block">
+            <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-4">
+              <img
+                alt={getCasoImageAlt(caso)}
+                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                src={getCasoImage(caso)}
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-linear-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                <span class="font-['Space_Grotesk'] font-bold text-white text-sm uppercase tracking-widest">Ver caso</span>
+              </div>
+            </div>
+            <h3
+              class="font-['Space_Grotesk'] font-bold text-lg text-white group-hover:text-[#ffb876] transition-colors tracking-tight"
+              set:html={caso.title.rendered}
+            />
+          </a>
+        ))}
+      </div>
+      <div class="text-center mt-16">
+        <a href="/casos" class="inline-block border border-white/20 text-white font-['Space_Grotesk'] font-black uppercase tracking-widest px-12 py-5 hover:bg-white hover:text-black transition-all duration-300">
+          Ver todos los casos
+        </a>
+      </div>
+    </div>
+  </section>
+
+</Layout>

@@ -1,0 +1,87 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCarreras } from '../../../lib/wp';
+
+const carreras = await getCarreras('en');
+
+const categoriaLabel: Record<string, string> = {
+  junior: 'Junior',
+  semi: 'Mid-Level',
+  senior: 'Senior',
+};
+
+const tipoLabel: Record<string, string> = {
+  fulltime: 'Full Time',
+  parttime: 'Part Time',
+  freelance: 'Freelance',
+};
+---
+
+<Layout
+  title="Careers | CAS Contenidos Advertising"
+  description="Join the CAS team. We're looking for people passionate about brand experiences, trade marketing, and creativity."
+>
+
+  <section class="relative min-h-[60vh] flex items-end pb-20 overflow-hidden bg-black">
+    <div class="absolute inset-0">
+      <img src="/img/pexels-pamanjoe-35226372.jpg" alt="" class="w-full h-full object-cover opacity-20" />
+      <div class="absolute inset-0 bg-linear-to-t from-black via-black/70 to-black/40"></div>
+    </div>
+    <div class="relative z-10 max-w-screen-2xl mx-auto px-8 w-full">
+      <p class="font-['Inter'] text-xs uppercase tracking-[0.4em] text-[#ffb876] mb-4">Join the team</p>
+      <h1 class="font-['Space_Grotesk'] font-black text-6xl md:text-9xl tracking-tighter leading-[0.9] text-white">Careers</h1>
+    </div>
+  </section>
+
+  <section class="bg-[#F69220] py-12">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <p class="font-['Plus_Jakarta_Sans'] text-white text-xl md:text-2xl leading-relaxed max-w-3xl">
+        We're looking for people with a passion for ideas, an obsession with execution, and a desire
+        to build experiences people remember. If that sounds like you, this is your place.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-[#131313] py-24">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      {carreras.length === 0 ? (
+        <div class="text-center py-24">
+          <p class="font-['Space_Grotesk'] text-2xl text-gray-500">There are no open positions at this time.</p>
+          <p class="font-['Plus_Jakarta_Sans'] text-gray-600 mt-4">Stay in touch — we post new openings regularly.</p>
+        </div>
+      ) : (
+        <div class="flex flex-col gap-4">
+          <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-8">
+            {carreras.length} {carreras.length === 1 ? 'open position' : 'open positions'}
+          </p>
+          {carreras.map(carrera => (
+            <a href={`/en/carreras/${carrera.slug}`} class="group block border border-white/10 hover:border-[#F69220]/50 bg-[#111111] hover:bg-[#161616] rounded-2xl p-8 transition-all duration-300">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <h2 class="font-['Space_Grotesk'] font-black text-2xl md:text-3xl text-white group-hover:text-[#ffb876] transition-colors tracking-tight mb-3" set:html={carrera.title.rendered} />
+                  <div class="flex flex-wrap gap-2">
+                    {carrera.acf?.area_trabajo && <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{carrera.acf.area_trabajo}</span>}
+                    {carrera.acf?.categoria && <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{categoriaLabel[carrera.acf.categoria] ?? carrera.acf.categoria}</span>}
+                    {carrera.acf?.tipo && <span class="font-['Inter'] text-xs uppercase tracking-wider px-3 py-1 rounded-full" style="color: #F69220; border: 1px solid rgba(246,146,32,0.3);">{tipoLabel[carrera.acf.tipo] ?? carrera.acf.tipo}</span>}
+                  </div>
+                </div>
+                <div class="shrink-0 flex items-center gap-2 text-[#F69220] font-['Space_Grotesk'] font-bold text-sm uppercase tracking-widest group-hover:gap-4 transition-all duration-300">
+                  View position <span class="material-symbols-outlined text-base">arrow_forward</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section class="bg-[#0e0e0e] py-24 border-t border-white/5">
+    <div class="max-w-screen-2xl mx-auto px-8 text-center">
+      <h2 class="font-['Space_Grotesk'] font-black text-4xl md:text-5xl tracking-tight text-white leading-[0.95] mb-4">Don't see your profile?</h2>
+      <p class="font-['Plus_Jakarta_Sans'] text-gray-400 text-lg mb-10 max-w-xl mx-auto">Send us your CV anyway. We're always looking for talent.</p>
+      <a href="/en/contacto" class="inline-block border border-white/20 text-white font-['Space_Grotesk'] font-bold uppercase tracking-widest px-12 py-5 hover:bg-white hover:text-black transition-all duration-300">Contact us</a>
+    </div>
+  </section>
+
+</Layout>
