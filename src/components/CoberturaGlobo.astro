@@ -1,19 +1,48 @@
 ---
-// Componente de Cobertura Global con amCharts 5
-// Encapsula globo 3D, mapa de operaciones y mapa de centros de negocio
+const locale = Astro.currentLocale ?? 'es';
+
+const t = {
+  es: {
+    label:   'Global',
+    title:   'Cobertura',
+    btn1:    'Alcance',
+    btn2:    'Operaciones',
+    btn3:    'Centro de negocios',
+  },
+  pt: {
+    label:   'Global',
+    title:   'Cobertura',
+    btn1:    'Alcance',
+    btn2:    'Operações',
+    btn3:    'Centros de negócio',
+  },
+  en: {
+    label:   'Global',
+    title:   'Coverage',
+    btn1:    'Reach',
+    btn2:    'Operations',
+    btn3:    'Business Centers',
+  },
+}[locale] ?? {
+  label:   'Global',
+  title:   'Cobertura',
+  btn1:    'Alcance',
+  btn2:    'Operaciones',
+  btn3:    'Centro de negocios',
+};
 ---
 
 <section class="bg-[#131313] py-20 md:py-24 border-y border-outline-variant/10">
   <div class="max-w-screen-2xl mx-auto px-8">
     <div class="mb-10 md:mb-12">
-      <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-4">Global</p>
-      <h2 class="font-['Space_Grotesk'] text-4xl md:text-6xl font-black tracking-tight text-white leading-[0.95]">Cobertura</h2>
+      <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-4">{t.label}</p>
+      <h2 class="font-['Space_Grotesk'] text-4xl md:text-6xl font-black tracking-tight text-white leading-[0.95]">{t.title}</h2>
     </div>
     <div class="cas-globe-layout">
       <aside class="cas-globe-sidebox">
-        <button class="cas-globe-btn active" id="showglobo" type="button">Alcance</button>
-        <button class="cas-globe-btn" id="showmap" type="button">Operaciones</button>
-        <button class="cas-globe-btn" id="showmap2" type="button">Centro de negocios</button>
+        <button class="cas-globe-btn active" id="showglobo" type="button">{t.btn1}</button>
+        <button class="cas-globe-btn" id="showmap" type="button">{t.btn2}</button>
+        <button class="cas-globe-btn" id="showmap2" type="button">{t.btn3}</button>
       </aside>
       <div class="cas-global-globe-wrap">
         <div class="cas-global-globe cas-map-pane" id="chartdivglobo"></div>
