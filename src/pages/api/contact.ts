@@ -20,8 +20,18 @@ export const POST: APIRoute = async ({ request }) => {
 
   const MJ_KEY    = import.meta.env.MJ_APIKEY_PUBLIC;
   const MJ_SECRET = import.meta.env.MJ_APIKEY_PRIVATE;
-  const TO_EMAIL  = import.meta.env.CONTACT_TO_EMAIL ?? 'info@contenidosad.com';
-  const TO_NAME   = import.meta.env.CONTACT_TO_NAME  ?? 'CAS';
+  const FROM_EMAIL = import.meta.env.CONTACT_FROM_EMAIL ?? 'info@contenidosad.com';
+  const FROM_NAME  = import.meta.env.CONTACT_FROM_NAME  ?? 'CAS';
+
+  // Destinatarios principales — separados por coma en la variable de entorno
+  const toRaw  = import.meta.env.CONTACT_TO ?? 'info@contenidosad.com';
+  const bccRaw = import.meta.env.CONTACT_BCC ?? '';
+
+  const parseEmails = (raw: string) =>
+    raw.split(',').map(e => e.trim()).filter(Boolean).map(e => ({ Email: e }));
+
+  const toList  = parseEmails(toRaw);
+  const bccList = parseEmails(bccRaw);
 
   if (!MJ_KEY || !MJ_SECRET) {
     return new Response(JSON.stringify({ ok: false, error: 'Configuración de email incompleta.' }), {
@@ -41,17 +51,17 @@ export const POST: APIRoute = async ({ request }) => {
     </table>
   `;
 
-  const payload = {
-    Messages: [
-      {
-        From: { Email: TO_EMAIL, Name: TO_NAME },
-        To:   [{ Email: TO_EMAIL, Name: TO_NAME }],
-        ReplyTo: { Email: email, Name: nombre },
-        Subject: `[CAS Sitio] Mensaje de ${nombre}${empresa ? ` — ${empresa}` : ''}`,
-        HTMLPart: htmlBody,
-      },
-    ],
+  const message: Record<string, unknown> = {
+    From:    { Email: FROM_EMAIL, Name: FROM_NAME },
+    To:      toList,
+    ReplyTo: { Email: email, Name: nombre },
+    Subject: `[CAS Sitio] Mensaje de ${nombre}${empresa ? ` — ${empresa}` : ''}`,
+    HTMLPart: htmlBody,
   };
+
+  if (bccList.length > 0) message.Bcc = bccList;
+
+  const payload = { Messages: [message] };
 
   const mjRes = await fetch('https://api.mailjet.com/v3.1/send', {
     method: 'POST',
