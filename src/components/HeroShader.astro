@@ -9,11 +9,11 @@
 </div>
 
 <script>
-  import * as THREE from 'three';
+  import type * as THREETypes from 'three';
 
   // Refs para poder limpiar en cada navegación
   let rafId: number | null = null;
-  let renderer: THREE.WebGLRenderer | null = null;
+  let renderer: THREETypes.WebGLRenderer | null = null;
   let video: HTMLVideoElement | null = null;
   let resizeHandler: (() => void) | null = null;
   let mouseMoveHandler: ((e: MouseEvent) => void) | null = null;
@@ -28,12 +28,15 @@
     if (renderer) { renderer.dispose(); renderer = null; }
   }
 
-  function initHero() {
+  async function initHero() {
     const canvas = document.getElementById('heroCanvas') as HTMLCanvasElement | null;
     if (!canvas) return;
 
     // Limpiar instancia previa si existiera
     destroyHero();
+
+    // Dynamic import: Three.js se carga como chunk separado, no bloquea el render inicial
+    const THREE = await import('three');
 
     renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
     renderer.setPixelRatio(window.devicePixelRatio);
