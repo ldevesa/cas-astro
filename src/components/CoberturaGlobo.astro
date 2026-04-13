@@ -53,10 +53,49 @@ const t = {
   </div>
 </section>
 
-<!-- amCharts CDN → datos → lógica (orden importa) -->
-<script is:inline src="https://cdn.amcharts.com/lib/5/index.js"></script>
-<script is:inline src="https://cdn.amcharts.com/lib/5/map.js"></script>
-<script is:inline src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
-<script is:inline src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
-<script is:inline src="/assets/globo/globo-data.js"></script>
-<script is:inline src="/assets/globo/globo.js"></script>
+<script is:inline>
+  // Carga amCharts y el globo solo cuando la sección entra en el viewport
+  (function () {
+    const section = document.querySelector('.cas-globe-layout');
+    if (!section) return;
+
+    let loaded = false;
+
+    function loadScripts() {
+      if (loaded) return;
+      loaded = true;
+
+      const srcs = [
+        'https://cdn.amcharts.com/lib/5/index.js',
+        'https://cdn.amcharts.com/lib/5/map.js',
+        'https://cdn.amcharts.com/lib/5/geodata/worldLow.js',
+        'https://cdn.amcharts.com/lib/5/themes/Animated.js',
+        '/assets/globo/globo-data.js',
+        '/assets/globo/globo.js',
+      ];
+
+      srcs.reduce((promise, src) => {
+        return promise.then(() => new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = src;
+          s.onload = resolve;
+          s.onerror = reject;
+          document.body.appendChild(s);
+        }));
+      }, Promise.resolve());
+    }
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          loadScripts();
+          observer.disconnect();
+        }
+      }, { rootMargin: '200px' });
+      observer.observe(section);
+    } else {
+      // Fallback para browsers sin IntersectionObserver
+      loadScripts();
+    }
+  })();
+</script>

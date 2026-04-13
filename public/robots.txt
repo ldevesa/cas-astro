@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://contenidosad.com/sitemap.xml
