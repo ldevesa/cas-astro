@@ -193,6 +193,24 @@ Los casos usan campos ACF: `resumen`, `subtitulo`, `mercados`, `post_campana` (e
 
 ### Actualizar el sitio cuando se edita contenido en WordPress
 
+**Importante:** como el sitio es estático (SSG), los casos, clientes y demás contenido de WordPress se traen **en tiempo de build** y se congelan en HTML. Agregar o editar un caso en WordPress **no se refleja automáticamente** en el front — hay que regenerar el sitio.
+
+Las páginas que consumen WordPress usan `getStaticPaths()`:
+- [`src/pages/casos/index.astro`](src/pages/casos/index.astro)
+- [`src/pages/casos/[slug].astro`](src/pages/casos/[slug].astro)
+- [`src/pages/casos/[page].astro`](src/pages/casos/[page].astro)
+- Equivalentes en `/en/` y `/pt/`
+
+Opciones para regenerar el sitio (sin tocar código):
+
+| Opción | Cómo | Cuándo usarla |
+| :--- | :--- | :--- |
+| **Manual** | Cloudflare Pages → Deployments → "Retry deployment" o "Create deployment" | Cambios puntuales, no urgentes |
+| **Deploy Hook + WP Webhooks** | Ver pasos abajo | Publicación/edición frecuente de casos |
+| **Commit vacío** | `git commit --allow-empty -m "rebuild" && git push` | Rebuild rápido desde la terminal |
+
+#### Configurar el Deploy Hook (recomendado)
+
 Para que el sitio se actualice automáticamente cuando se publica o edita un caso en WordPress:
 
 1. En Cloudflare Pages → Settings → Builds & Deployments → **Deploy Hooks**
@@ -201,6 +219,10 @@ Para que el sitio se actualice automáticamente cuando se publica o edita un cas
 4. Configurar esa URL como destino cuando se publique o actualice un post
 
 Resultado: editar un caso en WordPress → 1-2 minutos → el sitio se actualiza solo.
+
+#### Alternativa: migrar a SSR
+
+Si se necesita que los casos aparezcan **instantáneamente** sin rebuild, habría que migrar a SSR (server-side rendering) usando el adapter de Cloudflare o Vercel — ambos ya están instalados como dependencias. Implica un cambio en [`astro.config.mjs`](astro.config.mjs) (agregar `output: 'server'` + adapter) y convertir las rutas dinámicas. Es un cambio más grande y sacrifica el cache estático.
 
 ---
 
