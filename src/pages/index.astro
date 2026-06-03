@@ -33,13 +33,12 @@ const casos = await getCasos('es', 6);
 
   <!-- ══════════════════════════════════════════════
        HERO ALTERNATIVO — VIDEO DE VIMEO (sin shader, sin texto)
-       Para usar: comentar el <section> de arriba y descomentar este bloque.
+       Para usar: comentar el <section> de abajo y descomentar este bloque.
        Reemplazar VIMEO_ID por el ID del video (ej: en https://vimeo.com/1197710557 el ID es 1197710557).
   ══════════════════════════════════════════════ -->
-  
+  <!--
   <section class="relative h-screen w-full flex items-center justify-center overflow-hidden bg-black">
     <div class="absolute inset-0 z-0">
-      {/* Wrapper para mantener el video full-screen tipo "cover" */}
       <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.77vh] h-[56.25vw] min-w-full min-h-full">
         <iframe
           src="https://player.vimeo.com/video/1197710557?background=1&autoplay=1&loop=1&muted=1&autopause=0"
@@ -50,14 +49,31 @@ const casos = await getCasos('es', 6);
           title="Hero video"
         ></iframe>
       </div>
-      {/* Overlay opcional para oscurecer el video y dar transición al fondo */}
       <div class="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-[#131313]"></div>
     </div>
     <div class="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce">
       <span class="material-symbols-outlined text-white/40 text-4xl">south</span>
     </div>
   </section>
-  
+  -->
+
+  <!-- ══════════════════════════════════════════════
+       HERO ALTERNATIVO — VIDEO AUTOALOJADO (mejor performance, sin Vimeo)
+       Ventajas: cero JS de Vimeo (~300 KB menos), servido por CDN de Cloudflare.
+  ══════════════════════════════════════════════ -->
+  <section class="relative h-screen w-full flex items-center justify-center overflow-hidden bg-black">
+    <video
+      src="/Video.mp4"
+      autoplay
+      muted
+      loop
+      playsinline
+      class="absolute inset-0 w-full h-full object-cover z-0"
+    ></video>
+    <div class="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce">
+      <span class="material-symbols-outlined text-white/40 text-4xl">south</span>
+    </div>
+  </section>
 
   <!-- ══════════════════════════════════════════════
        CONSUMER ATTENTION
