@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# backups locales (versiones alternativas para mostrar, no se deployan)
+_backups/
+public/_*
