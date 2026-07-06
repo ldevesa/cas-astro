@@ -53,23 +53,30 @@ const t = {
   </div>
 </section>
 
-<script is:inline>
-  // Carga amCharts y el globo solo cuando la sección entra en el viewport
-  (function () {
+<script>
+  // Carga amCharts y el globo solo cuando la sección entra en el viewport.
+  // Sin is:inline: Astro bundlea este script como módulo con URL propia,
+  // así el browser lo ejecuta una sola vez (dedup nativo de módulos) sin
+  // que Astro saltee el registro del listener por ser "el mismo inline
+  // script" en las 3 páginas de idioma (es/pt/en usan este componente).
+  function initGlobeLazyLoad() {
     const section = document.querySelector('.cas-globe-layout');
     if (!section) return;
 
-    let loaded = false;
-
     function loadScripts() {
-      if (loaded) return;
-      loaded = true;
+      // Si amCharts ya está cargado (navegación previa en esta sesión),
+      // solo reinicializar el globo para el DOM de la página actual.
+      if (window.am5 && window.am5map && window.am5geodata_worldLow) {
+        if (typeof window.initCasGlobe === 'function') window.initCasGlobe();
+        return;
+      }
 
-      // Cargar globo.css de forma no bloqueante
-      var link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = '/assets/globo/globo.css';
-      document.head.appendChild(link);
+      if (!document.querySelector('link[href="/assets/globo/globo.css"]')) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '/assets/globo/globo.css';
+        document.head.appendChild(link);
+      }
 
       const srcs = [
         'https://cdn.amcharts.com/lib/5/index.js',
@@ -105,5 +112,7 @@ const t = {
       // Fallback para browsers sin IntersectionObserver
       loadScripts();
     }
-  })();
+  }
+
+  document.addEventListener('astro:page-load', initGlobeLazyLoad);
 </script>
