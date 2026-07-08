@@ -13,7 +13,7 @@ Este documento está pensado para uso operativo. Para detalles técnicos de arqu
 3. [Instalación local (primera vez)](#3-instalación-local-primera-vez)
 4. [Trabajar con GitHub](#4-trabajar-con-github)
 5. [Cloudflare Pages](#5-cloudflare-pages)
-6. [WordPress como CMS](#6-wordpress-como-cms)
+6. [Sanity como CMS](#6-sanity-como-cms)
 7. [Actualizar contenido del sitio](#7-actualizar-contenido-del-sitio)
 8. [Actualizar elementos visuales](#8-actualizar-elementos-visuales)
 9. [Actualizaciones de software](#9-actualizaciones-de-software)
@@ -28,14 +28,14 @@ El sitio funciona con **tres piezas conectadas**:
 
 ```
 ┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
-│   WordPress     │      │   GitHub        │      │  Cloudflare     │
+│   Sanity        │      │   GitHub        │      │  Cloudflare     │
 │  (contenido)    │      │  (código)       │      │  Pages (front)  │
 │                 │      │                 │      │                 │
-│ contenidosad.com│      │ ldevesa/        │      │ contenidosad.com│
-│ contentad.net   │      │ cas-astro       │      │                 │
+│ Studio + dataset│      │ ldevesa/        │      │ contenidosad.com│
+│ "production"    │      │ cas-astro       │      │                 │
 └────────┬────────┘      └────────┬────────┘      └────────▲────────┘
          │                        │                        │
-         │  REST API              │  push triggers         │
+         │  GROQ (API)            │  push triggers         │
          └────────────────────────┼────────────────────────┘
                                   │
                             durante el build
@@ -43,13 +43,13 @@ El sitio funciona con **tres piezas conectadas**:
 
 ### Resumen del flujo
 
-- **WordPress** guarda los casos, clientes, carreras (contenido editable).
-- **GitHub** guarda el código del sitio (HTML/CSS/JS/Astro).
-- **Cloudflare Pages** corre `npm run build`, que toma el código de GitHub + datos de WordPress, y genera HTML estático servido por CDN.
+- **Sanity** guarda los casos, clientes, carreras (contenido editable), con campos localizados ES/PT/EN dentro de un mismo documento.
+- **GitHub** guarda el código del sitio (HTML/CSS/JS/Astro) y también el código del Sanity Studio (carpeta `studio/`).
+- **Cloudflare Pages** corre `npm run build`, que toma el código de GitHub + datos de Sanity, y genera HTML estático servido por CDN.
 
 ### Importante: el sitio es **estático (SSG)**
 
-Cada vez que cambia algo (código en GitHub o contenido en WordPress), hay que **regenerar el sitio** (rebuild). Cloudflare lo hace automáticamente con cada `git push`, pero para cambios solo en WordPress hay que dispararlo manualmente o vía webhook.
+Cada vez que cambia algo (código en GitHub o contenido en Sanity), hay que **regenerar el sitio** (rebuild). Cloudflare lo hace automáticamente con cada `git push`, pero para cambios solo en Sanity hay que dispararlo manualmente o vía webhook.
 
 ---
 
@@ -57,10 +57,10 @@ Cada vez que cambia algo (código en GitHub o contenido en WordPress), hay que *
 
 | Servicio | Para qué | URL |
 | :--- | :--- | :--- |
-| **GitHub** | Código del sitio | https://github.com/ldevesa/cas-astro |
+| **GitHub** | Código del sitio y del Studio | https://github.com/ldevesa/cas-astro |
 | **Cloudflare Pages** | Hosting + deploys | https://dash.cloudflare.com → Workers & Pages |
-| **WordPress ES/PT** | CMS principal (casos, clientes, oficinas) | https://contenidosad.com/wp-admin |
-| **WordPress EN** | CMS para versión en inglés | https://contentad.net/wp-admin |
+| **Sanity** | CMS (casos, clientes, carreras) y gestión del proyecto | https://sanity.io/manage (proyecto `cas-sanity`) |
+| **Sanity Studio** | Editar contenido | `cd studio && npm run dev` (local) o la URL pública si se deployó con `sanity deploy` |
 | **Mailjet** | Envío de emails del formulario | https://app.mailjet.com |
 | **Dominio** | Registro del dominio `contenidosad.com` | Donde esté registrado el dominio |
 
@@ -70,7 +70,7 @@ Asegurate de tener usuario y contraseña de cada uno antes de operar.
 
 ## 3. Instalación local (primera vez)
 
-Solo necesario si vas a editar código localmente. Para cambios solo de contenido, no hace falta.
+Solo necesario si vas a editar código localmente. Para cambios solo de contenido, alcanza con correr el Studio (ver sección 6).
 
 ### Requisitos previos
 
@@ -85,10 +85,10 @@ Solo necesario si vas a editar código localmente. Para cambios solo de contenid
 1. **Clonar el repositorio:**
    ```bash
    git clone https://github.com/ldevesa/cas-astro.git
-   cd cas-astro/cas-astro
+   cd cas-astro/cas-astro-sanity
    ```
 
-2. **Instalar dependencias:**
+2. **Instalar dependencias del sitio:**
    ```bash
    npm install
    ```
@@ -108,13 +108,21 @@ Solo necesario si vas a editar código localmente. Para cambios solo de contenid
 
 5. **Hacer cambios** — cualquier edición se refleja instantáneamente en el navegador.
 
-### Comandos útiles
+### Comandos útiles (sitio)
 
 | Comando | Qué hace |
 | :--- | :--- |
 | `npm run dev` | Servidor de desarrollo en `localhost:4321` |
 | `npm run build` | Genera el sitio estático en `./dist/` |
 | `npm run preview` | Previsualiza el build localmente |
+
+### Comandos útiles (Studio, desde `studio/`)
+
+| Comando | Qué hace |
+| :--- | :--- |
+| `npm install` | Instala dependencias del Studio (primera vez) |
+| `npm run dev` | Abre el editor de contenido en `localhost:3333` |
+| `npm run deploy` | Publica el Studio en una URL pública (`<proyecto>.sanity.studio`) |
 
 ---
 
@@ -168,13 +176,15 @@ https://dash.cloudflare.com → **Workers & Pages** → seleccionar el proyecto 
 
 ### Cómo redeployar manualmente
 
-Útil cuando agregás un caso/cliente en WordPress y querés que aparezca en el sitio:
+Útil cuando agregás un caso/cliente en Sanity y querés que aparezca en el sitio:
 
 1. Dashboard → Workers & Pages → tu proyecto
 2. Pestaña **Deployments**
 3. En el último deployment hacer click en el menú "..." → **"Retry deployment"** (o "Reintentar implementación")
 4. Esperar 1-2 minutos
 5. Refrescar el sitio público
+
+**Ojo:** si acabás de agregar o cambiar variables de entorno, "Retry" a veces no las relee. Si el redeploy sigue fallando con el mismo error después de corregir las variables, forzá un deployment nuevo en vez de reintentar el viejo (ver [Troubleshooting](#10-troubleshooting) o el método "Commit vacío" en la sección 7).
 
 ### Ver logs de un deploy
 
@@ -185,108 +195,100 @@ Si un deploy falla:
 3. Buscar líneas en rojo o que digan `error`
 
 Errores típicos:
-- `WP API error: 500` → WordPress está caído o tiene un error.
-- `WP API error: rest_no_route` → falta un CPT o se cambió el slug.
+- `Configuration must contain projectId` → faltan `PUBLIC_SANITY_PROJECT_ID` / `PUBLIC_SANITY_DATASET` en las variables de entorno del deployment (ver más abajo).
 - Errores de TypeScript / sintaxis → algo está mal en el código.
 
 ### Variables de entorno en Cloudflare
 
-1. Dashboard → tu proyecto → **Settings** → **Environment variables**
-2. Agregar/editar las variables (ver sección [Variables de entorno](#11-variables-de-entorno))
-3. **Importante:** después de editar, hay que hacer un deploy nuevo para que tomen efecto.
+Cloudflare Pages separa las variables en **dos scopes independientes: Production y Preview**. Configurarlas en uno no las aplica al otro.
 
-### Configurar Deploy Hook (para que WordPress dispare rebuilds)
+1. Dashboard → tu proyecto → **Settings** → **Environment variables**
+2. Agregar/editar las variables **en el scope que corresponda** (ver sección [Variables de entorno](#11-variables-de-entorno)):
+   - **Production** → deployments de la rama principal (el sitio real).
+   - **Preview** → deployments de cualquier otra rama (branches de prueba, como una migración en curso).
+3. **Importante:** después de editar, hay que hacer un deploy nuevo para que tomen efecto — y si el deployment falló antes de corregir las variables, un simple "Retry" puede no alcanzar (ver arriba).
+
+### Configurar Deploy Hook (para que Sanity dispare rebuilds)
 
 1. Dashboard → tu proyecto → **Settings** → **Builds & deployments** → **Deploy hooks**
 2. Click en **"Add deploy hook"**
-3. Nombre: `WordPress publish` (o el que quieras)
-4. Branch: `main`
+3. Nombre: `Sanity publish` (o el que quieras)
+4. Branch: `main` (la rama de producción)
 5. Copiar la URL que genera (algo como `https://api.cloudflare.com/...`)
-6. En WordPress: instalar plugin **"WP Webhooks"** → configurar esa URL como destino cuando se publique o actualice un post.
+6. En Sanity: [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook" → pegar esa URL como destino, con trigger en Create/Update/Delete (ver detalle en sección 6).
 
-Resultado: cada vez que se publica un caso en WordPress, el sitio se actualiza solo en 1-2 minutos.
+Resultado: cada vez que se publica un documento en el Studio, el sitio se actualiza solo en 1-2 minutos.
 
 ---
 
-## 6. WordPress como CMS
+## 6. Sanity como CMS
 
-Hay **dos sitios WordPress** independientes:
+El contenido vive en **un solo proyecto de Sanity**, con **un solo dataset** (`production`) que incluye los 3 idiomas dentro de cada documento — a diferencia del esquema anterior con dos WordPress separados, acá no hay "otro sitio para inglés".
 
-| Sitio | Idiomas | Admin |
-| :--- | :--- | :--- |
-| `contenidosad.com` | Español + Portugués (con Polylang) | https://contenidosad.com/wp-admin |
-| `contentad.net` | Inglés | https://contentad.net/wp-admin |
+### Tipos de contenido (documentos)
 
-### Tipos de contenido que consume el sitio
-
-| CPT en WordPress | Dónde aparece en el sitio |
+| Documento en Sanity | Dónde aparece en el sitio |
 | :--- | :--- |
-| **Casos** (`casos`) | `/casos`, `/casos/[slug]` |
-| **Clientes** (`clientes`) | Carrusel de clientes en home |
-| **Carreras** (`carreras`) | `/carreras`, `/carreras/[slug]` |
+| **Caso** (`caso`) | `/casos`, `/casos/[slug]` |
+| **Cliente** (`cliente`) | Carrusel de clientes en home, `/clientes` |
+| **Carrera** (`carrera`) | `/carreras`, `/carreras/[slug]` |
+
+### Cómo abrir el Studio
+
+**Local (siempre funciona):**
+```bash
+cd studio
+npm install   # solo la primera vez
+npm run dev
+```
+Abrí `http://localhost:3333`. Necesitás estar logueado con una cuenta de Sanity con permisos en el proyecto.
+
+**Publicado (opcional, para editar desde cualquier lado sin tener el código):**
+```bash
+cd studio
+npm run deploy
+```
+Esto genera una URL tipo `https://cas-sanity.sanity.studio` accesible desde el navegador, sin instalar nada.
 
 ### Agregar un caso nuevo
 
-1. Entrar a https://contenidosad.com/wp-admin
-2. Menú lateral → **Casos** → **Añadir nuevo**
-3. Completar:
-   - **Título** del caso
-   - **Extracto** (resumen corto que aparece en el listado)
-   - **Contenido** (descripción larga del caso)
-   - **Imagen destacada** (aparece en el listado y como portada)
-4. **Campos ACF** (panel inferior):
-   - **Resumen**: texto corto para mostrar
-   - **Subtítulo**: bajada del caso
-   - **Mercados**: país/región donde se aplicó
-   - **Título mercado**: label del mercado
-   - **Post campaña**: código embed de YouTube (iframe completo)
-   - **Image carousel**: imágenes del galería (clickear "Add row" por cada imagen)
-5. **Idioma** (panel derecho, Polylang): elegir si es ES o PT
-6. **Publicar**
-7. (Si tenés Deploy Hook configurado) → el sitio se actualiza solo en 1-2 min.
-   **(Si no)** → ir a Cloudflare Pages → "Reintentar implementación"
-
-### Caso en portugués
-
-Mismo proceso, pero al elegir el idioma poner "Portugués". Si querés que sea la traducción del mismo caso en español:
-1. Editar el caso en español
-2. Panel "Languages" → al lado de Portugués click en el "+"
-3. Completar los campos traducidos
-4. Publicar
-
-### Caso en inglés
-
-Va en el **otro WordPress** (`contentad.net`):
-1. Entrar a https://contentad.net/wp-admin
-2. Mismo proceso de carga (sin Polylang porque es solo inglés)
+1. Abrir el Studio → menú lateral → **Caso** → **+ Create**
+2. **Título**: completar las 3 pestañas/campos de idioma (es / pt / en). Si falta un idioma, el sitio muestra automáticamente la versión en español como respaldo — no es obligatorio completar los 3 para publicar.
+3. **Slug**: se genera solo a partir del título en español. Es el mismo para los 3 idiomas (así funciona el selector de idioma del sitio).
+4. **Subtítulo**, **Resumen**, **Mercado**: igual que el título, un campo por idioma.
+5. **Contenido**: el texto largo del caso, con formato (rich text) — también por idioma.
+6. **Imagen destacada**: obligatoria, aparece en el listado y como portada del caso.
+7. **Galería**: opcional, agregar imágenes con el botón "+".
+8. **ID de video de YouTube**: opcional, solo el ID (lo que va después de `/embed/` en la URL de YouTube), no el link completo.
+9. **Publish** (arriba a la derecha).
+10. Redeployar el sitio para que se vea el cambio (ver sección 7).
 
 ### Agregar un cliente
 
-1. Admin → **Clientes** → **Añadir nuevo**
-2. **Título**: nombre del cliente
-3. **Imagen destacada**: logo del cliente (PNG con fondo transparente recomendado, ~200×100px)
-4. Publicar
-5. Redeployar (ver arriba)
+1. Studio → **Cliente** → **+ Create**
+2. **Nombre**: nombre del cliente (no se traduce, es igual en los 3 idiomas)
+3. **Logo**: imagen del logo (PNG con fondo transparente recomendado, ~200×100px)
+4. **Publish**
+5. Redeployar (ver sección 7)
 
 ### Agregar una búsqueda laboral (carrera)
 
-1. Admin → **Carreras** → **Añadir nuevo**
-2. **Título**: nombre del puesto
-3. **Contenido**: descripción del puesto
-4. **Campos ACF**:
-   - **Tipo**: ej "Full-time", "Part-time"
-   - **Área de trabajo**: ej "Marketing"
-   - **Categoría**: ej "Senior"
-   - **Fecha**: fecha de publicación
-5. Publicar
-6. Redeployar
+1. Studio → **Carrera** → **+ Create**
+2. **Título**: por idioma
+3. **Tipo**: Full Time / Part Time / Freelance (lista fija, no se traduce — el sitio ya traduce la etiqueta visible solo)
+4. **Categoría**: Junior / Semi Senior / Senior (ídem)
+5. **Área de trabajo**: por idioma
+6. **Fecha de publicación**
+7. **Descripción del puesto**: rich text, por idioma
+8. **Publish**
+9. Redeployar
 
 ### Editar oficinas, redes sociales, datos generales
 
-Estos datos están **hardcodeados en el código**, no en WordPress. Ver [src/lib/wp.ts:109-124](src/lib/wp.ts#L109-L124).
+Estos datos están **hardcodeados en el código**, no en Sanity (nunca vinieron de un CMS). Ver [src/lib/site-data.ts](src/lib/site-data.ts).
 
 Para editarlos:
-1. Abrir [src/lib/wp.ts](src/lib/wp.ts)
+1. Abrir [src/lib/site-data.ts](src/lib/site-data.ts)
 2. Editar el array `offices` o `socialLinks` dentro de `getStaticSiteData()`
 3. Commit + push
 
@@ -297,9 +299,9 @@ Para editarlos:
 ### Flujo completo
 
 ```
-Cambio en WordPress      →   Sitio NO actualizado (sigue viejo)
+Cambio publicado en Sanity Studio   →   Sitio NO actualizado (sigue viejo)
         ↓
-Redeploy en Cloudflare   →   Sitio actualizado (1-2 min)
+Redeploy en Cloudflare              →   Sitio actualizado (1-2 min)
 ```
 
 ### Métodos para disparar el redeploy
@@ -307,17 +309,16 @@ Redeploy en Cloudflare   →   Sitio actualizado (1-2 min)
 | Método | Cuándo conviene | Pasos |
 | :--- | :--- | :--- |
 | **Manual** | Cambios puntuales | Cloudflare → Deployments → "Reintentar implementación" |
-| **Deploy Hook** | Edición frecuente | Configurar una vez (ver sección 5), después se dispara solo desde WP |
-| **Commit vacío** | Desde la terminal | `git commit --allow-empty -m "rebuild" && git push` |
+| **Webhook de Sanity** | Edición frecuente | Configurar una vez (ver sección 5), después se dispara solo al publicar en el Studio |
+| **Commit vacío** | Desde la terminal, o cuando "Retry" no relee variables nuevas | `git commit --allow-empty -m "rebuild" && git push` |
 
 ### Cuándo necesitás redeployar
 
 | Acción | ¿Redeploy? |
 | :--- | :--- |
-| Agregar/editar caso en WordPress | Sí |
-| Agregar/editar cliente en WordPress | Sí |
-| Agregar/editar carrera en WordPress | Sí |
-| Cambiar contenido del WordPress que ya está publicado | Sí |
+| Publicar/editar un caso en el Studio | Sí |
+| Publicar/editar un cliente en el Studio | Sí |
+| Publicar/editar una carrera en el Studio | Sí |
 | Cambiar imagen destacada de un caso | Sí |
 | Cambiar texto en `index.astro` u otro archivo | Solo `git push` (Cloudflare rebuildea solo) |
 | Cambiar variable de entorno en Cloudflare | Sí |
@@ -329,7 +330,7 @@ Redeploy en Cloudflare   →   Sitio actualizado (1-2 min)
 
 ### Cambiar textos del sitio
 
-Los textos que **NO vienen de WordPress** están en los archivos `.astro` de [src/pages/](src/pages/).
+Los textos que **NO vienen de Sanity** están en los archivos `.astro` de [src/pages/](src/pages/).
 
 Ejemplos:
 - Hero principal (home): [src/pages/index.astro](src/pages/index.astro)
@@ -367,7 +368,7 @@ El video está en [public/Video.mp4](public/Video.mp4) y se referencia en [src/c
 
 ### Cambiar imágenes generales
 
-Las imágenes estáticas (no las de casos/clientes) están en [public/img/](public/img/).
+Las imágenes estáticas (no las de casos/clientes, esas van por el Studio) están en [public/img/](public/img/).
 
 Para reemplazar:
 1. Copiar la imagen nueva a `public/img/` (preferir mismo formato)
@@ -401,29 +402,17 @@ Agregar/quitar objetos según necesidad. Los "centros de negocio" (puntos destac
 
 ## 9. Actualizaciones de software
 
-### Actualizar plugins de WordPress
+### Actualizar schemas de Sanity (agregar/cambiar un campo)
 
-**Antes de actualizar:**
-- Tener backup reciente del WP (algunos hostings lo hacen automático).
-- Tener identificado qué plugins son críticos para el sitio: **ACF** y **Polylang/WPML** (estos NO se pueden tocar sin testear).
+Si hace falta un campo nuevo en Caso, Cliente o Carrera:
 
-**Flujo seguro:**
+1. Editar el archivo correspondiente en `studio/schemaTypes/` (`caso.ts`, `cliente.ts`, `carrera.ts`)
+2. Probar localmente: `cd studio && npm run dev`, verificar que el campo aparece bien en el editor
+3. Commit + push del código del Studio
+4. Si el Studio está deployado (`sanity deploy`), volver a correr `npm run deploy` desde `studio/` para que el cambio se vea en la URL pública
+5. **No hace falta redeployar el sitio Astro solo por cambiar el schema** — hace falta si además se actualiza `src/lib/cms.ts` para usar ese campo nuevo en el sitio.
 
-1. **Actualizar el plugin** en WordPress Admin.
-2. **NO redeployar todavía.** El sitio público sigue funcionando con datos viejos sin problema.
-3. **Verificar que la API REST devuelve datos válidos**, abriendo estas URLs en el navegador:
-   ```
-   https://contenidosad.com/wp-json/wp/v2/casos?_embed
-   https://contenidosad.com/wp-json/wp/v2/clientes?_embed
-   https://contenidosad.com/wp-json/wp/v2/carreras
-   https://contentad.net/wp-json/wp/v2/casos?_embed
-   ```
-4. **Validar visualmente:**
-   - ¿Devuelven un array `[ {...}, {...} ]` con casos?
-   - ¿Cada caso tiene un objeto `acf` con `resumen`, `subtitulo`, etc?
-   - ¿No hay error 500 ni `rest_no_route`?
-5. **Si está todo OK** → redeployar en Cloudflare.
-6. **Si algo se rompió** → NO redeployar. Volver el plugin a la versión anterior o investigar antes.
+**Nunca borrar un campo que ya tiene datos cargados** sin antes migrar/vaciar ese contenido — puede romper documentos existentes. Ver el patrón de deprecación en la skill `sanity-best-practices` si hace falta.
 
 ### Actualizar dependencias del proyecto (npm)
 
@@ -445,6 +434,8 @@ Después de cualquier update:
 2. `npm run dev` para verificar visualmente
 3. Si está todo OK → commit + push
 
+El Studio (`studio/`) tiene su propio `package.json` independiente — actualizar sus dependencias por separado, desde `studio/`.
+
 ### Actualizar Node.js
 
 Cloudflare Pages usa la versión definida en Settings → Environment variables → `NODE_VERSION` (actualmente `22`).
@@ -458,7 +449,7 @@ Si necesitás cambiar:
 
 ## 10. Troubleshooting
 
-### El sitio no muestra cambios después de editar en WordPress
+### El sitio no muestra cambios después de editar en Sanity
 
 **Causa:** no se hizo redeploy.
 **Solución:** Cloudflare → Deployments → "Reintentar implementación".
@@ -474,43 +465,29 @@ Si necesitás cambiar:
 **Causa 3:** Caché del CDN.
 **Solución:** Cloudflare → Caching → "Purge everything".
 
-### El deploy falla con `WP API error: 500`
+### El deploy falla con `Configuration must contain projectId`
 
-**Causa:** WordPress está caído o tiene un error.
+**Causa:** faltan `PUBLIC_SANITY_PROJECT_ID` / `PUBLIC_SANITY_DATASET` en las variables de entorno de Cloudflare, **o están cargadas en el scope equivocado** (Production vs Preview — ver sección 5).
 **Solución:**
-1. Verificar que `https://contenidosad.com/wp-admin` cargue.
-2. Verificar que `https://contenidosad.com/wp-json/wp/v2/casos?_embed` devuelva JSON.
-3. Si WP está caído: contactar al hosting de WP.
-4. Si WP funciona pero la API falla: revisar si se desactivó algún plugin (ACF, Polylang).
+1. Confirmar en qué rama corrió el deployment que falló (Production o Preview).
+2. Cloudflare → Settings → Environment variables → agregar/mover las 2 variables al scope correcto.
+3. Si "Retry deployment" vuelve a fallar con el mismo error, forzar un deployment nuevo (`git commit --allow-empty -m "rebuild" && git push`) en vez de reintentar el fallido — a veces Cloudflare no relee variables nuevas en un simple retry.
 
-### El deploy falla con `WP API error: rest_no_route`
+### Los casos aparecen sin imagen o sin texto en un idioma
 
-**Causa:** el endpoint no existe en WordPress.
-**Solución:**
-1. Verificar que el CPT (`casos`, `clientes`, `carreras`) sigue registrado en WordPress.
-2. Verificar que tiene `show_in_rest: true` en su registro.
-3. Si se cambió el slug del CPT, hay que actualizar también [src/lib/wp.ts](src/lib/wp.ts).
-
-### Los casos aparecen sin imagen / sin acf
-
-**Causa:** ACF no está activo o no se completaron los campos en WP.
-**Solución:** Activar ACF en WordPress y revisar los campos del caso.
+**Causa 1:** el documento en Sanity no tiene ese campo/idioma completado. No es un error — `cms.ts` hace fallback a español automáticamente si falta una traducción, y la imagen destacada es un campo requerido en el schema, así que si falta, revisar el documento en el Studio.
+**Causa 2:** el documento está guardado como **borrador** (draft) y no se publicó (falta el "Publish" en el Studio).
 
 ### El formulario de contacto no envía emails
 
 **Causa 1:** variables de entorno mal configuradas.
-**Solución:** Cloudflare → Settings → Environment variables → verificar `MJ_APIKEY_PUBLIC`, `MJ_APIKEY_PRIVATE`, `CONTACT_*`.
+**Solución:** Cloudflare → Settings → Environment variables → verificar `MJ_APIKEY_PUBLIC`, `MJ_APIKEY_PRIVATE`, `CONTACT_*` (en el scope correcto, Production o Preview según corresponda).
 
 **Causa 2:** API de Mailjet caída o sin saldo.
 **Solución:** Verificar en https://app.mailjet.com el estado de la cuenta.
 
 **Causa 3:** Después de editar las env vars, no se redeployó.
 **Solución:** Redeployar.
-
-### El sitio en inglés no muestra casos
-
-**Causa:** problema con `contentad.net` (el WordPress en inglés).
-**Solución:** Verificar `https://contentad.net/wp-json/wp/v2/casos?_embed`.
 
 ### Cambié el video del Hero y sigue viéndose el viejo
 
@@ -526,14 +503,14 @@ Las variables se configuran **en dos lugares**:
 | Entorno | Dónde |
 | :--- | :--- |
 | **Local** | Archivo `.env` (no se sube a git) |
-| **Producción** | Cloudflare Pages → Settings → Environment variables |
+| **Producción / Preview** | Cloudflare Pages → Settings → Environment variables (scopes separados, ver sección 5) |
 
 ### Variables actuales
 
 | Variable | Tipo | Para qué |
 | :--- | :--- | :--- |
-| `PUBLIC_WP_URL` | URL | URL del WordPress principal (ES/PT) |
-| `PUBLIC_WP_URL_EN` | URL | URL del WordPress en inglés |
+| `PUBLIC_SANITY_PROJECT_ID` | string | ID del proyecto de Sanity |
+| `PUBLIC_SANITY_DATASET` | string | Dataset a consumir (`production`) |
 | `MJ_APIKEY_PUBLIC` | string | API key pública de Mailjet |
 | `MJ_APIKEY_PRIVATE` | string | API key privada de Mailjet |
 | `CONTACT_FROM_EMAIL` | email | Remitente del email del form |
@@ -544,8 +521,8 @@ Las variables se configuran **en dos lugares**:
 ### Ejemplo de `.env` local
 
 ```env
-PUBLIC_WP_URL=https://contenidosad.com
-PUBLIC_WP_URL_EN=https://contentad.net
+PUBLIC_SANITY_PROJECT_ID=21wszpvy
+PUBLIC_SANITY_DATASET=production
 MJ_APIKEY_PUBLIC=tu_api_key_aqui
 MJ_APIKEY_PRIVATE=tu_api_secret_aqui
 CONTACT_FROM_EMAIL=info@contenidosad.com
@@ -564,7 +541,8 @@ CONTACT_BCC=copia@empresa.com
 
 - `PUBLIC_*` → estas variables están disponibles tanto en el server como en el cliente. **No poner secretos acá.**
 - `MJ_*`, `CONTACT_*` → solo accesibles en la función serverless. Seguro para keys privadas.
-- **Después de editar variables en Cloudflare, hay que redeployar** para que tomen efecto.
+- **Después de editar variables en Cloudflare, hay que redeployar** para que tomen efecto — y hacerlo en el scope correcto (Production vs Preview, ver sección 5).
+- El Studio (`studio/`) usa su **propio** archivo `.env` si hace falta un token de escritura (por ejemplo para scripts de migración) — ver `migration/.env.example`. Nunca compartir ese token, no es lo mismo que las variables `PUBLIC_*` del sitio.
 
 ---
 
@@ -575,13 +553,16 @@ CONTACT_BCC=copia@empresa.com
 | **SSG** | Static Site Generation. El sitio se genera en HTML estático y se sirve desde CDN. |
 | **SSR** | Server-Side Rendering. El sitio se genera en cada request (no es lo que usamos). |
 | **CDN** | Red de servidores globales que sirven los archivos cerca del usuario. |
-| **CPT** | Custom Post Type. Tipo de contenido custom en WordPress (ej: `casos`, `clientes`). |
-| **ACF** | Advanced Custom Fields. Plugin de WordPress para campos personalizados. |
+| **Dataset** | El conjunto de documentos de un proyecto de Sanity (acá usamos uno solo: `production`). |
+| **Documento** | Un registro editable en Sanity (un caso, un cliente, una carrera). |
+| **Schema** | La definición de qué campos tiene cada tipo de documento, en `studio/schemaTypes/`. |
+| **GROQ** | El lenguaje de consultas de Sanity, usado en `src/lib/cms.ts` para traer contenido. |
+| **Portable Text** | El formato en el que Sanity guarda texto con formato (rich text), no HTML. |
+| **Studio** | La interfaz de edición de contenido de Sanity (carpeta `studio/`). |
 | **Build** | Proceso que convierte el código fuente en HTML estático listo para servir. |
 | **Deploy** | Subir el build al hosting (Cloudflare) para que sea accesible. |
-| **Rebuild** | Volver a generar el build (se necesita cuando cambia código o contenido WP). |
-| **Webhook** | URL que se llama automáticamente cuando ocurre un evento (ej: publicar en WP). |
-| **REST API** | Interfaz que WordPress expone para consumir su contenido desde otros sistemas. |
+| **Rebuild** | Volver a generar el build (se necesita cuando cambia código o contenido de Sanity). |
+| **Webhook** | URL que se llama automáticamente cuando ocurre un evento (ej: publicar en Sanity). |
 
 ---
 
@@ -590,6 +571,7 @@ CONTACT_BCC=copia@empresa.com
 Para dudas técnicas que no cubre este manual, consultar:
 
 - [README.md](README.md) — documentación técnica detallada
+- [CLAUDE.md](CLAUDE.md) — historial y decisiones de la migración de WordPress a Sanity
 - Documentación de Astro: https://docs.astro.build
 - Documentación de Cloudflare Pages: https://developers.cloudflare.com/pages
-- Documentación de WordPress REST API: https://developer.wordpress.org/rest-api
+- Documentación de Sanity: https://www.sanity.io/docs
