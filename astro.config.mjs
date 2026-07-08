@@ -15,6 +15,10 @@ const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
 export default defineConfig({
   site: 'https://contenidosad.com',
 
+  // Astro 7 cambió el default a 'jsx' (sin espacios entre elementos inline);
+  // mantenemos el comportamiento viejo para no romper el patrón <span>icono</span> Texto usado en todo el sitio.
+  compressHTML: true,
+
   i18n: {
     defaultLocale: 'es',
     locales: ['es', 'pt', 'en'],
