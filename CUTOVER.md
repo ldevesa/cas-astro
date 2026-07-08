@@ -46,21 +46,37 @@ Sin esto, cada edición en el Studio requiere redeploy manual — igual que Word
 - [ ] Deploy Hook creado en Cloudflare, apuntando a la rama `main`.
 - [ ] Webhook creado en sanity.io/manage, apuntando a ese Deploy Hook.
 
-## 5. Mergear `sanity-migration` a `main`
+## 5. Guardar una copia de la versión WordPress como preview de respaldo
+
+**Importante entender esto antes de mergear:** el merge no deja la versión vieja (WordPress) dando vueltas sola en algún preview — simplemente pasa a ser historia dentro de `main`, ya no deployada en ningún lado. Si querés poder ver/comparar la versión WordPress en una URL propia incluso después de cortar a Sanity, hay que guardarla a propósito **antes** de mergear:
+
+```bash
+git checkout main
+git pull
+git branch wordpress-backup
+git push -u origin wordpress-backup
+```
+
+Esto crea una rama congelada en el estado exacto de `main` justo antes del corte. Cloudflare le arma su propia URL de preview (`wordpress-backup.cas-astro.pages.dev`), que va a seguir sirviendo la versión con WordPress indefinidamente, sin que el merge posterior la toque para nada.
+
+- [ ] Rama `wordpress-backup` creada y pusheada.
+- [ ] Confirmado que Cloudflare le generó su URL de preview.
+
+## 6. Mergear `sanity-migration` a `main`
 
 **Este es el paso que efectivamente prende Sanity en producción.** Todo lo anterior es preparación sin riesgo; este es el único que cambia el sitio en vivo.
 
 - [ ] Pull Request de `sanity-migration` → `main` en GitHub (o merge directo).
 - [ ] Confirmar que el merge no tiene conflictos.
 
-## 6. Verificar el deployment de Production después del merge
+## 7. Verificar el deployment de Production después del merge
 
 Mismo chequeo del punto 1, pero ahora en el dominio real.
 
 - [ ] `contenidosad.com` (y `/pt`, `/en`) sirviendo contenido de Sanity.
 - [ ] Build de Production sin errores en Cloudflare → Deployments.
 
-## 7. Después del cutover
+## 8. Después del cutover
 
 - [ ] Purgar caché de Cloudflare si hace falta que se vea al instante (Dashboard → Caching → "Purge everything").
 - [ ] Decidir cuándo apagar `contenidosad.com`/`contentad.net` como WordPress (se puede dejar corriendo en paralelo sin costo/riesgo mientras se confirma que todo anda bien en Sanity — no hay apuro).
@@ -68,7 +84,7 @@ Mismo chequeo del punto 1, pero ahora en el dominio real.
 
 ### Si algo sale mal
 
-Rollback simple: revertir el merge en `main` y pushear. Cloudflare rebuildea con el código viejo (WordPress) en 1-2 minutos.
+Rollback simple: revertir el merge en `main` y pushear. Cloudflare rebuildea con el código viejo (WordPress) en 1-2 minutos — gracias al paso 5, esa misma versión ya la estuviste viendo funcionar en `wordpress-backup`, así que no es un salto a ciegas.
 
 ```bash
 git revert -m 1 <hash del merge commit>
