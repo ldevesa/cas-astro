@@ -250,6 +250,16 @@ npm run deploy
 ```
 Esto genera una URL tipo `https://cas-sanity.sanity.studio` accesible desde el navegador, sin instalar nada.
 
+### Ver todas las imágenes y videos (equivalente a "Media" de WordPress)
+
+El Studio tiene una pestaña **Media** en el menú lateral (plugin `sanity-plugin-media`) con una grilla de **todos** los archivos subidos al proyecto, sin importar en qué documento se usan:
+
+- Buscador y filtros por tipo/tamaño.
+- Click en cualquier archivo para ver su **URL**, dimensiones, peso y metadata.
+- Muestra **en qué documentos está usado** cada archivo (algo que WordPress no ofrece) — útil antes de borrar una imagen, para saber si romperías algún caso o cliente.
+
+No hace falta entrar a un caso puntual para encontrar una imagen — se puede buscar directamente ahí.
+
 ### Agregar un caso nuevo
 
 1. Abrir el Studio → menú lateral → **Caso** → **+ Create**

@@ -13,6 +13,7 @@ Sitio web institucional de CAS construido con **Astro + Tailwind CSS**, conectad
 | [Sanity](https://www.sanity.io) + [`@sanity/astro`](https://github.com/sanity-io/sanity-astro) | CMS headless (casos, clientes, carreras) — Studio en `studio/` |
 | [`astro-portabletext`](https://github.com/theisel/astro-portabletext) | Render del rich text (Portable Text) de Sanity |
 | [`@sanity/image-url`](https://www.sanity.io/docs/image-url) | URLs de imágenes optimizadas servidas por el CDN de Sanity |
+| [`sanity-plugin-media`](https://github.com/sanity-io/sanity-plugin-media) | Browser de todos los assets del proyecto dentro del Studio (equivalente a "Media" de WordPress) |
 | [amCharts 5](https://www.amcharts.com) | Globo 3D y mapas de cobertura global |
 | [Mailjet](https://www.mailjet.com) | Envío de emails del formulario de contacto |
 | [Cloudflare Pages](https://pages.cloudflare.com) | Hosting + Functions (API serverless) |
