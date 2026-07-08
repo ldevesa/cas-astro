@@ -29,7 +29,9 @@ El dolor a resolver: una empresa externa administra esas instancias de WordPress
   - `astro.config.mjs` lee `PUBLIC_SANITY_PROJECT_ID`/`PUBLIC_SANITY_DATASET` (ver `.env.example`) — **hay que configurar estas 2 variables en Cloudflare Pages** antes del próximo deploy a producción, si no el build va a fallar por falta de projectId/dataset.
 - [x] Rama `sanity-migration` pusheada a GitHub y deployment de preview funcionando en Cloudflare Pages (proyecto `cas-astro`), en paralelo al sitio de producción (`main`), sin tocarlo. **Gotcha real que nos pasó:** Cloudflare Pages separa variables de entorno por scope **Production** / **Preview** — si se agregan solo en Production, el build de una rama que no sea `main` falla con `Configuration must contain projectId` aunque las variables "existan" en el proyecto. Además, un simple **"Retry deployment"** no siempre relee variables recién agregadas; si el retry vuelve a fallar con el mismo error después de corregir las variables, forzar un deployment nuevo (commit vacío + push) en vez de reintentar el fallido.
 - [x] `README.md` y `MANUAL.md` reescritos para reflejar el flujo con Sanity (Studio en vez de wp-admin, GROQ en vez de REST, webhook de Sanity en vez de WP Webhooks, variables de entorno nuevas, troubleshooting actualizado con el error real de `projectId` que nos pasó).
-- [ ] Decidir si/cuándo deprecar los dos WordPress
+- [x] Astro actualizado a v7.0.7 (desde 6.1.5). Requirió `compressHTML: true` explícito en `astro.config.mjs` porque el nuevo default (`'jsx'`) pegaba el texto a los íconos en todo el sitio (patrón `<span>icono</span> Texto`). Build y `astro check` verificados, sin errores nuevos.
+- [ ] Pasar a producción (mergear `sanity-migration` → `main`) — checklist completo en [CUTOVER.md](CUTOVER.md)
+- [ ] Decidir si/cuándo deprecar los dos WordPress (parte del checklist de arriba)
 
 ## Contenido actual a migrar (Custom Post Types de WordPress)
 

@@ -591,6 +591,7 @@ Para dudas técnicas que no cubre este manual, consultar:
 
 - [README.md](README.md) — documentación técnica detallada
 - [CLAUDE.md](CLAUDE.md) — historial y decisiones de la migración de WordPress a Sanity
+- [CUTOVER.md](CUTOVER.md) — checklist paso a paso para pasar `sanity-migration` a producción
 - Documentación de Astro: https://docs.astro.build
 - Documentación de Cloudflare Pages: https://developers.cloudflare.com/pages
 - Documentación de Sanity: https://www.sanity.io/docs
