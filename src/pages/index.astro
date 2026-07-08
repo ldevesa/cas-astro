@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getCasos, getCasoImage, getCasoImageAlt } from '../lib/wp';
+import { getCasos } from '../lib/cms';
 import ClientesCarousel from '../components/ClientesCarousel.astro';
 import HeroShader from '../components/HeroShader.astro';
 import CoberturaGlobo from '../components/CoberturaGlobo.astro';
@@ -278,22 +278,16 @@ const casos = await getCasos('es', 6);
           <a href={`/casos/${caso.slug}`} class="case-card group block">
             <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-6">
               <img
-                alt={getCasoImageAlt(caso)}
+                alt={caso.imagenAlt}
                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                src={getCasoImage(caso)}
+                src={caso.imagenUrl}
                 loading="lazy"
               />
             </div>
             <div class="space-y-2">
-              <h3
-                class="font-['Space_Grotesk'] text-2xl font-bold tracking-tight text-white group-hover:text-[#ffb876] transition-colors"
-                set:html={caso.title.rendered}
-              />
-              {caso.excerpt.rendered && (
-                <p
-                  class="text-on-surface-variant text-sm font-['Plus_Jakarta_Sans'] line-clamp-2"
-                  set:html={caso.excerpt.rendered}
-                />
+              <h3 class="font-['Space_Grotesk'] text-2xl font-bold tracking-tight text-white group-hover:text-[#ffb876] transition-colors">{caso.titulo}</h3>
+              {caso.resumen && (
+                <p class="text-on-surface-variant text-sm font-['Plus_Jakarta_Sans'] line-clamp-2">{caso.resumen}</p>
               )}
             </div>
           </a>

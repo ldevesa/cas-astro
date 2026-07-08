@@ -1,6 +1,6 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { getCarreras } from '../../../lib/wp';
+import { getCarreras } from '../../../lib/cms';
 
 const carreras = await getCarreras('en');
 
@@ -58,11 +58,11 @@ const tipoLabel: Record<string, string> = {
             <a href={`/en/carreras/${carrera.slug}`} class="group block border border-white/10 hover:border-[#F69220]/50 bg-[#111111] hover:bg-[#161616] rounded-2xl p-8 transition-all duration-300">
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                  <h2 class="font-['Space_Grotesk'] font-black text-2xl md:text-3xl text-white group-hover:text-[#ffb876] transition-colors tracking-tight mb-3" set:html={carrera.title.rendered} />
+                  <h2 class="font-['Space_Grotesk'] font-black text-2xl md:text-3xl text-white group-hover:text-[#ffb876] transition-colors tracking-tight mb-3">{carrera.titulo}</h2>
                   <div class="flex flex-wrap gap-2">
-                    {carrera.acf?.area_trabajo && <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{carrera.acf.area_trabajo}</span>}
-                    {carrera.acf?.categoria && <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{categoriaLabel[carrera.acf.categoria] ?? carrera.acf.categoria}</span>}
-                    {carrera.acf?.tipo && <span class="font-['Inter'] text-xs uppercase tracking-wider px-3 py-1 rounded-full" style="color: #F69220; border: 1px solid rgba(246,146,32,0.3);">{tipoLabel[carrera.acf.tipo] ?? carrera.acf.tipo}</span>}
+                    {carrera.areaTrabajo && <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{carrera.areaTrabajo}</span>}
+                    {carrera.categoria && <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{categoriaLabel[carrera.categoria] ?? carrera.categoria}</span>}
+                    {carrera.tipo && <span class="font-['Inter'] text-xs uppercase tracking-wider px-3 py-1 rounded-full" style="color: #F69220; border: 1px solid rgba(246,146,32,0.3);">{tipoLabel[carrera.tipo] ?? carrera.tipo}</span>}
                   </div>
                 </div>
                 <div class="shrink-0 flex items-center gap-2 text-[#F69220] font-['Space_Grotesk'] font-bold text-sm uppercase tracking-widest group-hover:gap-4 transition-all duration-300">

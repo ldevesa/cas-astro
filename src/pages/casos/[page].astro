@@ -1,10 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getCasosPage, getCasoImage, getCasoImageAlt } from '../../lib/wp';
+import { getCasosPage } from '../../lib/cms';
 
 export async function getStaticPaths() {
   // Traemos la primera página solo para saber cuántas páginas hay en total
-  const { totalPages } = await getCasosPage(1, 6);
+  const { totalPages } = await getCasosPage(1, 6, 'es');
   return Array.from({ length: totalPages }, (_, i) => ({
     params: { page: String(i + 1) },
   }));
@@ -12,7 +12,7 @@ export async function getStaticPaths() {
 
 const currentPage = parseInt(Astro.params.page, 10);
 const PER_PAGE = 6;
-const { casos, total, totalPages } = await getCasosPage(currentPage, PER_PAGE);
+const { casos, total, totalPages } = await getCasosPage(currentPage, PER_PAGE, 'es');
 
 const hasPrev = currentPage > 1;
 const hasNext = currentPage < totalPages;
@@ -46,22 +46,20 @@ const nextUrl = `/casos/${currentPage + 1}`;
           <a href={`/casos/${caso.slug}`} class="case-card group block">
             <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-6">
               <img
-                alt={getCasoImageAlt(caso)}
+                alt={caso.imagenAlt}
                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                src={getCasoImage(caso)}
+                src={caso.imagenUrl}
                 loading="lazy"
               />
             </div>
             <div class="space-y-2">
               <h2
                 class="font-['Space_Grotesk'] text-2xl font-bold tracking-tight text-white group-hover:text-[#ffb876] transition-colors"
-                set:html={caso.title.rendered}
-              />
-              {caso.excerpt.rendered && (
+              >{caso.titulo}</h2>
+              {caso.resumen && (
                 <p
                   class="text-gray-500 text-sm font-['Plus_Jakarta_Sans'] line-clamp-2"
-                  set:html={caso.excerpt.rendered}
-                />
+                >{caso.resumen}</p>
               )}
             </div>
           </a>

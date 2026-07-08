@@ -14,13 +14,26 @@
   "dependencies": {
     "@astrojs/cloudflare": "^13.1.8",
     "@astrojs/vercel": "^10.0.4",
+    "@portabletext/types": "^4.0.2",
+    "@sanity/astro": "^3.4.2",
+    "@sanity/client": "^7.23.0",
+    "@sanity/image-url": "^2.1.1",
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.1.5",
+    "astro-portabletext": "^0.13.0",
+    "groq": "^6.4.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-is": "^19.2.7",
+    "sanity": "^6.4.0",
+    "styled-components": "^6.4.3",
     "tailwindcss": "^4.2.2",
     "three": "^0.183.2"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.9",
     "@types/node": "^25.6.0",
-    "@types/three": "^0.183.1"
+    "@types/three": "^0.183.1",
+    "typescript": "^5.9.3"
   }
 }
