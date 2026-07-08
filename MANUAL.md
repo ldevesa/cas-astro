@@ -390,6 +390,15 @@ Para reemplazar:
 1. Reemplazar `public/img/logo-cas.svg` (o el archivo correspondiente)
 2. Commit + push
 
+### Cambiar el formulario de contacto (campos, texto del email, etc.)
+
+**Importante:** la lógica del formulario está **duplicada a propósito** en dos archivos, uno por plataforma de hosting:
+
+- [functions/api/contact.js](functions/api/contact.js) — formato Cloudflare Pages Functions. **Este es el que usa el sitio hoy.**
+- [api/contact.js](api/contact.js) — formato Vercel Serverless Functions. No se usa mientras el hosting sea Cloudflare, queda listo por si algún día se migra a Vercel (ver [README.md](README.md#si-se-decide-migrar-a-vercel)).
+
+Como no hay ningún mecanismo que los sincronice solo, **cualquier cambio en uno hay que replicarlo a mano en el otro** (agregar un campo, cambiar el asunto del email, cambiar validaciones, etc.) — si no, el día que se cambie de plataforma el formulario va a comportarse distinto a como lo dejaste.
+
 ### Cambiar paleta de colores o tipografías
 
 Definido en [src/styles/global.css](src/styles/global.css):
