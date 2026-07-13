@@ -39,12 +39,15 @@ Hoy `PUBLIC_SANITY_PROJECT_ID` y `PUBLIC_SANITY_DATASET` solo están cargadas en
 - [ ] Cloudflare Pages → proyecto `cas-astro` → Settings → Environment variables → agregar ambas variables en **Production**.
 - [ ] De paso, confirmar que las variables de Mailjet (`MJ_*`, `CONTACT_*`) también están en Production (deberían seguir ahí de antes, sin cambios).
 
-## 4. (Opcional, recomendado) Webhook de Sanity → Cloudflare
+## 4. Webhook de Sanity → Cloudflare
 
-Sin esto, cada edición en el Studio requiere redeploy manual — igual que WordPress sin el Deploy Hook. Ver instrucciones en [MANUAL.md § 5](MANUAL.md#configurar-deploy-hook-para-que-sanity-dispare-rebuilds) y [README.md](README.md#configurar-el-webhook-de-sanity-recomendado).
+✅ **Ya armado y probado**, pero apuntando a `sanity-migration` (preview), no a `main` todavía:
 
-- [ ] Deploy Hook creado en Cloudflare, apuntando a la rama `main`.
-- [ ] Webhook creado en sanity.io/manage, apuntando a ese Deploy Hook.
+- [x] Deploy Hook creado en Cloudflare ("Enlaces de implementación" — Settings/Configuración → **Desarrollo**, no "General") → rama `sanity-migration`.
+- [x] Webhook creado en sanity.io/manage → API → Webhooks, dataset `production`, trigger Create/Update/Delete, filtro `_type in ["caso", "cliente", "carrera"]`.
+- [x] Probado de punta a punta: publicar en el Studio dispara un deployment nuevo solo, visible en la URL alias de la rama (`https://sanity-migration.cas-astro.pages.dev` — **no** la URL con hash de un deployment puntual, esa queda congelada para siempre).
+
+**Antes del merge a producción (parte del paso 6):** crear un Deploy Hook nuevo apuntando a `main`, y o bien agregar un segundo webhook en Sanity apuntando a ese, o editar el existente para que dispare a ambos (Cloudflare permite un solo Deploy Hook por request, así que si se quiere mantener el rebuild automático en `sanity-migration` *y* en `main` simultáneamente, hacen falta 2 webhooks en Sanity, uno por cada Deploy Hook).
 
 ## 5. Guardar una copia de la versión WordPress como preview de respaldo
 

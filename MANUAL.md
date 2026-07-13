@@ -210,12 +210,15 @@ Cloudflare Pages separa las variables en **dos scopes independientes: Production
 
 ### Configurar Deploy Hook (para que Sanity dispare rebuilds)
 
-1. Dashboard → tu proyecto → **Settings** → **Builds & deployments** → **Deploy hooks**
-2. Click en **"Add deploy hook"**
+**Ya está armado y probado**, apuntando hoy a `sanity-migration` (ver [CUTOVER.md § 4](CUTOVER.md) para el detalle de qué falta ajustar antes de producción). Pasos para crear uno nuevo (por ejemplo, el de producción cuando llegue el momento):
+
+1. Dashboard → tu proyecto → **Configuración** → **Desarrollo** (en el panel rediseñado de Cloudflare, esto ya NO está bajo "General" ni tiene la palabra "hook" a la vista — hay que buscarlo bajo "Desarrollo", el nombre en español de la sección de builds)
+2. Scrollear hasta la sección **"Enlaces de implementación"** (es como Cloudflare tradujo "Deploy Hooks") → click en el **"+"**
 3. Nombre: `Sanity publish` (o el que quieras)
-4. Branch: `main` (la rama de producción)
-5. Copiar la URL que genera (algo como `https://api.cloudflare.com/...`)
-6. En Sanity: [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook" → pegar esa URL como destino, con trigger en Create/Update/Delete (ver detalle en sección 6).
+4. Rama a compilar: `main` (la rama de producción) o `sanity-migration` (para preview)
+5. Copiar la URL que genera (`https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/...`)
+6. En Sanity: [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook" → dataset `production`, pegar esa URL como destino, trigger en Create/Update/Delete, filtro GROQ `_type in ["caso", "cliente", "carrera"]` (ver detalle en sección 6).
+7. Para confirmar que quedó bien: publicar cualquier cambio chico en el Studio y, en el webhook (sanity.io/manage → API → Webhooks → click en el webhook), revisar el log de intentos — debería mostrar `"resultCode": 200` y un ID de deployment. Ese deployment se ve en la **URL alias de la rama** (`https://<rama>.cas-astro.pages.dev`, sin ningún hash adelante) — la URL con hash de un deployment puntual queda congelada para siempre y nunca muestra contenido nuevo.
 
 Resultado: cada vez que se publica un documento en el Studio, el sitio se actualiza solo en 1-2 minutos.
 
