@@ -196,7 +196,7 @@ CONTACT_BCC=copia@empresa.com
 
 ## Contenido desde Sanity
 
-El contenido editable (**Caso**, **Cliente**, **Carrera**) vive en un dataset de Sanity y se edita desde el **Sanity Studio** (carpeta `studio/` — correlo con `cd studio && npm run dev`, o deployado en una URL pública si se configuró `sanity deploy`).
+El contenido editable (**Caso**, **Cliente**, **Carrera**) vive en un dataset de Sanity y se edita desde el **Sanity Studio**, deployado en https://cas-sanity.sanity.studio (código en la carpeta `studio/` — para desarrollar/probar schemas localmente: `cd studio && npm run dev`).
 
 El sitio toma ese contenido en tiempo de **build** (no en runtime) usando GROQ, vía [`src/lib/cms.ts`](src/lib/cms.ts):
 
