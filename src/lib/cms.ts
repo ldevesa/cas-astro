@@ -216,3 +216,54 @@ export async function getClientes(): Promise<Cliente[]> {
   const docs = await sanityClient.fetch<ClienteDoc[]>(CLIENTES_QUERY);
   return docs.map((d) => ({ id: d.id, nombre: d.nombre, logoUrl: imageUrl(d.logo) }));
 }
+
+// ── Página Home (page builder) ────────────────────────────────────────────────
+// Patrón incremental: hoy solo existe el bloque "hero"; nuevos tipos de bloque se
+// suman como un nuevo caso en mapBloque() + su propia interfaz, sin tocar el resto.
+
+interface BloqueDoc {
+  _type: string;
+  _key: string;
+  titulo?: LocaleString;
+  video?: {asset?: {url: string}};
+  efectoActivo?: boolean;
+}
+
+export interface HeroBloque {
+  type: 'hero';
+  key: string;
+  titulo: string;
+  videoUrl?: string;
+  efectoActivo: boolean;
+}
+
+export type BloqueHome = HeroBloque;
+
+function mapBloque(doc: BloqueDoc, lang: Lang): BloqueHome | undefined {
+  if (doc._type === 'heroBloque') {
+    return {
+      type: 'hero',
+      key: doc._key,
+      titulo: pickLocale(doc.titulo, lang),
+      videoUrl: doc.video?.asset?.url,
+      efectoActivo: doc.efectoActivo ?? true,
+    };
+  }
+  return undefined;
+}
+
+export interface PaginaHome {
+  bloques: BloqueHome[];
+}
+
+const PAGINA_HOME_QUERY = defineQuery(
+  `*[_type == "paginaHome" && _id == "paginaHome"][0]{ bloques[]{ _type, _key, titulo, video{"asset": asset->{url}}, efectoActivo } }`
+);
+
+export async function getPaginaHome(lang: Lang = 'es'): Promise<PaginaHome> {
+  const doc = await sanityClient.fetch<{ bloques?: BloqueDoc[] } | null>(PAGINA_HOME_QUERY);
+  const bloques = (doc?.bloques ?? [])
+    .map((b) => mapBloque(b, lang))
+    .filter((b): b is BloqueHome => b !== undefined);
+  return { bloques };
+}

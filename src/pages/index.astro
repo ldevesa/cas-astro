@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getCasos } from '../lib/cms';
+import { getCasos, getPaginaHome } from '../lib/cms';
 import ClientesCarousel from '../components/ClientesCarousel.astro';
 import HeroShader from '../components/HeroShader.astro';
 import CoberturaGlobo from '../components/CoberturaGlobo.astro';
 
-const casos = await getCasos('es', 6);
+const [casos, paginaHome] = await Promise.all([getCasos('es', 6), getPaginaHome('es')]);
+const hero = paginaHome.bloques.find((b) => b.type === 'hero');
 ---
 
 <Layout
@@ -18,12 +19,16 @@ const casos = await getCasos('es', 6);
   ══════════════════════════════════════════════ -->
   <section class="relative h-screen w-full flex items-center justify-center overflow-hidden">
     <div class="absolute inset-0 z-0 opacity-60">
-      <HeroShader />
+      {hero?.efectoActivo ? (
+        <HeroShader videoSrc={hero?.videoUrl} />
+      ) : (
+        <video src={hero?.videoUrl} autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover" />
+      )}
       <div class="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-[#131313]"></div>
     </div>
     <div class="relative z-10 container mx-auto px-8 text-center">
       <h1 class="font-['Space_Grotesk'] font-black text-2xl md:text-[3.33rem] leading-[0.85] tracking-[-0.06em] text-white" style="text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        Somos especialistas en innovación OOH & brand experience. Conectamos marcas con audiencias a través de experiencias memorables.
+        {hero?.titulo}
       </h1>
     </div>
     <div class="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce">

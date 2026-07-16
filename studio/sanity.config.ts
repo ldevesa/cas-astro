@@ -11,7 +11,23 @@ export default defineConfig({
   projectId: '21wszpvy',
   dataset: 'production',
 
-  plugins: [structureTool(), visionTool(), media()],
+  plugins: [
+    structureTool({
+      structure: (S) =>
+        S.list()
+          .title('Contenido')
+          .items([
+            S.listItem()
+              .title('Página Home')
+              .id('paginaHome')
+              .child(S.document().schemaType('paginaHome').documentId('paginaHome')),
+            S.divider(),
+            ...S.documentTypeListItems().filter((item) => item.getId() !== 'paginaHome'),
+          ]),
+    }),
+    visionTool(),
+    media(),
+  ],
 
   schema: {
     types: schemaTypes,

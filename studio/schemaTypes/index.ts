@@ -4,6 +4,8 @@ import {localeBlockContentType} from './objects/localeBlockContent'
 import {casoType} from './caso'
 import {clienteType} from './cliente'
 import {carreraType} from './carrera'
+import {heroBloqueType} from './blocks/heroBloque'
+import {paginaHomeType} from './paginaHome'
 
 export const schemaTypes = [
   localeStringType,
@@ -12,4 +14,6 @@ export const schemaTypes = [
   casoType,
   clienteType,
   carreraType,
+  heroBloqueType,
+  paginaHomeType,
 ]
