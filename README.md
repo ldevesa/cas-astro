@@ -237,7 +237,7 @@ Para que el sitio se actualice automáticamente cuando se publica o edita un doc
 
 1. En Cloudflare Pages → Configuración → **Desarrollo** (en el panel actual de Cloudflare esto se llama así, no "Builds & Deployments") → sección **"Enlaces de implementación"** ("Deploy Hooks") → crear uno (nombre sugerido: "Sanity publish") → copiar la URL generada.
 2. En [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook".
-3. Dataset: `production`. Trigger on: `Create`, `Update`, `Delete`. Filter (GROQ, opcional): `_type in ["caso", "cliente", "carrera"]` para que solo dispare con esos tipos.
+3. Dataset: `production`. Trigger on: `Create`, `Update`, `Delete`. Filter (GROQ, opcional): `_type in ["caso", "cliente", "carrera", "paginaHome"]` para que solo dispare con esos tipos — **actualizar esta lista cada vez que se agregue un `_type` de documento nuevo**, si no el webhook no se entera de sus cambios.
 4. URL: pegar la del Deploy Hook de Cloudflare.
 5. Guardar.
 6. Verificar en el log de intentos del webhook (sanity.io/manage → API → Webhooks → click en el webhook) que devuelva `"resultCode": 200`. El deployment que dispara se ve en la **URL alias de la rama** (`https://<rama>.cas-astro.pages.dev`), no en la URL con hash de un deployment puntual — esa última queda fija en el contenido de ese build para siempre.

@@ -217,10 +217,27 @@ Cloudflare Pages separa las variables en **dos scopes independientes: Production
 3. Nombre: `Sanity publish` (o el que quieras)
 4. Rama a compilar: `main` (la rama de producción) o `sanity-migration` (para preview)
 5. Copiar la URL que genera (`https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/...`)
-6. En Sanity: [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook" → dataset `production`, pegar esa URL como destino, trigger en Create/Update/Delete, filtro GROQ `_type in ["caso", "cliente", "carrera"]` (ver detalle en sección 6).
-7. Para confirmar que quedó bien: publicar cualquier cambio chico en el Studio y, en el webhook (sanity.io/manage → API → Webhooks → click en el webhook), revisar el log de intentos — debería mostrar `"resultCode": 200` y un ID de deployment. Ese deployment se ve en la **URL alias de la rama** (`https://<rama>.cas-astro.pages.dev`, sin ningún hash adelante) — la URL con hash de un deployment puntual queda congelada para siempre y nunca muestra contenido nuevo.
+6. En Sanity: [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook" → dataset `production`, pegar esa URL como destino, trigger en Create/Update/Delete, filtro GROQ `_type in ["caso", "cliente", "carrera", "paginaHome"]` (ver detalle en sección 6).
+7. Para confirmar que quedó bien: publicar cualquier cambio chico en el Studio y, en el webhook (sanity.io/manage → API → Webhooks → click en **"Edit webhook"** → el historial de intentos está más abajo en esa misma pantalla, o probar la pestaña **Activity** del proyecto si no aparece ahí), revisar el log de intentos — debería mostrar `"resultCode": 200` y un ID de deployment. Ese deployment se ve en la **URL alias de la rama** (`https://<rama>.cas-astro.pages.dev`, sin ningún hash adelante) — la URL con hash de un deployment puntual queda congelada para siempre y nunca muestra contenido nuevo.
+
+**Importante:** el filtro GROQ solo dispara para los `_type` que están listados ahí. **Cada vez que se agregue un tipo de documento nuevo en `studio/schemaTypes/` hay que sumarlo al filtro** — si no, publicar cambios en ese tipo nuevo no va a disparar ningún rebuild, y va a parecer que "no anda" cuando en realidad el webhook ni se está ejecutando (se ve en que el historial de intentos no tiene ninguna entrada reciente).
 
 Resultado: cada vez que se publica un documento en el Studio, el sitio se actualiza solo en 1-2 minutos.
+
+### CORS: dominios autorizados a pedir assets de Sanity
+
+Las **imágenes** de Sanity (`cdn.sanity.io/images/...`) se pueden usar en cualquier sitio sin configurar nada. Pero otro tipo de archivos — como el **video de fondo del Hero** (`cdn.sanity.io/files/...`) — sí exigen que el dominio que lo pide esté autorizado, **si el elemento HTML lo pide con `crossOrigin="anonymous"`** (el efecto del Hero lo necesita porque Three.js tiene que leer los píxeles del video). Sin esto, el navegador tira un error de CORS (`403 Forbidden`, `CORS Origin not allowed`) — aunque abrir la URL del video directo en el navegador, o probarla con `curl`, funcione perfecto (por eso es un error fácil de no detectar a simple vista).
+
+Para agregar un dominio autorizado:
+
+```bash
+cd studio
+npx sanity cors add https://tu-dominio.com --no-credentials
+```
+
+Dominios que ya están autorizados: `localhost:3333` (Studio local), `localhost:4321` (sitio local), `https://sanity-migration.cas-astro.pages.dev` (preview). **Falta agregar el dominio de producción antes del cutover** — ver [CUTOVER.md](CUTOVER.md).
+
+Ver todos los dominios autorizados: `npx sanity cors list` (desde `studio/`).
 
 ---
 

@@ -44,12 +44,26 @@ Hoy `PUBLIC_SANITY_PROJECT_ID` y `PUBLIC_SANITY_DATASET` solo están cargadas en
 ✅ **Ya armado y probado**, pero apuntando a `sanity-migration` (preview), no a `main` todavía:
 
 - [x] Deploy Hook creado en Cloudflare ("Enlaces de implementación" — Settings/Configuración → **Desarrollo**, no "General") → rama `sanity-migration`.
-- [x] Webhook creado en sanity.io/manage → API → Webhooks, dataset `production`, trigger Create/Update/Delete, filtro `_type in ["caso", "cliente", "carrera"]`.
+- [x] Webhook creado en sanity.io/manage → API → Webhooks, dataset `production`, trigger Create/Update/Delete, filtro `_type in ["caso", "cliente", "carrera", "paginaHome"]`.
 - [x] Probado de punta a punta: publicar en el Studio dispara un deployment nuevo solo, visible en la URL alias de la rama (`https://sanity-migration.cas-astro.pages.dev` — **no** la URL con hash de un deployment puntual, esa queda congelada para siempre).
 
-**Antes del merge a producción (parte del paso 6):** crear un Deploy Hook nuevo apuntando a `main`, y o bien agregar un segundo webhook en Sanity apuntando a ese, o editar el existente para que dispare a ambos (Cloudflare permite un solo Deploy Hook por request, así que si se quiere mantener el rebuild automático en `sanity-migration` *y* en `main` simultáneamente, hacen falta 2 webhooks en Sanity, uno por cada Deploy Hook).
+**Antes del merge a producción (parte del paso 7, el merge en sí):**
+- Crear un Deploy Hook nuevo apuntando a `main`, y o bien agregar un segundo webhook en Sanity apuntando a ese, o editar el existente para que dispare a ambos (Cloudflare permite un solo Deploy Hook por request, así que si se quiere mantener el rebuild automático en `sanity-migration` *y* en `main` simultáneamente, hacen falta 2 webhooks en Sanity, uno por cada Deploy Hook).
+- **Recordatorio permanente:** el filtro GROQ del webhook solo dispara para los `_type` listados. Cada vez que se agregue un tipo de documento nuevo en Sanity, hay que sumarlo a ese filtro (ver `MANUAL.md § 5`) — si no, publicar contenido de ese tipo nuevo no actualiza el sitio y parece que "no anda".
 
-## 5. Guardar una copia de la versión WordPress como preview de respaldo
+## 5. Autorizar el dominio de producción en CORS de Sanity
+
+Necesario para que assets que no son imágenes (por ejemplo el video del Hero del page builder) carguen sin error en el dominio real — ver detalle en [MANUAL.md § 5](MANUAL.md#cors-dominios-autorizados-a-pedir-assets-de-sanity).
+
+```bash
+cd studio
+npx sanity cors add https://contenidosad.com --no-credentials
+```
+
+- [ ] Dominio de producción agregado a CORS origins.
+- [ ] Verificado que no aparece ningún error de CORS en la consola del navegador al cargar la home en producción.
+
+## 6. Guardar una copia de la versión WordPress como preview de respaldo
 
 **Importante entender esto antes de mergear:** el merge no deja la versión vieja (WordPress) dando vueltas sola en algún preview — simplemente pasa a ser historia dentro de `main`, ya no deployada en ningún lado. Si querés poder ver/comparar la versión WordPress en una URL propia incluso después de cortar a Sanity, hay que guardarla a propósito **antes** de mergear:
 
@@ -65,21 +79,21 @@ Esto crea una rama congelada en el estado exacto de `main` justo antes del corte
 - [ ] Rama `wordpress-backup` creada y pusheada.
 - [ ] Confirmado que Cloudflare le generó su URL de preview.
 
-## 6. Mergear `sanity-migration` a `main`
+## 7. Mergear `sanity-migration` a `main`
 
 **Este es el paso que efectivamente prende Sanity en producción.** Todo lo anterior es preparación sin riesgo; este es el único que cambia el sitio en vivo.
 
 - [ ] Pull Request de `sanity-migration` → `main` en GitHub (o merge directo).
 - [ ] Confirmar que el merge no tiene conflictos.
 
-## 7. Verificar el deployment de Production después del merge
+## 8. Verificar el deployment de Production después del merge
 
 Mismo chequeo del punto 1, pero ahora en el dominio real.
 
 - [ ] `contenidosad.com` (y `/pt`, `/en`) sirviendo contenido de Sanity.
 - [ ] Build de Production sin errores en Cloudflare → Deployments.
 
-## 8. Después del cutover
+## 9. Después del cutover
 
 - [ ] Purgar caché de Cloudflare si hace falta que se vea al instante (Dashboard → Caching → "Purge everything").
 - [ ] Decidir cuándo apagar `contenidosad.com`/`contentad.net` como WordPress (se puede dejar corriendo en paralelo sin costo/riesgo mientras se confirma que todo anda bien en Sanity — no hay apuro).
@@ -87,7 +101,7 @@ Mismo chequeo del punto 1, pero ahora en el dominio real.
 
 ### Si algo sale mal
 
-Rollback simple: revertir el merge en `main` y pushear. Cloudflare rebuildea con el código viejo (WordPress) en 1-2 minutos — gracias al paso 5, esa misma versión ya la estuviste viendo funcionar en `wordpress-backup`, así que no es un salto a ciegas.
+Rollback simple: revertir el merge en `main` y pushear. Cloudflare rebuildea con el código viejo (WordPress) en 1-2 minutos — gracias al paso 6, esa misma versión ya la estuviste viendo funcionar en `wordpress-backup`, así que no es un salto a ciegas.
 
 ```bash
 git revert -m 1 <hash del merge commit>
