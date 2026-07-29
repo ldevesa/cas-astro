@@ -15,6 +15,14 @@ Cuando llegue la cuenta nueva, dos frentes distintos:
 - **Sanity**: usar la función nativa de **"Transfer project"** (sanity.io/manage → proyecto → Settings) para pasar el proyecto existente (`21wszpvy`, con todo el contenido ya migrado) a la organización nueva — no hay que re-migrar nada, el proyecto y el dataset siguen siendo los mismos.
 - **Cloudflare**: se crea el proyecto Pages **desde cero** en la cuenta nueva ("Connect to Git" al mismo repo de GitHub), y ahí es donde se ejecutan los pasos 1 a 9 de abajo (env vars, webhook, Deploy Hooks, y finalmente el merge a `main`) — no en la cuenta actual.
 
+### Dato importante confirmado (29/07): `contenidosad.com` hoy no está conectado a Cloudflare Pages
+
+Se verificó con `curl -I https://contenidosad.com` que el dominio real responde directo desde un servidor Apache con WordPress (`Server: Apache/2.4.57`, headers de `wp-json`) — **sin ningún rastro de Cloudflare**. O sea, el proyecto `cas-astro` de Cloudflare (ni `main` ni `sanity-migration`) está conectado al dominio real todavía; son 2 cosas totalmente separadas hasta ahora.
+
+Consecuencia práctica: **mergear `sanity-migration` a `main` en la cuenta actual no cambiaría nada visible en `contenidosad.com`** — solo actualizaría `cas-astro.pages.dev`. El único paso que realmente "prende" el sitio nuevo para el público es conectar el dominio (agregarlo como dominio personalizado en Cloudflare Pages + apuntar el DNS), y **ese paso es el que se está dejando para la cuenta nueva** — es el único con tiempo de propagación real (minutos a 48hs) y el único que tiene sentido hacer una sola vez en vez de dos (ahora + de nuevo al mover de cuenta).
+
+El merge de código en sí es rápido y sin riesgo (build de Cloudflare: 1-2 min) — se podría hacer en cualquier momento, incluso antes de tener la cuenta nueva, sin que afecte al sitio público. Se decidió mantenerlo alineado con el resto del checklist igual, para no tener el código de `main` desactualizado esperando sin necesidad.
+
 ---
 
 ## 1. Validación final en el preview
