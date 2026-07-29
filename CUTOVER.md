@@ -4,6 +4,17 @@ Pasos para cuando se decida cortar de WordPress a Sanity en el sitio real (`cont
 
 Contexto de la migración: ver [CLAUDE.md](CLAUDE.md).
 
+## 0. Decisión: el cutover se hace directo en la cuenta nueva
+
+Sistemas va a crear una cuenta nueva (con su propio mail) para tener este sitio con cuenta propia en **Cloudflare** y en **Sanity**, separada de las cuentas actuales usadas para armar y probar todo esto. Se decidió **no** hacer primero el cutover en la cuenta actual y migrar después — se salta directo a producción en la cuenta nueva, para no duplicar el trabajo.
+
+Mientras se espera esa cuenta, se sigue trabajando y probando normalmente sobre `sanity-migration.cas-astro.pages.dev` (cuenta actual) — no cambia nada del día a día hasta entonces.
+
+Cuando llegue la cuenta nueva, dos frentes distintos:
+
+- **Sanity**: usar la función nativa de **"Transfer project"** (sanity.io/manage → proyecto → Settings) para pasar el proyecto existente (`21wszpvy`, con todo el contenido ya migrado) a la organización nueva — no hay que re-migrar nada, el proyecto y el dataset siguen siendo los mismos.
+- **Cloudflare**: se crea el proyecto Pages **desde cero** en la cuenta nueva ("Connect to Git" al mismo repo de GitHub), y ahí es donde se ejecutan los pasos 1 a 9 de abajo (env vars, webhook, Deploy Hooks, y finalmente el merge a `main`) — no en la cuenta actual.
+
 ---
 
 ## 1. Validación final en el preview
