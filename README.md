@@ -1,6 +1,6 @@
 # CAS — Contenidos Advertising | Sitio Web
 
-Sitio web institucional de CAS construido con **Astro + Tailwind CSS**, conectado a **WordPress como CMS headless** vía REST API. Soporta tres idiomas (español, portugués, inglés) y se despliega como sitio 100% estático en Cloudflare Pages.
+Sitio web institucional de CAS construido con **Astro + Tailwind CSS**, conectado a **Sanity como CMS headless** vía GROQ. Soporta tres idiomas (español, portugués, inglés) con contenido localizado en un solo dataset, y se despliega como sitio 100% estático en Cloudflare Pages.
 
 ---
 
@@ -10,7 +10,10 @@ Sitio web institucional de CAS construido con **Astro + Tailwind CSS**, conectad
 | :--- | :--- |
 | [Astro 6](https://astro.build) | Framework principal, generación estática, View Transitions |
 | [Tailwind CSS v4](https://tailwindcss.com) | Estilos utilitarios |
-| [WordPress REST API](https://contenidosad.com/wp-json/) | CMS headless (casos, clientes, oficinas, redes) |
+| [Sanity](https://www.sanity.io) + [`@sanity/astro`](https://github.com/sanity-io/sanity-astro) | CMS headless (casos, clientes, carreras) — Studio en `studio/` |
+| [`astro-portabletext`](https://github.com/theisel/astro-portabletext) | Render del rich text (Portable Text) de Sanity |
+| [`@sanity/image-url`](https://www.sanity.io/docs/image-url) | URLs de imágenes optimizadas servidas por el CDN de Sanity |
+| [`sanity-plugin-media`](https://github.com/sanity-io/sanity-plugin-media) | Browser de todos los assets del proyecto dentro del Studio (equivalente a "Media" de WordPress) |
 | [amCharts 5](https://www.amcharts.com) | Globo 3D y mapas de cobertura global |
 | [Mailjet](https://www.mailjet.com) | Envío de emails del formulario de contacto |
 | [Cloudflare Pages](https://pages.cloudflare.com) | Hosting + Functions (API serverless) |
@@ -21,14 +24,14 @@ Sitio web institucional de CAS construido con **Astro + Tailwind CSS**, conectad
 ## Estructura del proyecto
 
 ```
-cas-astro/
+cas-astro-sanity/
 ├── public/
 │   ├── assets/
 │   │   └── globo/
 │   │       ├── globo.js        ← lógica del globo 3D y mapas (amCharts)
 │   │       ├── globo-data.js   ← coordenadas de ciudades con presencia CAS
 │   │       └── globo.css       ← estilos del contenedor del globo
-│   ├── img/                    ← imágenes estáticas (logo, casos, íconos)
+│   ├── img/                    ← imágenes estáticas (logo, íconos)
 │   ├── video/                  ← videos de servicios
 │   ├── Video.mp4               ← video del hero principal
 │   ├── favicon-cas.png         ← favicon del sitio
@@ -38,6 +41,15 @@ cas-astro/
 │   └── api/
 │       └── contact.js          ← función serverless (Cloudflare Pages Function)
 │                                  maneja el POST del formulario de contacto
+├── studio/                     ← Sanity Studio (la interfaz de edición de contenido)
+│   └── schemaTypes/
+│       ├── caso.ts             ← schema de Caso
+│       ├── cliente.ts          ← schema de Cliente
+│       ├── carrera.ts          ← schema de Carrera
+│       └── objects/            ← tipos reutilizables: localeString, localeText,
+│                                  localeBlockContent (rich text), migracion
+├── migration/                  ← scripts de la migración WordPress → Sanity (uso puntual,
+│                                  ver el README propio de esa carpeta si hace falta rerun)
 ├── src/
 │   ├── components/
 │   │   ├── HeroShader.astro        ← hero animado con efecto de puntos (Three.js vía iframe)
@@ -49,7 +61,8 @@ cas-astro/
 │   ├── layouts/
 │   │   └── Layout.astro        ← shell HTML: nav, footer, lang switcher, View Transitions
 │   ├── lib/
-│   │   └── wp.ts               ← capa de datos: tipos TypeScript + fetch a WordPress API
+│   │   ├── cms.ts              ← capa de datos: queries GROQ a Sanity, tipos, resolución de idioma
+│   │   └── site-data.ts        ← datos estáticos que no vienen del CMS (oficinas, redes sociales)
 │   ├── pages/
 │   │   ├── index.astro         ← Home (ES)
 │   │   ├── que-hacemos.astro
@@ -98,11 +111,11 @@ El sitio tiene tres idiomas: **español** (por defecto), **portugués** y **ingl
 - `/en/que-hacemos` (no `/en/what-we-do`)
 - `/en/experiencia-de-marca` (no `/en/brand-experience`)
 
-Esto simplifica el routing y evita duplicar lógica de redirecciones.
+Esto simplifica el routing y evita duplicar lógica de redirecciones. El contenido dinámico (casos, carreras) usa el **mismo documento y el mismo slug** para los 3 idiomas — es un solo `caso` en Sanity con campos `{es, pt, en}` por dentro, no 3 documentos distintos.
 
 ### Cómo agregar o editar traducciones
 
-Los strings de UI (navegación, footer, labels) están en [`src/i18n/ui.ts`](src/i18n/ui.ts).
+Los strings de UI (navegación, footer, labels) que **no vienen de Sanity** están en [`src/i18n/ui.ts`](src/i18n/ui.ts).
 
 ```ts
 export const ui = {
@@ -123,6 +136,8 @@ const t = useTranslations(locale);
 <p>{t('nav.home')}</p>
 ```
 
+El contenido editorial (casos, carreras) se traduce en el Sanity Studio, no acá — ver la sección [Contenido desde Sanity](#contenido-desde-sanity).
+
 ### Cambio de idioma
 
 El selector de idioma en el nav detecta automáticamente la URL actual y genera los links a la misma página en los otros idiomas. Esto está implementado en `getLangSwitcherPaths()` en [`src/i18n/utils.ts`](src/i18n/utils.ts).
@@ -131,7 +146,7 @@ El selector de idioma en el nav detecta automáticamente la URL actual y genera 
 
 ## Formulario de contacto
 
-El formulario usa **Mailjet** para el envío. No depende de WordPress ni de ningún servidor SMTP.
+El formulario usa **Mailjet** para el envío. No depende de Sanity ni de ningún servidor SMTP.
 
 ### Flujo
 
@@ -179,26 +194,33 @@ CONTACT_BCC=copia@empresa.com
 
 ---
 
-## Contenido desde WordPress
+## Contenido desde Sanity
 
-El sitio toma contenido de `contenidosad.com` en tiempo de **build** (no en runtime). Cada vez que se hace un deploy, Astro consulta la API y genera el HTML estático.
+El contenido editable (**Caso**, **Cliente**, **Carrera**) vive en un dataset de Sanity y se edita desde el **Sanity Studio**, deployado en https://cas-sanity.sanity.studio (código en la carpeta `studio/` — para desarrollar/probar schemas localmente: `cd studio && npm run dev`).
 
-| Contenido | Endpoint |
+El sitio toma ese contenido en tiempo de **build** (no en runtime) usando GROQ, vía [`src/lib/cms.ts`](src/lib/cms.ts):
+
+| Función | Qué trae |
 | :--- | :--- |
-| Casos (CPT) | `/wp-json/wp/v2/casos` |
-| Clientes (CPT) | `/wp-json/wp/v2/clientes` |
-| Datos del sitio (oficinas, redes) | configurados estáticamente en `wp.ts` |
+| `getCasos(lang, count?)` / `getAllCasos(lang)` / `getCasosPage(page, perPage, lang)` | Casos, resueltos al idioma pedido |
+| `getCasoBySlug(slug, lang)` | Un caso puntual |
+| `getCarreras(lang)` / `getCarreraBySlug(slug, lang)` | Carreras |
+| `getClientes()` | Clientes (no localizado, ver más abajo) |
 
-Los casos usan campos ACF: `resumen`, `subtitulo`, `mercados`, `post_campana` (embed YouTube), `image_carousel`.
+Cada documento (`caso`, `carrera`) guarda los campos de texto como objetos `{ es, pt, en }` (tipos `localeString`/`localeText`/`localeBlockContent` en `studio/schemaTypes/objects/`). `cms.ts` resuelve el idioma pedido en el momento de la query, con **fallback automático a español** si falta la traducción — así nunca se rompe una página por una traducción faltante. `Cliente` no tiene campos localizados (el nombre de una marca es igual en los 3 idiomas).
 
-### Actualizar el sitio cuando se edita contenido en WordPress
+El rich text (contenido largo de un caso o una carrera) se guarda como **Portable Text** (no HTML) y se renderiza con `<PortableText value={...} />` de `astro-portabletext`. Las imágenes se sirven optimizadas desde el CDN de Sanity vía `@sanity/image-url`.
 
-**Importante:** como el sitio es estático (SSG), los casos, clientes y demás contenido de WordPress se traen **en tiempo de build** y se congelan en HTML. Agregar o editar un caso en WordPress **no se refleja automáticamente** en el front — hay que regenerar el sitio.
+### Actualizar el sitio cuando se edita contenido en Sanity
 
-Las páginas que consumen WordPress usan `getStaticPaths()`:
+**Importante:** como el sitio es estático (SSG), el contenido se trae **en tiempo de build** y se congela en HTML. Publicar un cambio en el Studio **no se refleja automáticamente** en el front — hay que regenerar el sitio, igual que pasaba antes con WordPress.
+
+Las páginas que consumen Sanity usan `getStaticPaths()`:
 - [`src/pages/casos/index.astro`](src/pages/casos/index.astro)
 - [`src/pages/casos/[slug].astro`](src/pages/casos/[slug].astro)
 - [`src/pages/casos/[page].astro`](src/pages/casos/[page].astro)
+- [`src/pages/carreras/index.astro`](src/pages/carreras/index.astro) y [`[slug].astro`](src/pages/carreras/[slug].astro)
+- [`src/pages/clientes.astro`](src/pages/clientes.astro)
 - Equivalentes en `/en/` y `/pt/`
 
 Opciones para regenerar el sitio (sin tocar código):
@@ -206,23 +228,25 @@ Opciones para regenerar el sitio (sin tocar código):
 | Opción | Cómo | Cuándo usarla |
 | :--- | :--- | :--- |
 | **Manual** | Cloudflare Pages → Deployments → "Retry deployment" o "Create deployment" | Cambios puntuales, no urgentes |
-| **Deploy Hook + WP Webhooks** | Ver pasos abajo | Publicación/edición frecuente de casos |
+| **Webhook de Sanity** | Ver pasos abajo | Publicación/edición frecuente |
 | **Commit vacío** | `git commit --allow-empty -m "rebuild" && git push` | Rebuild rápido desde la terminal |
 
-#### Configurar el Deploy Hook (recomendado)
+#### Configurar el webhook de Sanity (ya armado, ver [CUTOVER.md](CUTOVER.md))
 
-Para que el sitio se actualice automáticamente cuando se publica o edita un caso en WordPress:
+Para que el sitio se actualice automáticamente cuando se publica o edita un documento en el Studio:
 
-1. En Cloudflare Pages → Settings → Builds & Deployments → **Deploy Hooks**
-2. Crear un hook (nombre sugerido: "WordPress publish") → copiar la URL generada
-3. En WordPress instalar el plugin **WP Webhooks** (gratuito)
-4. Configurar esa URL como destino cuando se publique o actualice un post
+1. En Cloudflare Pages → Configuración → **Desarrollo** (en el panel actual de Cloudflare esto se llama así, no "Builds & Deployments") → sección **"Enlaces de implementación"** ("Deploy Hooks") → crear uno (nombre sugerido: "Sanity publish") → copiar la URL generada.
+2. En [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook".
+3. Dataset: `production`. Trigger on: `Create`, `Update`, `Delete`. Filter (GROQ, opcional): `_type in ["caso", "cliente", "carrera", "paginaHome"]` para que solo dispare con esos tipos — **actualizar esta lista cada vez que se agregue un `_type` de documento nuevo**, si no el webhook no se entera de sus cambios.
+4. URL: pegar la del Deploy Hook de Cloudflare.
+5. Guardar.
+6. Verificar en el log de intentos del webhook (sanity.io/manage → API → Webhooks → click en el webhook) que devuelva `"resultCode": 200`. El deployment que dispara se ve en la **URL alias de la rama** (`https://<rama>.cas-astro.pages.dev`), no en la URL con hash de un deployment puntual — esa última queda fija en el contenido de ese build para siempre.
 
-Resultado: editar un caso en WordPress → 1-2 minutos → el sitio se actualiza solo.
+Resultado: editar un documento en el Studio → 1-2 minutos → el sitio se actualiza solo.
 
-#### Alternativa: migrar a SSR
+#### Alternativa: migrar a SSR / Visual Editing
 
-Si se necesita que los casos aparezcan **instantáneamente** sin rebuild, habría que migrar a SSR (server-side rendering) usando el adapter de Cloudflare o Vercel — ambos ya están instalados como dependencias. Implica un cambio en [`astro.config.mjs`](astro.config.mjs) (agregar `output: 'server'` + adapter) y convertir las rutas dinámicas. Es un cambio más grande y sacrifica el cache estático.
+Si se necesita que los cambios aparezcan **instantáneamente** sin rebuild, hay dos caminos: migrar a SSR (server-side rendering, usando el adapter de Cloudflare o Vercel — ambos ya están instalados como dependencias, implica agregar `output: 'server'` en `astro.config.mjs`) o adoptar el **Presentation Tool** de Sanity (Visual Editing) para preview en vivo dentro del Studio sin tocar el sitio público. Ambos son cambios más grandes, fuera del alcance de esta migración inicial.
 
 ---
 
@@ -272,12 +296,13 @@ Los "centros de negocio" (tercer panel) son las ciudades filtradas por nombre en
 | Cache 1 año en imágenes y videos | Configurado en `public/_headers` |
 | Cache 1 año + `immutable` en assets de Astro | Los archivos `/_astro/*` tienen hash en el nombre |
 | Video hero sin autoplay en mobile | Reduce datos móviles |
+| Imágenes de Sanity servidas vía CDN | `@sanity/image-url` con `.auto('format')` (webp/avif automático) |
 
 ### Imágenes
 
-Las imágenes en `public/img/` tienen cache de 1 año. Si se reemplaza una imagen, hay que **renombrar el archivo** para que los navegadores descarguen la versión nueva (o limpiar el caché de Cloudflare desde el panel).
+Las imágenes estáticas en `public/img/` tienen cache de 1 año. Si se reemplaza una imagen, hay que **renombrar el archivo** para que los navegadores descarguen la versión nueva (o limpiar el caché de Cloudflare desde el panel).
 
-Las imágenes procesadas por Astro (`<Image>` desde `src/assets/`) tienen hash automático y no tienen este problema.
+Las imágenes de contenido (casos, clientes) vienen del CDN de Sanity con hash en la URL — no tienen este problema, cada imagen nueva ya tiene una URL distinta.
 
 ---
 
@@ -298,13 +323,20 @@ Copiá el archivo de ejemplo y completá los valores:
 cp .env.example .env
 ```
 
-Para producción, las variables se configuran en el panel de Cloudflare Pages (no en archivos subidos al repo).
+| Variable | Descripción |
+| :--- | :--- |
+| `PUBLIC_SANITY_PROJECT_ID` | ID del proyecto de Sanity (ver `studio/sanity.config.ts`) |
+| `PUBLIC_SANITY_DATASET` | Dataset a consumir (`production`) |
+| `MJ_APIKEY_PUBLIC` / `MJ_APIKEY_PRIVATE` | Mailjet |
+| `CONTACT_*` | Formulario de contacto |
+
+Para producción, las variables se configuran en el panel de Cloudflare Pages (no en archivos subidos al repo) — **por separado para el scope Production y el scope Preview**, ver [MANUAL.md](MANUAL.md#5-cloudflare-pages).
 
 ---
 
 ## Comandos
 
-Desde la carpeta `cas-astro/`:
+Desde la raíz del proyecto:
 
 | Comando | Acción |
 | :--- | :--- |
@@ -312,6 +344,13 @@ Desde la carpeta `cas-astro/`:
 | `npm run dev` | Dev server en `http://localhost:4321` |
 | `npm run build` | Genera el sitio estático en `./dist/` |
 | `npm run preview` | Preview local del build |
+
+Desde `studio/`:
+
+| Comando | Acción |
+| :--- | :--- |
+| `npm run dev` | Sanity Studio en `http://localhost:3333` |
+| `npm run deploy` | Publica el Studio en una URL pública (`<project>.sanity.studio`) |
 
 ---
 
@@ -325,19 +364,19 @@ Desde la carpeta `cas-astro/`:
 
 | Setting | Valor |
 | :--- | :--- |
-| Root directory | `cas-astro` |
+| Root directory | `cas-astro-sanity` (o como se llame la carpeta del sitio, NO `studio/`) |
 | Build command | `npm run build` |
 | Build output directory | `dist` |
 | Node.js version | `22` |
 
-4. En "Environment variables" agregar todas las variables listadas en la sección de formulario de contacto
+4. En "Environment variables" agregar `PUBLIC_SANITY_PROJECT_ID`, `PUBLIC_SANITY_DATASET` y las variables de Mailjet, tanto en **Production** como en **Preview**
 5. Deploy
 
 Cloudflare asigna un dominio `.pages.dev` automáticamente. El dominio propio se vincula desde Settings → Custom Domains.
 
 ### Deploys siguientes
 
-Cada push a la rama principal dispara un deploy automático. También se puede hacer deploy manual desde el panel o vía CLI con `wrangler pages deploy dist`.
+Cada push a la rama de producción dispara un deploy automático a producción; cualquier otra rama genera un **deployment de preview** con su propia URL, sin afectar producción. También se puede hacer deploy manual desde el panel o vía CLI con `wrangler pages deploy dist`.
 
 ### Si se decide migrar a Vercel
 

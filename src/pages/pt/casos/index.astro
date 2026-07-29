@@ -1,6 +1,6 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { getCasosPage, getCasoImage, getCasoImageAlt } from '../../../lib/wp';
+import { getCasosPage } from '../../../lib/cms';
 
 const PER_PAGE = 6;
 const { casos, total, totalPages } = await getCasosPage(1, PER_PAGE, 'pt');
@@ -28,12 +28,12 @@ const hasNext = totalPages > 1;
         {casos.map(caso => (
           <a href={`/pt/casos/${caso.slug}`} class="case-card group block">
             <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-6">
-              <img alt={getCasoImageAlt(caso)} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={getCasoImage(caso)} loading="lazy" />
+              <img alt={caso.imagenAlt} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={caso.imagenUrl} loading="lazy" />
             </div>
             <div class="space-y-2">
-              <h2 class="font-['Space_Grotesk'] text-2xl font-bold tracking-tight text-white group-hover:text-[#ffb876] transition-colors" set:html={caso.title.rendered} />
-              {caso.excerpt.rendered && (
-                <p class="text-gray-500 text-sm font-['Plus_Jakarta_Sans'] line-clamp-2" set:html={caso.excerpt.rendered} />
+              <h2 class="font-['Space_Grotesk'] text-2xl font-bold tracking-tight text-white group-hover:text-[#ffb876] transition-colors">{caso.titulo}</h2>
+              {caso.resumen && (
+                <p class="text-gray-500 text-sm font-['Plus_Jakarta_Sans'] line-clamp-2">{caso.resumen}</p>
               )}
             </div>
           </a>

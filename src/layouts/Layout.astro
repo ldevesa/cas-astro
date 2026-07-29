@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
-import { getStaticSiteData } from '../lib/wp';
+import { getStaticSiteData } from '../lib/site-data';
 import { useTranslations, getLangSwitcherPaths, getLang } from '../i18n/utils';
 import { languages } from '../i18n/ui';
 
@@ -228,6 +228,92 @@ const siteData  = getStaticSiteData();
   }
 
   document.addEventListener('astro:page-load', initHamburger);
+</script>
+
+<script>
+  // Captura de fuente de tráfico (UTMs) para el formulario de contacto.
+  // Adaptado de un script hecho para Latcom (wp-cf7-capturador-utm.js) — misma
+  // lógica de detección, sin las partes específicas de WordPress/Contact Form 7
+  // (esas viven en contacto.astro, que sí sabe de un formulario puntual).
+  // Corre en TODAS las páginas (no solo /contacto) para capturar el origen real
+  // del visitante, sin importar por dónde entre al sitio.
+  const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+  const UTM_EXPIRACION_MS = 180 * 60 * 1000; // 3 horas de inactividad = nueva sesión
+
+  const UTM_BUSCADORES = [
+    { patron: 'google.', nombre: 'google' },
+    { patron: 'bing.com', nombre: 'bing' },
+    { patron: 'yahoo.com', nombre: 'yahoo' },
+    { patron: 'duckduckgo.com', nombre: 'duckduckgo' },
+    { patron: 'yandex.', nombre: 'yandex' },
+    { patron: 'baidu.com', nombre: 'baidu' },
+  ];
+
+  function capturarUtm() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = document.referrer || '';
+
+    const esAds = ['gclid', 'wbraid', 'gbraid', 'msclkid'].some((p) => urlParams.has(p));
+    const detectarBuscador = () =>
+      esAds ? null : UTM_BUSCADORES.find((b) => ref.includes(b.patron)) ?? null;
+
+    // Ventana deslizante: renueva la sesión si sigue vigente, la resetea si expiró.
+    const tsGuardado = localStorage.getItem('utm_timestamp');
+    let sesionActiva = false;
+    if (tsGuardado) {
+      const transcurrido = Date.now() - parseInt(tsGuardado, 10);
+      if (transcurrido > UTM_EXPIRACION_MS) {
+        UTM_KEYS.forEach((k) => localStorage.removeItem(k));
+        localStorage.removeItem('utm_timestamp');
+      } else {
+        localStorage.setItem('utm_timestamp', Date.now().toString());
+        sesionActiva = true;
+      }
+    }
+
+    const hayUtmsEnUrl = UTM_KEYS.some((k) => urlParams.has(k) && urlParams.get(k) !== '');
+    let seEscribioAlgo = false;
+
+    UTM_KEYS.forEach((key) => {
+      let val = urlParams.get(key);
+
+      if (!hayUtmsEnUrl) {
+        const buscador = detectarBuscador();
+        if (buscador) {
+          if (key === 'utm_source') val = buscador.nombre;
+          if (key === 'utm_medium') val = 'organico';
+        } else if (!ref) {
+          // URL escrita a mano, favoritos, dark social (WhatsApp/Telegram/etc, sin referrer)
+          if (key === 'utm_source') val = 'direct';
+          if (key === 'utm_medium') val = 'direct';
+        } else {
+          let refHost = '';
+          try {
+            refHost = new URL(ref).hostname.replace(/^www\./, '');
+          } catch {
+            refHost = '';
+          }
+          const currentHost = window.location.hostname.replace(/^www\./, '');
+          if (refHost === currentHost && localStorage.getItem('utm_source')) {
+            return; // navegación interna: preserva lo que ya hay guardado
+          }
+          if (key === 'utm_source') val = refHost || 'referral';
+          if (key === 'utm_medium') val = 'referral';
+        }
+      }
+
+      if (val) {
+        localStorage.setItem(key, val);
+        seEscribioAlgo = true;
+      }
+    });
+
+    if (seEscribioAlgo && !sesionActiva) {
+      localStorage.setItem('utm_timestamp', Date.now().toString());
+    }
+  }
+
+  document.addEventListener('astro:page-load', capturarUtm);
 </script>
 
 <style>

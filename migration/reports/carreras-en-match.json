@@ -1,0 +1,33 @@
+{
+  "rows": [
+    {
+      "sourceId": 3086,
+      "sourceTitle": "Director Comercial México y Centro América",
+      "sourceSlug": "director-comercial-mexico-y-centro-america",
+      "matchId": 3001,
+      "matchTitle": "Director Comercial México y Centro América",
+      "matchSlug": "director-comercial-mexico-y-centro-america",
+      "score": 1,
+      "confidence": "high",
+      "reviewed": false
+    },
+    {
+      "sourceId": 3061,
+      "sourceTitle": "Director Comercial",
+      "sourceSlug": "director-comercial",
+      "matchId": null,
+      "matchTitle": null,
+      "matchSlug": null,
+      "score": 0,
+      "confidence": "none",
+      "reviewed": false
+    }
+  ],
+  "unmatchedEn": [
+    {
+      "id": 2713,
+      "title": "Analista de Tráfico y Producción",
+      "slug": "analista-de-trafico-y-produccion"
+    }
+  ]
+}

@@ -1,9 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getClientes, getClienteLogo } from '../lib/wp';
+import { getClientes } from '../lib/cms';
 
-const clientes = await getClientes('es');
-const clientesConLogo = clientes.filter(c => getClienteLogo(c));
+const clientes = await getClientes();
+const clientesConLogo = clientes.filter(c => c.logoUrl);
 ---
 
 <Layout
@@ -41,9 +41,9 @@ const clientesConLogo = clientes.filter(c => getClienteLogo(c));
         {clientesConLogo.map(cliente => (
           <div class="group bg-[#131313] hover:bg-[#1a1a1a] transition-colors duration-300 p-8 flex items-center justify-center aspect-square">
             <img
-              src={getClienteLogo(cliente)}
-              alt={cliente.title.rendered}
-              title={cliente.title.rendered}
+              src={cliente.logoUrl}
+              alt={cliente.nombre}
+              title={cliente.nombre}
               class="w-full max-w-[120px] h-auto object-contain opacity-50 group-hover:opacity-100 transition-opacity duration-300 filter grayscale group-hover:grayscale-0"
               loading="lazy"
             />

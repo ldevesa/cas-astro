@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getCarreras } from '../../lib/wp';
+import { getCarreras } from '../../lib/cms';
 
 const carreras = await getCarreras('es');
 
@@ -69,22 +69,21 @@ const tipoLabel: Record<string, string> = {
                 <div>
                   <h2
                     class="font-['Space_Grotesk'] font-black text-2xl md:text-3xl text-white group-hover:text-[#ffb876] transition-colors tracking-tight mb-3"
-                    set:html={carrera.title.rendered}
-                  />
+                  >{carrera.titulo}</h2>
                   <div class="flex flex-wrap gap-2">
-                    {carrera.acf?.area_trabajo && (
+                    {carrera.areaTrabajo && (
                       <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">
-                        {carrera.acf.area_trabajo}
+                        {carrera.areaTrabajo}
                       </span>
                     )}
-                    {carrera.acf?.categoria && (
+                    {carrera.categoria && (
                       <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">
-                        {categoriaLabel[carrera.acf.categoria] ?? carrera.acf.categoria}
+                        {categoriaLabel[carrera.categoria] ?? carrera.categoria}
                       </span>
                     )}
-                    {carrera.acf?.tipo && (
+                    {carrera.tipo && (
                       <span class="font-['Inter'] text-xs uppercase tracking-wider px-3 py-1 rounded-full" style="color: #F69220; border: 1px solid rgba(246,146,32,0.3);">
-                        {tipoLabel[carrera.acf.tipo] ?? carrera.acf.tipo}
+                        {tipoLabel[carrera.tipo] ?? carrera.tipo}
                       </span>
                     )}
                   </div>

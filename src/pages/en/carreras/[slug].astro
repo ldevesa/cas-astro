@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { getCarreras, getCarreraBySlug } from '../../../lib/wp';
+import { getCarreras, getCarreraBySlug } from '../../../lib/cms';
+import { PortableText } from 'astro-portabletext';
 
 export async function getStaticPaths() {
   const carreras = await getCarreras('en');
@@ -16,8 +17,8 @@ const tipoLabel: Record<string, string> = { fulltime: 'Full Time', parttime: 'Pa
 ---
 
 <Layout
-  title={`${carrera.title.rendered} | CAS Careers`}
-  description={`Open position at CAS: ${carrera.title.rendered}. ${carrera.acf?.area_trabajo ?? ''} · ${carrera.acf?.tipo ?? ''}`}
+  title={`${carrera.titulo} | CAS Careers`}
+  description={`Open position at CAS: ${carrera.titulo}. ${carrera.areaTrabajo ?? ''} · ${carrera.tipo ?? ''}`}
 >
 
   <section class="bg-[#0a0a0a] pt-16 pb-12 border-b border-white/5">
@@ -27,11 +28,11 @@ const tipoLabel: Record<string, string> = { fulltime: 'Full Time', parttime: 'Pa
         Careers
       </a>
       <div class="flex flex-wrap gap-2 mb-6">
-        {carrera.acf?.area_trabajo && <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{carrera.acf.area_trabajo}</span>}
-        {carrera.acf?.categoria && <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{categoriaLabel[carrera.acf.categoria] ?? carrera.acf.categoria}</span>}
-        {carrera.acf?.tipo && <span class="font-['Inter'] text-xs uppercase tracking-wider px-3 py-1 rounded-full" style="color: #F69220; border: 1px solid rgba(246,146,32,0.3);">{tipoLabel[carrera.acf.tipo] ?? carrera.acf.tipo}</span>}
+        {carrera.areaTrabajo && <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{carrera.areaTrabajo}</span>}
+        {carrera.categoria && <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{categoriaLabel[carrera.categoria] ?? carrera.categoria}</span>}
+        {carrera.tipo && <span class="font-['Inter'] text-xs uppercase tracking-wider px-3 py-1 rounded-full" style="color: #F69220; border: 1px solid rgba(246,146,32,0.3);">{tipoLabel[carrera.tipo] ?? carrera.tipo}</span>}
       </div>
-      <h1 class="font-['Space_Grotesk'] font-black text-4xl md:text-6xl tracking-tight leading-[0.95] text-white" set:html={carrera.title.rendered} />
+      <h1 class="font-['Space_Grotesk'] font-black text-4xl md:text-6xl tracking-tight leading-[0.95] text-white">{carrera.titulo}</h1>
     </div>
   </section>
 
@@ -39,7 +40,11 @@ const tipoLabel: Record<string, string> = { fulltime: 'Full Time', parttime: 'Pa
     <div class="max-w-screen-xl mx-auto px-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-16">
         <div class="lg:col-span-2">
-          <div class="prose prose-invert prose-lg max-w-none prose-headings:font-['Space_Grotesk'] prose-headings:font-black prose-headings:tracking-tight prose-p:font-['Plus_Jakarta_Sans'] prose-p:text-gray-300 prose-p:leading-relaxed prose-li:font-['Plus_Jakarta_Sans'] prose-li:text-gray-300 prose-strong:text-white prose-strong:font-bold prose-a:text-[#ffb876] prose-a:no-underline hover:prose-a:underline" set:html={carrera.content.rendered} />
+          {carrera.contenido && (
+            <div class="prose prose-invert prose-lg max-w-none prose-headings:font-['Space_Grotesk'] prose-headings:font-black prose-headings:tracking-tight prose-p:font-['Plus_Jakarta_Sans'] prose-p:text-gray-300 prose-p:leading-relaxed prose-li:font-['Plus_Jakarta_Sans'] prose-li:text-gray-300 prose-strong:text-white prose-strong:font-bold prose-a:text-[#ffb876] prose-a:no-underline hover:prose-a:underline">
+              <PortableText value={carrera.contenido} />
+            </div>
+          )}
         </div>
         <aside class="lg:col-span-1">
           <div class="sticky top-28 bg-[#111111] border border-white/10 rounded-2xl p-8">
@@ -48,7 +53,7 @@ const tipoLabel: Record<string, string> = { fulltime: 'Full Time', parttime: 'Pa
               Send us your CV and tell us why you are the right person for this role.
             </p>
             <a
-              href={`mailto:rrhh@contenidosad.com?subject=Application: ${carrera.title.rendered}`}
+              href={`mailto:rrhh@contenidosad.com?subject=Application: ${carrera.titulo}`}
               class="block text-center bg-[#F69220] text-white font-['Space_Grotesk'] font-black uppercase tracking-widest px-6 py-4 hover:brightness-110 transition-all duration-300 rounded-xl mb-4"
             >Apply now</a>
             <a href="/en/carreras" class="block text-center border border-white/10 text-gray-400 font-['Space_Grotesk'] font-bold uppercase tracking-wider text-sm px-6 py-3 hover:border-white/30 hover:text-white transition-all duration-300 rounded-xl">

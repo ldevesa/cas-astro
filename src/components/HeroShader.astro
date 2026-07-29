@@ -1,9 +1,15 @@
 ---
 // Componente: efecto ASCII/dot-matrix sobre video usando Three.js WebGL shader
 // Reemplaza el iframe de indexDinamic.html
+
+interface Props {
+  videoSrc?: string;
+}
+
+const { videoSrc = '/Video-shader.mp4' } = Astro.props;
 ---
 
-<canvas id="heroCanvas" class="absolute inset-0 w-full h-full"></canvas>
+<canvas id="heroCanvas" class="absolute inset-0 w-full h-full" data-video-src={videoSrc}></canvas>
 <div class="absolute top-[30px] left-[30px] text-[#f69220]/50 font-mono text-[10px] uppercase tracking-[3px] pointer-events-none">
   Source: Local_Video // Mode: ASCII_Dynamic_Matrix
 </div>
@@ -49,7 +55,7 @@
     const camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
     video = document.createElement('video');
-    video.src = '/Video-shader.mp4';
+    video.src = canvas.dataset.videoSrc || '/Video-shader.mp4';
     video.muted = true;
     video.loop = true;
     video.playsInline = true;

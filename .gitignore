@@ -26,3 +26,10 @@ pnpm-debug.log*
 # backups locales (versiones alternativas para mostrar, no se deployan)
 _backups/
 public/_*
+
+# migración a Sanity: snapshots crudos y datos transformados son regenerables
+# (npm run extract / transform dentro de migration/); solo se versionan los
+# reportes de revisión humana (matching, incidencias, import)
+migration/extracted/
+migration/transformed/
+migration/reports/asset-map.json

@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getStaticSiteData } from '../lib/wp';
+import { getStaticSiteData } from '../lib/site-data';
 
 const { offices } = getStaticSiteData();
 ---
@@ -35,6 +35,12 @@ const { offices } = getStaticSiteData();
             class="flex flex-col gap-6"
           >
             <input type="hidden" name="_to" value="info@contenidosad.com" />
+            <input type="hidden" name="utm_source" />
+            <input type="hidden" name="utm_medium" />
+            <input type="hidden" name="utm_campaign" />
+            <input type="hidden" name="utm_term" />
+            <input type="hidden" name="utm_content" />
+            <input type="hidden" name="dispositivo" />
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
@@ -181,6 +187,23 @@ const { offices } = getStaticSiteData();
   const btn  = document.getElementById('submit-btn') as HTMLButtonElement;
   const msg  = document.getElementById('form-msg') as HTMLParagraphElement;
 
+  const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+
+  function rellenarUtms() {
+    if (!form) return;
+    UTM_KEYS.forEach((key) => {
+      const val = localStorage.getItem(key);
+      const input = form.querySelector<HTMLInputElement>(`input[name="${key}"]`);
+      if (input && val) input.value = val;
+    });
+    const dispositivoInput = form.querySelector<HTMLInputElement>('input[name="dispositivo"]');
+    if (dispositivoInput) {
+      dispositivoInput.value = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+    }
+  }
+
+  document.addEventListener('astro:page-load', rellenarUtms);
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     btn.disabled = true;
@@ -196,6 +219,8 @@ const { offices } = getStaticSiteData();
       form.reset();
       btn.textContent = 'Enviar mensaje';
       btn.disabled = false;
+      UTM_KEYS.forEach((k) => localStorage.removeItem(k));
+      localStorage.removeItem('utm_timestamp');
       setTimeout(() => { window.location.href = '/gracias'; }, 3000);
     } else {
       msg.textContent = json.error ?? 'Hubo un error. Intentá de nuevo.';

@@ -1,0 +1,18 @@
+{
+  "name": "cas-sanity-migration",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "extract": "node scripts/extract.mjs",
+    "match": "node scripts/match-en.mjs",
+    "transform": "node scripts/transform.mjs",
+    "import": "node scripts/import.mjs"
+  },
+  "dependencies": {
+    "@portabletext/block-tools": "^1.1.23",
+    "@sanity/client": "^6.24.1",
+    "@sanity/schema": "^3.68.3",
+    "dotenv": "^16.4.5",
+    "jsdom": "^25.0.1"
+  }
+}
