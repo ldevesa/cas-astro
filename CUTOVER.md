@@ -54,7 +54,7 @@ Es idempotente (usa IDs determinísticos), no duplica ni pisa nada que no haya c
 ## 3. Variables de entorno en el scope **Production** de Cloudflare
 
 - [x] `PUBLIC_SANITY_PROJECT_ID` / `PUBLIC_SANITY_DATASET` agregadas en Production (29/07). Como se esperaba (ver [MANUAL.md § 5](MANUAL.md#5-cloudflare-pages)), el primer build después del merge falló con `Configuration must contain projectId` porque solo estaban en Preview — quedó resuelto agregándolas también acá.
-- [x] Variables de Mailjet (`MJ_*`, `CONTACT_*`) confirmadas en Production (ya estaban de antes).
+- [ ] `RESEND_API_KEY` y variables `CONTACT_*` confirmadas en Production — migradas de Mailjet a Resend en julio 2026 (ver [MANUAL.md § 11](MANUAL.md#11-variables-de-entorno)), falta re-verificar que estén en el scope Production además de Preview.
 
 ## 4. Webhook de Sanity → Cloudflare
 
