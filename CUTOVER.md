@@ -53,10 +53,8 @@ Es idempotente (usa IDs determinísticos), no duplica ni pisa nada que no haya c
 
 ## 3. Variables de entorno en el scope **Production** de Cloudflare
 
-Hoy `PUBLIC_SANITY_PROJECT_ID` y `PUBLIC_SANITY_DATASET` solo están cargadas en el scope **Preview** (ver [MANUAL.md § 5](MANUAL.md#5-cloudflare-pages)). Sin esto en Production, el primer build después del merge falla con `Configuration must contain projectId`.
-
-- [ ] Cloudflare Pages → proyecto `cas-astro` → Settings → Environment variables → agregar ambas variables en **Production**.
-- [ ] De paso, confirmar que las variables de Mailjet (`MJ_*`, `CONTACT_*`) también están en Production (deberían seguir ahí de antes, sin cambios).
+- [x] `PUBLIC_SANITY_PROJECT_ID` / `PUBLIC_SANITY_DATASET` agregadas en Production (29/07). Como se esperaba (ver [MANUAL.md § 5](MANUAL.md#5-cloudflare-pages)), el primer build después del merge falló con `Configuration must contain projectId` porque solo estaban en Preview — quedó resuelto agregándolas también acá.
+- [x] Variables de Mailjet (`MJ_*`, `CONTACT_*`) confirmadas en Production (ya estaban de antes).
 
 ## 4. Webhook de Sanity → Cloudflare
 
@@ -95,22 +93,22 @@ git push -u origin wordpress-backup
 
 Esto crea una rama congelada en el estado exacto de `main` justo antes del corte. Cloudflare le arma su propia URL de preview (`wordpress-backup.cas-astro.pages.dev`), que va a seguir sirviendo la versión con WordPress indefinidamente, sin que el merge posterior la toque para nada.
 
-- [ ] Rama `wordpress-backup` creada y pusheada.
-- [ ] Confirmado que Cloudflare le generó su URL de preview.
+- [x] Rama `wordpress-backup` creada y pusheada (29/07).
+- [x] Confirmado que Cloudflare le generó su URL de preview.
 
 ## 7. Mergear `sanity-migration` a `main`
 
-**Este es el paso que efectivamente prende Sanity en producción.** Todo lo anterior es preparación sin riesgo; este es el único que cambia el sitio en vivo.
+- [x] Merge hecho el 29/07 (commit `2263f3a`, merge commit explícito con `--no-ff` para que el rollback de la sección "Si algo sale mal" funcione tal cual está documentado).
 
-- [ ] Pull Request de `sanity-migration` → `main` en GitHub (o merge directo).
-- [ ] Confirmar que el merge no tiene conflictos.
+**Corrección a lo que decía acá antes:** este paso, solo, **no prende Sanity en producción para el público** — se confirmó (ver nota en la sección 0) que `contenidosad.com` todavía no está conectado a este proyecto de Cloudflare. El merge actualiza `main`, y con eso `cas-astro.pages.dev` (el alias del proyecto), pero el dominio real sigue sirviendo WordPress sin cambios hasta que se haga la conexión de dominio en la cuenta nueva. El paso que **de verdad** cambia lo que ve el público es el que corresponde a conectar el dominio (dentro del punto 8 de abajo, cuando corresponda hacerlo en la cuenta nueva).
 
 ## 8. Verificar el deployment de Production después del merge
 
-Mismo chequeo del punto 1, pero ahora en el dominio real.
+Como `contenidosad.com` todavía no está conectado a Cloudflare (ver sección 0), este chequeo hoy se hace sobre el alias del proyecto, no sobre el dominio real:
 
-- [ ] `contenidosad.com` (y `/pt`, `/en`) sirviendo contenido de Sanity.
-- [ ] Build de Production sin errores en Cloudflare → Deployments.
+- [x] Build de Production sin errores en Cloudflare → Deployments (29/07).
+- [x] `cas-astro.pages.dev` (y `/pt`, `/en`) sirviendo contenido de Sanity.
+- [ ] `contenidosad.com` (y `/pt`, `/en`) sirviendo contenido de Sanity — pendiente hasta conectar el dominio en la cuenta nueva.
 
 ## 9. Después del cutover
 
