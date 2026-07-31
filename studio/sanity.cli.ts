@@ -11,6 +11,6 @@ export default defineCliConfig({
      * Learn more at https://www.sanity.io/docs/studio/latest-version-of-sanity#k47faf43faf56
      */
     autoUpdates: true,
-    appId: 'hwlvfjnbzpd4s9smqcpdn2ty',
+    appId: 'zk4bjvgndkc994qmjqtyruk4',
   },
 })

@@ -6,7 +6,9 @@ Contexto de la migración: ver [CLAUDE.md](CLAUDE.md).
 
 ## 0. Estado actual (31/07)
 
-- [x] **Sanity transferido a la cuenta nueva** — se usó "Transfer project" (sanity.io/manage → proyecto → Settings), así que sigue siendo el mismo proyecto (`21wszpvy`), mismo dataset (`production`), mismo contenido migrado (99 documentos). No hizo falta re-migrar nada.
+- [x] **Sanity transferido a la organización TDT** (31/07) — se usó "Transfer ownership" (sanity.io/manage → proyecto `21wszpvy` → Settings → Danger zone), así que sigue siendo el mismo proyecto (`21wszpvy`), mismo dataset (`production`), mismo contenido migrado (99 documentos). No hizo falta re-migrar nada ni tocar `PUBLIC_SANITY_PROJECT_ID` en Cloudflare.
+  - **Gotcha real que nos pasó:** "Transfer ownership" exige rol **Administrator a nivel organización** en el destino (no alcanza con ser Administrator a nivel *proyecto*, que es un rol distinto y más limitado). Sistemas había armado la organización TDT con un proyecto vacío (`CAS`, ID `7dj9txnd`) como si fuera el destino de la migración, pero el usuario solo tenía rol "Member" a nivel organización ahí — hubo que pedirle a Sistemas (login `tools@tdtglobal.io`, el único Administrator de organización) que le subiera el rol antes de poder completar la transferencia. **Ojo:** el rol se sube desde `sanity.io/organizations/<org-id>/members` (organización), no desde la pantalla de "Project members" del proyecto — son 2 pantallas distintas y fácil confundirlas.
+  - El proyecto vacío `CAS` (`7dj9txnd`) que se había creado como receptáculo quedó sin uso — decisión: dejarlo sin borrar por ahora, se elimina al final del cutover (ver sección 7).
 - [x] **Código sincronizado a `main`** (31/07, commit `bc01946`) — incluye todo lo que se había probado en `sanity-migration`: integración completa con Sanity, formulario de contacto con Resend + fallback automático a Mailjet, y el page builder de la Home (bloque Hero con fuente de video incrustado/Vimeo/YouTube).
 - [ ] **Cloudflare Pages todavía no conectado en la cuenta nueva** — hay que crear el proyecto desde cero ahí (paso 1 de abajo). El proyecto viejo (`cas-astro` en la cuenta actual, `cas-astro.pages.dev` / `sanity-migration.cas-astro.pages.dev`) sigue funcionando en paralelo mientras tanto — no hay apuro en tocarlo.
 - [ ] **`contenidosad.com` todavía no está conectado a ningún Cloudflare** (ni el viejo ni el nuevo) — sigue sirviendo WordPress directo desde Apache (confirmado con `curl -I https://contenidosad.com`, sin headers de Cloudflare). Conectar el dominio real es el único paso con tiempo de propagación real (minutos a 48hs) y con impacto visible para el público — se hace al final, deliberadamente, después de validar todo lo demás sin riesgo.
@@ -65,9 +67,10 @@ El webhook actual en Sanity apunta al Deploy Hook de la cuenta **vieja** — hay
 
 **Recordatorio permanente:** cada `_type` de documento nuevo que se agregue en Sanity hay que sumarlo a este filtro, en los dos webhooks (viejo y nuevo, mientras convivan) — si no, publicar contenido de ese tipo no dispara ningún rebuild y parece que "no anda".
 
-- [ ] Deploy Hook creado en la cuenta nueva.
-- [ ] Webhook nuevo creado en Sanity, apuntando a ese Deploy Hook.
+- [x] Deploy Hook creado en la cuenta nueva (31/07).
+- [x] Webhook nuevo creado en Sanity (`Cloudflare (main)`), apuntando a ese Deploy Hook, dataset `production`, filtro correcto (31/07).
 - [ ] Probado de punta a punta.
+- [x] Webhook viejo (`Cloudflare rebuild`, apunta al proyecto de Cloudflare ya borrado) eliminado en sanity.io/manage (31/07).
 
 ## 4. Autorizar el nuevo dominio `.pages.dev` en CORS de Sanity
 
@@ -78,8 +81,8 @@ cd studio
 npx sanity cors add https://<nombre-del-proyecto-nuevo>.pages.dev --no-credentials
 ```
 
-- [ ] Dominio `.pages.dev` de la cuenta nueva agregado a CORS origins.
-- [ ] Verificado sin errores de CORS en la consola del navegador al cargar la Home con el efecto del Hero activo.
+- [x] Dominio `.pages.dev` de la cuenta nueva agregado a CORS origins (`https://cas-sitio.pages.dev`, 31/07).
+- [x] Verificado sin errores de CORS en la consola del navegador al cargar la Home con el efecto del Hero activo (31/07).
 
 ## 5. Validación completa en la cuenta nueva
 
@@ -113,6 +116,7 @@ Este es el paso que **de verdad** prende el sitio nuevo para el público — tod
 - [ ] Purgar caché de Cloudflare si hace falta que se vea al instante (Dashboard → Caching → "Purge everything").
 - [ ] Decidir cuándo apagar `contenidosad.com`/`contentad.net` como WordPress (se puede dejar corriendo en paralelo sin costo/riesgo mientras se confirma que todo anda bien en Sanity — no hay apuro).
 - [ ] Decidir qué hacer con el proyecto viejo de Cloudflare (cuenta actual) — dar de baja o dejarlo como respaldo.
+- [ ] Borrar el proyecto vacío `CAS` (`7dj9txnd`) en TDT, el receptáculo que quedó sin usar tras la transferencia de `21wszpvy`.
 - [ ] Considerar revocar el token de escritura de `migration/.env` en sanity.io/manage una vez que no se vaya a re-correr la migración nunca más.
 - [ ] Si `contenidosad.com` sigue en modo sandbox de Resend, verificar el dominio ahí para poder mandar el formulario de contacto a cualquier destinatario (ver [MANUAL.md § 11](MANUAL.md#11-variables-de-entorno)).
 
