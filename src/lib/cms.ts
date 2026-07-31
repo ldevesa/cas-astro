@@ -225,6 +225,7 @@ interface BloqueDoc {
   _type: string;
   _key: string;
   titulo?: LocaleString;
+  mostrarTitulo?: boolean;
   fuenteVideo?: 'incrustado' | 'vimeo' | 'youtube';
   video?: {asset?: {url: string}};
   videoUrl?: string;
@@ -235,6 +236,7 @@ export interface HeroBloque {
   type: 'hero';
   key: string;
   titulo: string;
+  mostrarTitulo: boolean;
   fuenteVideo: 'incrustado' | 'vimeo' | 'youtube';
   videoUrl?: string;
   videoEmbedId?: string;
@@ -262,6 +264,7 @@ function mapBloque(doc: BloqueDoc, lang: Lang): BloqueHome | undefined {
       type: 'hero',
       key: doc._key,
       titulo: pickLocale(doc.titulo, lang),
+      mostrarTitulo: doc.mostrarTitulo ?? true,
       fuenteVideo,
       videoUrl: fuenteVideo === 'incrustado' ? doc.video?.asset?.url : undefined,
       videoEmbedId,
@@ -276,7 +279,7 @@ export interface PaginaHome {
 }
 
 const PAGINA_HOME_QUERY = defineQuery(
-  `*[_type == "paginaHome" && _id == "paginaHome"][0]{ bloques[]{ _type, _key, titulo, fuenteVideo, video{"asset": asset->{url}}, videoUrl, efectoActivo } }`
+  `*[_type == "paginaHome" && _id == "paginaHome"][0]{ bloques[]{ _type, _key, titulo, mostrarTitulo, fuenteVideo, video{"asset": asset->{url}}, videoUrl, efectoActivo } }`
 );
 
 export async function getPaginaHome(lang: Lang = 'es'): Promise<PaginaHome> {

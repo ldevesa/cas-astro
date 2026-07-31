@@ -14,6 +14,13 @@ export const heroBloqueType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'mostrarTitulo',
+      title: 'Mostrar texto sobre el video',
+      description: 'Desactivado: el título queda guardado pero no se muestra en el sitio (útil para un video que se quiera ver solo, sin texto encima, sin perder lo ya escrito).',
+      type: 'boolean',
+      initialValue: true,
+    }),
+    defineField({
       name: 'fuenteVideo',
       title: 'Fuente del video',
       type: 'string',
