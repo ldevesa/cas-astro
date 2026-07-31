@@ -59,7 +59,7 @@ Cada vez que cambia algo (código en GitHub o contenido en Sanity), hay que **re
 | :--- | :--- | :--- |
 | **GitHub** | Código del sitio y del Studio | https://github.com/ldevesa/cas-astro |
 | **Cloudflare Pages** | Hosting + deploys | https://dash.cloudflare.com → Workers & Pages |
-| **Sanity** | CMS (casos, clientes, carreras) y gestión del proyecto | https://sanity.io/manage (proyecto `cas-sanity`) |
+| **Sanity** | CMS (casos, clientes, carreras) y gestión del proyecto | https://sanity.io/manage (proyecto `cas-sitio`, org TDT) |
 | **Sanity Studio** | Editar contenido | https://cas-sitio.sanity.studio (deployado — no hace falta correr nada local) |
 | **Resend** | Envío de emails del formulario | https://resend.com |
 | **Dominio** | Registro del dominio `contenidosad.com` | Donde esté registrado el dominio |
