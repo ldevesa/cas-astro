@@ -19,68 +19,46 @@ const hero = paginaHome.bloques.find((b) => b.type === 'hero');
   ══════════════════════════════════════════════ -->
   <section class="relative h-screen w-full flex items-center justify-center overflow-hidden">
     <div class="absolute inset-0 z-0 opacity-60">
-      {hero?.efectoActivo ? (
+      {hero?.fuenteVideo === 'vimeo' && hero.videoEmbedId ? (
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.77vh] h-[56.25vw] min-w-full min-h-full">
+          <iframe
+            src={`https://player.vimeo.com/video/${hero.videoEmbedId}?background=1&autoplay=1&loop=1&muted=1&autopause=0`}
+            class="absolute inset-0 w-full h-full"
+            frameborder="0"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowfullscreen
+            title="Hero video"
+          ></iframe>
+        </div>
+      ) : hero?.fuenteVideo === 'youtube' && hero.videoEmbedId ? (
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.77vh] h-[56.25vw] min-w-full min-h-full">
+          <iframe
+            src={`https://www.youtube.com/embed/${hero.videoEmbedId}?autoplay=1&mute=1&loop=1&playlist=${hero.videoEmbedId}&controls=0&modestbranding=1&playsinline=1`}
+            class="absolute inset-0 w-full h-full"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            allowfullscreen
+            title="Hero video"
+          ></iframe>
+        </div>
+      ) : hero?.efectoActivo ? (
         <HeroShader videoSrc={hero?.videoUrl} />
       ) : (
         <video src={hero?.videoUrl} autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover" />
       )}
       <div class="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-[#131313]"></div>
     </div>
-    <div class="relative z-10 container mx-auto px-8 text-center">
-      <h1 class="font-['Space_Grotesk'] font-black text-2xl md:text-[3.33rem] leading-[0.85] tracking-[-0.06em] text-white" style="text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        {hero?.titulo}
-      </h1>
-    </div>
-    <div class="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce">
-      <span class="material-symbols-outlined text-white/40 text-4xl">south</span>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════════
-       HERO ALTERNATIVO — VIDEO DE VIMEO (sin shader, sin texto)
-       Para usar: comentar el <section> de abajo y descomentar este bloque.
-       Reemplazar VIMEO_ID por el ID del video (ej: en https://vimeo.com/1197710557 el ID es 1197710557).
-  ══════════════════════════════════════════════ -->
-  <!--
-  <section class="relative h-screen w-full flex items-center justify-center overflow-hidden bg-black">
-    <div class="absolute inset-0 z-0">
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.77vh] h-[56.25vw] min-w-full min-h-full">
-        <iframe
-          src="https://player.vimeo.com/video/1197710557?background=1&autoplay=1&loop=1&muted=1&autopause=0"
-          class="absolute inset-0 w-full h-full"
-          frameborder="0"
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowfullscreen
-          title="Hero video"
-        ></iframe>
+    {hero?.mostrarTitulo && (
+      <div class="relative z-10 container mx-auto px-8 text-center">
+        <h1 class="font-['Space_Grotesk'] font-black text-2xl md:text-[3.33rem] leading-[0.85] tracking-[-0.06em] text-white" style="text-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          {hero?.titulo}
+        </h1>
       </div>
-      <div class="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-[#131313]"></div>
-    </div>
+    )}
     <div class="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce">
       <span class="material-symbols-outlined text-white/40 text-4xl">south</span>
     </div>
   </section>
-  -->
-
-  <!-- ══════════════════════════════════════════════
-       HERO ALTERNATIVO — VIDEO AUTOALOJADO (mejor performance, sin Vimeo)
-       Ventajas: cero JS de Vimeo (~300 KB menos), servido por CDN de Cloudflare.
-  ══════════════════════════════════════════════ -->
-  <!--
-  <section class="relative h-screen w-full flex items-center justify-center overflow-hidden bg-black">
-    <video
-      src="/Video.mp4"
-      autoplay
-      muted
-      loop
-      playsinline
-      class="absolute inset-0 w-full h-full object-cover z-0"
-    ></video>
-    <div class="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce">
-      <span class="material-symbols-outlined text-white/40 text-4xl">south</span>
-    </div>
-  </section>
-  -->
 
   <!-- ══════════════════════════════════════════════
        CONSUMER ATTENTION
