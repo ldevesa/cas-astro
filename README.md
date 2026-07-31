@@ -369,7 +369,7 @@ Desde `studio/`:
 
 | Setting | Valor |
 | :--- | :--- |
-| Root directory | `cas-astro-sanity` (o como se llame la carpeta del sitio, NO `studio/`) |
+| Root directory | (dejar vacío / `/` — el repo tiene el sitio en la raíz, `studio/` es solo una subcarpeta) |
 | Build command | `npm run build` |
 | Build output directory | `dist` |
 | Node.js version | `22` |

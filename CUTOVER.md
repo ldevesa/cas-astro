@@ -1,126 +1,121 @@
-# Checklist: pasar `sanity-migration` a producción
+# Checklist: pasar a producción en la cuenta nueva
 
-Pasos para cuando se decida cortar de WordPress a Sanity en el sitio real (`contenidosad.com`). No son automáticos — se ejecutan a mano, en orden, cuando el equipo esté listo.
+Pasos para terminar de cortar de WordPress a Sanity en el sitio real (`contenidosad.com`), ejecutando en la **cuenta nueva** de Cloudflare/Sanity. No son automáticos — se ejecutan a mano, en orden.
 
 Contexto de la migración: ver [CLAUDE.md](CLAUDE.md).
 
-## 0. Decisión: el cutover se hace directo en la cuenta nueva
+## 0. Estado actual (31/07)
 
-Sistemas va a crear una cuenta nueva (con su propio mail) para tener este sitio con cuenta propia en **Cloudflare** y en **Sanity**, separada de las cuentas actuales usadas para armar y probar todo esto. Se decidió **no** hacer primero el cutover en la cuenta actual y migrar después — se salta directo a producción en la cuenta nueva, para no duplicar el trabajo.
-
-Mientras se espera esa cuenta, se sigue trabajando y probando normalmente sobre `sanity-migration.cas-astro.pages.dev` (cuenta actual) — no cambia nada del día a día hasta entonces.
-
-Cuando llegue la cuenta nueva, dos frentes distintos:
-
-- **Sanity**: usar la función nativa de **"Transfer project"** (sanity.io/manage → proyecto → Settings) para pasar el proyecto existente (`21wszpvy`, con todo el contenido ya migrado) a la organización nueva — no hay que re-migrar nada, el proyecto y el dataset siguen siendo los mismos.
-- **Cloudflare**: se crea el proyecto Pages **desde cero** en la cuenta nueva ("Connect to Git" al mismo repo de GitHub), y ahí es donde se ejecutan los pasos 1 a 9 de abajo (env vars, webhook, Deploy Hooks, y finalmente el merge a `main`) — no en la cuenta actual.
-
-### Dato importante confirmado (29/07): `contenidosad.com` hoy no está conectado a Cloudflare Pages
-
-Se verificó con `curl -I https://contenidosad.com` que el dominio real responde directo desde un servidor Apache con WordPress (`Server: Apache/2.4.57`, headers de `wp-json`) — **sin ningún rastro de Cloudflare**. O sea, el proyecto `cas-astro` de Cloudflare (ni `main` ni `sanity-migration`) está conectado al dominio real todavía; son 2 cosas totalmente separadas hasta ahora.
-
-Consecuencia práctica: **mergear `sanity-migration` a `main` en la cuenta actual no cambiaría nada visible en `contenidosad.com`** — solo actualizaría `cas-astro.pages.dev`. El único paso que realmente "prende" el sitio nuevo para el público es conectar el dominio (agregarlo como dominio personalizado en Cloudflare Pages + apuntar el DNS), y **ese paso es el que se está dejando para la cuenta nueva** — es el único con tiempo de propagación real (minutos a 48hs) y el único que tiene sentido hacer una sola vez en vez de dos (ahora + de nuevo al mover de cuenta).
-
-El merge de código en sí es rápido y sin riesgo (build de Cloudflare: 1-2 min) — se podría hacer en cualquier momento, incluso antes de tener la cuenta nueva, sin que afecte al sitio público. Se decidió mantenerlo alineado con el resto del checklist igual, para no tener el código de `main` desactualizado esperando sin necesidad.
+- [x] **Sanity transferido a la cuenta nueva** — se usó "Transfer project" (sanity.io/manage → proyecto → Settings), así que sigue siendo el mismo proyecto (`21wszpvy`), mismo dataset (`production`), mismo contenido migrado (99 documentos). No hizo falta re-migrar nada.
+- [x] **Código sincronizado a `main`** (31/07, commit `bc01946`) — incluye todo lo que se había probado en `sanity-migration`: integración completa con Sanity, formulario de contacto con Resend + fallback automático a Mailjet, y el page builder de la Home (bloque Hero con fuente de video incrustado/Vimeo/YouTube).
+- [ ] **Cloudflare Pages todavía no conectado en la cuenta nueva** — hay que crear el proyecto desde cero ahí (paso 1 de abajo). El proyecto viejo (`cas-astro` en la cuenta actual, `cas-astro.pages.dev` / `sanity-migration.cas-astro.pages.dev`) sigue funcionando en paralelo mientras tanto — no hay apuro en tocarlo.
+- [ ] **`contenidosad.com` todavía no está conectado a ningún Cloudflare** (ni el viejo ni el nuevo) — sigue sirviendo WordPress directo desde Apache (confirmado con `curl -I https://contenidosad.com`, sin headers de Cloudflare). Conectar el dominio real es el único paso con tiempo de propagación real (minutos a 48hs) y con impacto visible para el público — se hace al final, deliberadamente, después de validar todo lo demás sin riesgo.
 
 ---
 
-## 1. Validación final en el preview
+## 1. Conectar el proyecto de Cloudflare Pages en la cuenta nueva
 
-Navegar `https://sanity-migration.cas-astro.pages.dev` (o la URL del último deployment de preview en Cloudflare) en los 3 idiomas, y confirmar:
+1. Entrar a [pages.cloudflare.com](https://pages.cloudflare.com) (ya logueado en la cuenta **nueva**) → "Create a project" → "Connect to Git"
+2. Autorizar acceso al repo de GitHub (`ldevesa/cas-astro`) si todavía no está autorizado en esa cuenta
+3. Seleccionar el repo y configurar:
 
-- [ ] Home, casos (listado + detalle + paginación), carreras (listado + detalle), clientes.
-- [ ] Selector de idioma (ES/PT/EN) en todas las páginas de arriba.
-- [ ] Formulario de contacto — probarlo de verdad, confirmar que llega el email.
-- [ ] Imágenes, galería y video de YouTube en un caso.
-- [ ] Nada roto visualmente (revisar mobile también).
+| Setting | Valor |
+| :--- | :--- |
+| Production branch | `main` |
+| Root directory | (dejar vacío / `/` — el repo tiene el sitio en la raíz, `studio/` es solo una subcarpeta) |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Node.js version | `22` |
 
-## 2. Sync final de contenido desde WordPress
+4. **Todavía no hacer el primer deploy** — falta cargar las variables de entorno (paso 2), si no el build va a fallar con `Configuration must contain projectId`.
 
-Si se siguió cargando contenido en WordPress después de la migración inicial:
+- [ ] Proyecto creado en la cuenta nueva, apuntando a `main`.
 
-```bash
-cd migration
-npm run extract
-npm run match     # revisar migration/reports/*-en-match.json si hay casos/carreras nuevos
-npm run transform
-npm run import
-```
+## 2. Variables de entorno — cargar en **Production** y en **Preview**
 
-Es idempotente (usa IDs determinísticos), no duplica ni pisa nada que no haya cambiado.
+Mismo gotcha de siempre: Cloudflare separa variables por scope, y si solo se cargan en uno de los dos, el build de las ramas del otro scope falla. Cargar esta lista completa **en los dos scopes**:
 
-- [ ] Corrido y sin incidencias nuevas en `migration/reports/transform-issues.json` / `import-report.json`.
+| Variable | Tipo | Valor |
+| :--- | :--- | :--- |
+| `PUBLIC_SANITY_PROJECT_ID` | Texto | `21wszpvy` |
+| `PUBLIC_SANITY_DATASET` | Texto | `production` |
+| `RESEND_API_KEY` | Secreto | la key de Resend |
+| `CONTACT_FROM_EMAIL` | Texto | `onboarding@resend.dev` (hasta verificar un dominio propio en Resend — ver [MANUAL.md § 11](MANUAL.md#11-variables-de-entorno)) |
+| `CONTACT_FROM_NAME` | Texto | `CAS` |
+| `CONTACT_TO` | Texto | destinatarios del formulario, separados por coma |
+| `CONTACT_BCC` | Texto | opcional |
+| `MJ_APIKEY_PUBLIC` | Secreto | opcional — habilita el fallback a Mailjet si Resend falla |
+| `MJ_APIKEY_PRIVATE` | Secreto | opcional — ídem |
 
-## 3. Variables de entorno en el scope **Production** de Cloudflare
+- [ ] Las 9 variables cargadas en **Production**.
+- [ ] Las 9 variables cargadas en **Preview**.
+- [ ] Deploy inicial disparado (push a `main`, o "Retry deployment" si ya se había intentado sin las variables) y verificado sin errores.
 
-- [x] `PUBLIC_SANITY_PROJECT_ID` / `PUBLIC_SANITY_DATASET` agregadas en Production (29/07). Como se esperaba (ver [MANUAL.md § 5](MANUAL.md#5-cloudflare-pages)), el primer build después del merge falló con `Configuration must contain projectId` porque solo estaban en Preview — quedó resuelto agregándolas también acá.
-- [x] `RESEND_API_KEY` y variables `CONTACT_*` confirmadas en Production — migradas de Mailjet a Resend en julio 2026 (ver [MANUAL.md § 11](MANUAL.md#11-variables-de-entorno)). `MJ_APIKEY_PUBLIC`/`MJ_APIKEY_PRIVATE` también siguen cargadas como fallback automático.
+## 3. Deploy Hook + Webhook de Sanity → cuenta nueva
 
-## 4. Webhook de Sanity → Cloudflare
+El webhook actual en Sanity apunta al Deploy Hook de la cuenta **vieja** — hay que armar uno nuevo para la cuenta nueva (no se puede reutilizar el mismo Deploy Hook entre cuentas de Cloudflare distintas).
 
-✅ **Ya armado y probado**, pero apuntando a `sanity-migration` (preview), no a `main` todavía:
+1. En el proyecto nuevo de Cloudflare → Settings/Configuración → **Desarrollo** (no "General") → "Enlaces de implementación" (Deploy Hooks) → crear uno apuntando a `main` → copiar la URL
+2. En [sanity.io/manage](https://sanity.io/manage) → proyecto `21wszpvy` → API → Webhooks → crear uno nuevo:
+   - Dataset: `production`
+   - URL: la del Deploy Hook recién creado
+   - Trigger: Create / Update / Delete
+   - Filtro: `_type in ["caso", "cliente", "carrera", "paginaHome"]`
+3. Probar: publicar cualquier cambio en el Studio y confirmar que dispara un deployment nuevo en el proyecto de la cuenta nueva
 
-- [x] Deploy Hook creado en Cloudflare ("Enlaces de implementación" — Settings/Configuración → **Desarrollo**, no "General") → rama `sanity-migration`.
-- [x] Webhook creado en sanity.io/manage → API → Webhooks, dataset `production`, trigger Create/Update/Delete, filtro `_type in ["caso", "cliente", "carrera", "paginaHome"]`.
-- [x] Probado de punta a punta: publicar en el Studio dispara un deployment nuevo solo, visible en la URL alias de la rama (`https://sanity-migration.cas-astro.pages.dev` — **no** la URL con hash de un deployment puntual, esa queda congelada para siempre).
+**Recordatorio permanente:** cada `_type` de documento nuevo que se agregue en Sanity hay que sumarlo a este filtro, en los dos webhooks (viejo y nuevo, mientras convivan) — si no, publicar contenido de ese tipo no dispara ningún rebuild y parece que "no anda".
 
-**Antes del merge a producción (parte del paso 7, el merge en sí):**
-- Crear un Deploy Hook nuevo apuntando a `main`, y o bien agregar un segundo webhook en Sanity apuntando a ese, o editar el existente para que dispare a ambos (Cloudflare permite un solo Deploy Hook por request, así que si se quiere mantener el rebuild automático en `sanity-migration` *y* en `main` simultáneamente, hacen falta 2 webhooks en Sanity, uno por cada Deploy Hook).
-- **Recordatorio permanente:** el filtro GROQ del webhook solo dispara para los `_type` listados. Cada vez que se agregue un tipo de documento nuevo en Sanity, hay que sumarlo a ese filtro (ver `MANUAL.md § 5`) — si no, publicar contenido de ese tipo nuevo no actualiza el sitio y parece que "no anda".
+- [ ] Deploy Hook creado en la cuenta nueva.
+- [ ] Webhook nuevo creado en Sanity, apuntando a ese Deploy Hook.
+- [ ] Probado de punta a punta.
 
-## 5. Autorizar el dominio de producción en CORS de Sanity
+## 4. Autorizar el nuevo dominio `.pages.dev` en CORS de Sanity
 
-Necesario para que assets que no son imágenes (por ejemplo el video del Hero del page builder) carguen sin error en el dominio real — ver detalle en [MANUAL.md § 5](MANUAL.md#cors-dominios-autorizados-a-pedir-assets-de-sanity).
+Necesario para que el video del Hero (cuando la fuente es "incrustado" con el efecto ASCII activo) cargue sin error — ver detalle en [MANUAL.md § 5](MANUAL.md#cors-dominios-autorizados-a-pedir-assets-de-sanity).
 
 ```bash
 cd studio
-npx sanity cors add https://contenidosad.com --no-credentials
+npx sanity cors add https://<nombre-del-proyecto-nuevo>.pages.dev --no-credentials
 ```
 
-- [ ] Dominio de producción agregado a CORS origins.
-- [ ] Verificado que no aparece ningún error de CORS en la consola del navegador al cargar la home en producción.
+- [ ] Dominio `.pages.dev` de la cuenta nueva agregado a CORS origins.
+- [ ] Verificado sin errores de CORS en la consola del navegador al cargar la Home con el efecto del Hero activo.
 
-## 6. Guardar una copia de la versión WordPress como preview de respaldo
+## 5. Validación completa en la cuenta nueva
 
-**Importante entender esto antes de mergear:** el merge no deja la versión vieja (WordPress) dando vueltas sola en algún preview — simplemente pasa a ser historia dentro de `main`, ya no deployada en ningún lado. Si querés poder ver/comparar la versión WordPress en una URL propia incluso después de cortar a Sanity, hay que guardarla a propósito **antes** de mergear:
+Navegar la URL `.pages.dev` de la cuenta nueva en los 3 idiomas y confirmar:
 
-```bash
-git checkout main
-git pull
-git branch wordpress-backup
-git push -u origin wordpress-backup
-```
+- [ ] Home (con el Hero — probar los 3 tipos de fuente de video si se cargaron), casos (listado + detalle + paginación), carreras (listado + detalle), clientes.
+- [ ] Selector de idioma (ES/PT/EN) en todas las páginas de arriba.
+- [ ] Formulario de contacto — probarlo de verdad, confirmar que llega el email (recordar la limitación de sandbox de Resend: solo entrega al email de la cuenta de Resend hasta verificar el dominio).
+- [ ] Imágenes, galería y video de YouTube en un caso.
+- [ ] Nada roto visualmente (revisar mobile también).
 
-Esto crea una rama congelada en el estado exacto de `main` justo antes del corte. Cloudflare le arma su propia URL de preview (`wordpress-backup.cas-astro.pages.dev`), que va a seguir sirviendo la versión con WordPress indefinidamente, sin que el merge posterior la toque para nada.
+## 6. Conectar el dominio real (`contenidosad.com`)
 
-- [x] Rama `wordpress-backup` creada y pusheada (29/07).
-- [x] Confirmado que Cloudflare le generó su URL de preview.
+Este es el paso que **de verdad** prende el sitio nuevo para el público — todo lo anterior no toca nada visible en `contenidosad.com`.
 
-## 7. Mergear `sanity-migration` a `main`
+1. En el proyecto de Cloudflare (cuenta nueva) → Custom Domains → agregar `contenidosad.com` (y subdominios si aplica)
+2. Actualizar los registros DNS donde esté administrado el dominio hoy, según lo que indique Cloudflare — tener en cuenta el tiempo de propagación (minutos a 48hs)
+3. Una vez propagado, agregar `https://contenidosad.com` a CORS de Sanity, igual que en el paso 4:
+   ```bash
+   npx sanity cors add https://contenidosad.com --no-credentials
+   ```
+4. Si se quiere seguir viendo la versión WordPress en paralelo por un tiempo (comparar, rollback visual rápido), considerar guardarla en un dominio/subdominio aparte antes de mover el DNS — sino, una vez que el DNS apunte a Cloudflare, WordPress deja de ser visible en `contenidosad.com` (sigue funcionando en el servidor, solo que ya no es lo que responde ese dominio).
 
-- [x] Merge hecho el 29/07 (commit `2263f3a`, merge commit explícito con `--no-ff` para que el rollback de la sección "Si algo sale mal" funcione tal cual está documentado).
+- [ ] `contenidosad.com` agregado como Custom Domain en Cloudflare (cuenta nueva).
+- [ ] DNS actualizado y propagado.
+- [ ] CORS de Sanity actualizado con el dominio real.
+- [ ] `contenidosad.com` (y `/pt`, `/en`) sirviendo contenido de Sanity — confirmado.
 
-**Corrección a lo que decía acá antes:** este paso, solo, **no prende Sanity en producción para el público** — se confirmó (ver nota en la sección 0) que `contenidosad.com` todavía no está conectado a este proyecto de Cloudflare. El merge actualiza `main`, y con eso `cas-astro.pages.dev` (el alias del proyecto), pero el dominio real sigue sirviendo WordPress sin cambios hasta que se haga la conexión de dominio en la cuenta nueva. El paso que **de verdad** cambia lo que ve el público es el que corresponde a conectar el dominio (dentro del punto 8 de abajo, cuando corresponda hacerlo en la cuenta nueva).
-
-## 8. Verificar el deployment de Production después del merge
-
-Como `contenidosad.com` todavía no está conectado a Cloudflare (ver sección 0), este chequeo hoy se hace sobre el alias del proyecto, no sobre el dominio real:
-
-- [x] Build de Production sin errores en Cloudflare → Deployments (29/07).
-- [x] `cas-astro.pages.dev` (y `/pt`, `/en`) sirviendo contenido de Sanity.
-- [ ] `contenidosad.com` (y `/pt`, `/en`) sirviendo contenido de Sanity — pendiente hasta conectar el dominio en la cuenta nueva.
-
-## 9. Después del cutover
+## 7. Después del cutover
 
 - [ ] Purgar caché de Cloudflare si hace falta que se vea al instante (Dashboard → Caching → "Purge everything").
 - [ ] Decidir cuándo apagar `contenidosad.com`/`contentad.net` como WordPress (se puede dejar corriendo en paralelo sin costo/riesgo mientras se confirma que todo anda bien en Sanity — no hay apuro).
+- [ ] Decidir qué hacer con el proyecto viejo de Cloudflare (cuenta actual) — dar de baja o dejarlo como respaldo.
 - [ ] Considerar revocar el token de escritura de `migration/.env` en sanity.io/manage una vez que no se vaya a re-correr la migración nunca más.
+- [ ] Si `contenidosad.com` sigue en modo sandbox de Resend, verificar el dominio ahí para poder mandar el formulario de contacto a cualquier destinatario (ver [MANUAL.md § 11](MANUAL.md#11-variables-de-entorno)).
 
 ### Si algo sale mal
 
-Rollback simple: revertir el merge en `main` y pushear. Cloudflare rebuildea con el código viejo (WordPress) en 1-2 minutos — gracias al paso 6, esa misma versión ya la estuviste viendo funcionar en `wordpress-backup`, así que no es un salto a ciegas.
-
-```bash
-git revert -m 1 <hash del merge commit>
-git push
-```
+Antes de conectar el dominio real (paso 6), el rollback es trivial: no hiciste nada visible al público todavía, solo desconectás el Custom Domain si llegaste a agregarlo. Después de conectar el dominio, el rollback es apuntar el DNS de vuelta al hosting de WordPress — por eso conviene no apurar el paso 6 hasta validar todo lo demás.
