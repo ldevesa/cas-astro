@@ -225,7 +225,9 @@ interface BloqueDoc {
   _type: string;
   _key: string;
   titulo?: LocaleString;
+  fuenteVideo?: 'incrustado' | 'vimeo' | 'youtube';
   video?: {asset?: {url: string}};
+  videoUrl?: string;
   efectoActivo?: boolean;
 }
 
@@ -233,20 +235,37 @@ export interface HeroBloque {
   type: 'hero';
   key: string;
   titulo: string;
+  fuenteVideo: 'incrustado' | 'vimeo' | 'youtube';
   videoUrl?: string;
+  videoEmbedId?: string;
   efectoActivo: boolean;
 }
 
 export type BloqueHome = HeroBloque;
 
+function extractVimeoId(url: string): string | undefined {
+  return url.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1];
+}
+
+function extractYoutubeId(url: string): string | undefined {
+  return url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{11})/)?.[1];
+}
+
 function mapBloque(doc: BloqueDoc, lang: Lang): BloqueHome | undefined {
   if (doc._type === 'heroBloque') {
+    const fuenteVideo = doc.fuenteVideo ?? 'incrustado';
+    const videoEmbedId =
+      fuenteVideo === 'vimeo' ? extractVimeoId(doc.videoUrl ?? '') :
+      fuenteVideo === 'youtube' ? extractYoutubeId(doc.videoUrl ?? '') :
+      undefined;
     return {
       type: 'hero',
       key: doc._key,
       titulo: pickLocale(doc.titulo, lang),
-      videoUrl: doc.video?.asset?.url,
-      efectoActivo: doc.efectoActivo ?? true,
+      fuenteVideo,
+      videoUrl: fuenteVideo === 'incrustado' ? doc.video?.asset?.url : undefined,
+      videoEmbedId,
+      efectoActivo: fuenteVideo === 'incrustado' ? (doc.efectoActivo ?? true) : false,
     };
   }
   return undefined;
@@ -257,7 +276,7 @@ export interface PaginaHome {
 }
 
 const PAGINA_HOME_QUERY = defineQuery(
-  `*[_type == "paginaHome" && _id == "paginaHome"][0]{ bloques[]{ _type, _key, titulo, video{"asset": asset->{url}}, efectoActivo } }`
+  `*[_type == "paginaHome" && _id == "paginaHome"][0]{ bloques[]{ _type, _key, titulo, fuenteVideo, video{"asset": asset->{url}}, videoUrl, efectoActivo } }`
 );
 
 export async function getPaginaHome(lang: Lang = 'es'): Promise<PaginaHome> {
