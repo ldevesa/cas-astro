@@ -60,7 +60,7 @@ Cada vez que cambia algo (código en GitHub o contenido en Sanity), hay que **re
 | **GitHub** | Código del sitio y del Studio | https://github.com/ldevesa/cas-astro |
 | **Cloudflare Pages** | Hosting + deploys | https://dash.cloudflare.com → Workers & Pages |
 | **Sanity** | CMS (casos, clientes, carreras) y gestión del proyecto | https://sanity.io/manage (proyecto `cas-sanity`) |
-| **Sanity Studio** | Editar contenido | https://cas-sanity.sanity.studio (deployado — no hace falta correr nada local) |
+| **Sanity Studio** | Editar contenido | https://cas-sitio.sanity.studio (deployado — no hace falta correr nada local) |
 | **Resend** | Envío de emails del formulario | https://resend.com |
 | **Dominio** | Registro del dominio `contenidosad.com` | Donde esté registrado el dominio |
 
@@ -257,7 +257,7 @@ El contenido vive en **un solo proyecto de Sanity**, con **un solo dataset** (`p
 
 **Publicado (recomendado, para el día a día):**
 
-https://cas-sanity.sanity.studio — entrás directo, sin instalar nada ni tener el código. Necesitás estar logueado con una cuenta de Sanity con permisos en el proyecto.
+https://cas-sitio.sanity.studio — entrás directo, sin instalar nada ni tener el código. Necesitás estar logueado con una cuenta de Sanity con permisos en el proyecto.
 
 Si en algún momento hay que redeployar el Studio (por ejemplo, después de agregar un campo nuevo en un schema):
 ```bash
@@ -273,7 +273,7 @@ npm install   # solo la primera vez
 npm run dev
 ```
 Abrí `http://localhost:3333`.
-Esto genera una URL tipo `https://cas-sanity.sanity.studio` accesible desde el navegador, sin instalar nada.
+Esto genera una URL tipo `https://cas-sitio.sanity.studio` accesible desde el navegador, sin instalar nada.
 
 ### Ver todas las imágenes y videos (equivalente a "Media" de WordPress)
 
@@ -453,7 +453,7 @@ Si hace falta un campo nuevo en Caso, Cliente o Carrera:
 1. Editar el archivo correspondiente en `studio/schemaTypes/` (`caso.ts`, `cliente.ts`, `carrera.ts`)
 2. Probar localmente: `cd studio && npm run dev`, verificar que el campo aparece bien en el editor
 3. Commit + push del código del Studio
-4. Correr `npm run deploy` desde `studio/` para que el cambio se vea en https://cas-sanity.sanity.studio
+4. Correr `npm run deploy` desde `studio/` para que el cambio se vea en https://cas-sitio.sanity.studio
 5. **No hace falta redeployar el sitio Astro solo por cambiar el schema** — hace falta si además se actualiza `src/lib/cms.ts` para usar ese campo nuevo en el sitio.
 
 **Nunca borrar un campo que ya tiene datos cargados** sin antes migrar/vaciar ese contenido — puede romper documentos existentes. Ver el patrón de deprecación en la skill `sanity-best-practices` si hace falta.
