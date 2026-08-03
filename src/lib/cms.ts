@@ -297,10 +297,11 @@ export interface ConfiguracionSeguimiento {
   googleSiteVerification?: string;
   scriptsPersonalizados?: string;
   scriptsPersonalizadosBody?: string;
+  scriptsPersonalizadosFinBody?: string;
 }
 
 const CONFIGURACION_SEGUIMIENTO_QUERY = defineQuery(
-  `*[_type == "configuracionSeguimiento" && _id == "configuracionSeguimiento"][0]{ googleTagManagerId, googleSiteVerification, scriptsPersonalizados, scriptsPersonalizadosBody }`
+  `*[_type == "configuracionSeguimiento" && _id == "configuracionSeguimiento"][0]{ googleTagManagerId, googleSiteVerification, scriptsPersonalizados, scriptsPersonalizadosBody, scriptsPersonalizadosFinBody }`
 );
 
 export async function getConfiguracionSeguimiento(): Promise<ConfiguracionSeguimiento> {
