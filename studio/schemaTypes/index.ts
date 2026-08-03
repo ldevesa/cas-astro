@@ -6,6 +6,7 @@ import {clienteType} from './cliente'
 import {carreraType} from './carrera'
 import {heroBloqueType} from './blocks/heroBloque'
 import {paginaHomeType} from './paginaHome'
+import {configuracionSeguimientoType} from './configuracionSeguimiento'
 
 export const schemaTypes = [
   localeStringType,
@@ -16,4 +17,5 @@ export const schemaTypes = [
   carreraType,
   heroBloqueType,
   paginaHomeType,
+  configuracionSeguimientoType,
 ]

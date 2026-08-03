@@ -21,8 +21,14 @@ export default defineConfig({
               .title('Página Home')
               .id('paginaHome')
               .child(S.document().schemaType('paginaHome').documentId('paginaHome')),
+            S.listItem()
+              .title('Configuración de seguimiento')
+              .id('configuracionSeguimiento')
+              .child(S.document().schemaType('configuracionSeguimiento').documentId('configuracionSeguimiento')),
             S.divider(),
-            ...S.documentTypeListItems().filter((item) => item.getId() !== 'paginaHome'),
+            ...S.documentTypeListItems().filter(
+              (item) => !['paginaHome', 'configuracionSeguimiento'].includes(item.getId() ?? '')
+            ),
           ]),
     }),
     visionTool(),

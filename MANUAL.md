@@ -218,7 +218,7 @@ Cloudflare Pages separa las variables en **dos scopes independientes: Production
 3. Nombre: `Sanity publish` (o el que quieras)
 4. Rama a compilar: `main` (la rama de producción) o `sanity-migration` (para preview)
 5. Copiar la URL que genera (`https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/...`)
-6. En Sanity: [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook" → dataset `production`, pegar esa URL como destino, trigger en Create/Update/Delete, filtro GROQ `_type in ["caso", "cliente", "carrera", "paginaHome"]` (ver detalle en sección 6).
+6. En Sanity: [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook" → dataset `production`, pegar esa URL como destino, trigger en Create/Update/Delete, filtro GROQ `_type in ["caso", "cliente", "carrera", "paginaHome", "configuracionSeguimiento"]` (ver detalle en sección 6).
 7. Para confirmar que quedó bien: publicar cualquier cambio chico en el Studio y, en el webhook (sanity.io/manage → API → Webhooks → click en **"Edit webhook"** → el historial de intentos está más abajo en esa misma pantalla, o probar la pestaña **Activity** del proyecto si no aparece ahí), revisar el log de intentos — debería mostrar `"resultCode": 200` y un ID de deployment. Ese deployment se ve en la **URL alias de la rama** (`https://<rama>.cas-astro.pages.dev`, sin ningún hash adelante) — la URL con hash de un deployment puntual queda congelada para siempre y nunca muestra contenido nuevo.
 
 **Importante:** el filtro GROQ solo dispara para los `_type` que están listados ahí. **Cada vez que se agregue un tipo de documento nuevo en `studio/schemaTypes/` hay que sumarlo al filtro** — si no, publicar cambios en ese tipo nuevo no va a disparar ningún rebuild, y va a parecer que "no anda" cuando en realidad el webhook ni se está ejecutando (se ve en que el historial de intentos no tiene ninguna entrada reciente).
@@ -329,6 +329,18 @@ Para editarlos:
 1. Abrir [src/lib/site-data.ts](src/lib/site-data.ts)
 2. Editar el array `offices` o `socialLinks` dentro de `getStaticSiteData()`
 3. Commit + push
+
+### Códigos de seguimiento (Google Tag Manager, Search Console, scripts sueltos)
+
+Studio → **Configuración de seguimiento** (documento único, arriba de la lista de contenido, al lado de "Página Home"):
+
+- **ID de Google Tag Manager** (`GTM-XXXXXXX`) — cargarlo acá una sola vez. A partir de ahí, Analytics, Facebook Pixel, Hotjar, etc. se agregan o cambian **directamente en el panel de Tag Manager** (tagmanager.google.com), sin volver a tocar el sitio ni pedirle nada a nadie del equipo técnico.
+- **Código de verificación de Google Search Console** — solo el código (el valor de la meta tag que da Google al verificar la propiedad del sitio), no la etiqueta HTML completa.
+- **Scripts personalizados** — para pegar tal cual cualquier snippet que te pasen y que no vaya a través de Tag Manager (un Pixel de Facebook standalone, Hotjar, lo que sea). Se pega el código completo (incluyendo las etiquetas `<script>`) tal como te lo dieron; se inserta automáticamente antes del cierre de `</head>` en todas las páginas.
+
+Publicar el documento dispara el rebuild automático como cualquier otro contenido — no hace falta commit ni deploy manual.
+
+**Importante para quien administre el sitio (dev):** si en algún momento se agrega OTRO tipo de documento nuevo en Sanity (además de este), hay que sumarlo al filtro del webhook en sanity.io/manage — ver [MANUAL.md § 5](#5-cloudflare-pages) y el recordatorio en [CLAUDE.md](CLAUDE.md).
 
 ---
 

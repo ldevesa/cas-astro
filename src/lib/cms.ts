@@ -289,3 +289,20 @@ export async function getPaginaHome(lang: Lang = 'es'): Promise<PaginaHome> {
     .filter((b): b is BloqueHome => b !== undefined);
   return { bloques };
 }
+
+// ── Configuración de seguimiento (GTM, Search Console, scripts sueltos) ──────
+
+export interface ConfiguracionSeguimiento {
+  googleTagManagerId?: string;
+  googleSiteVerification?: string;
+  scriptsPersonalizados?: string;
+}
+
+const CONFIGURACION_SEGUIMIENTO_QUERY = defineQuery(
+  `*[_type == "configuracionSeguimiento" && _id == "configuracionSeguimiento"][0]{ googleTagManagerId, googleSiteVerification, scriptsPersonalizados }`
+);
+
+export async function getConfiguracionSeguimiento(): Promise<ConfiguracionSeguimiento> {
+  const doc = await sanityClient.fetch<ConfiguracionSeguimiento | null>(CONFIGURACION_SEGUIMIENTO_QUERY);
+  return doc ?? {};
+}
