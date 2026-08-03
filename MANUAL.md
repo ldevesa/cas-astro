@@ -285,6 +285,8 @@ El Studio tiene una pestaña **Media** en el menú lateral (plugin `sanity-plugi
 
 No hace falta entrar a un caso puntual para encontrar una imagen — se puede buscar directamente ahí.
 
+**No confundir con "Media Tag":** en el menú lateral de contenido (no el de arriba) aparece un tipo de documento llamado "Media Tag", que suele estar vacío ("No documents of this type") — es normal, es solo para **etiquetar/organizar** archivos en categorías, una función opcional que nunca se usó. No tiene nada que ver con dónde están las imágenes reales; esas están en la pestaña **Media** de arriba, descripta recién.
+
 ### Agregar un caso nuevo
 
 1. Abrir el Studio → menú lateral → **Caso** → **+ Create**

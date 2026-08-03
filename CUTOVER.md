@@ -50,9 +50,9 @@ Mismo gotcha de siempre: Cloudflare separa variables por scope, y si solo se car
 | `MJ_APIKEY_PUBLIC` | Secreto | opcional — habilita el fallback a Mailjet si Resend falla |
 | `MJ_APIKEY_PRIVATE` | Secreto | opcional — ídem |
 
-- [ ] Las 9 variables cargadas en **Production**.
-- [ ] Las 9 variables cargadas en **Preview**.
-- [ ] Deploy inicial disparado (push a `main`, o "Retry deployment" si ya se había intentado sin las variables) y verificado sin errores.
+- [x] Las variables cargadas en **Production** (31/07) — confirmado, `cas-sitio.pages.dev` sirve contenido de Sanity sin errores.
+- [ ] Las variables cargadas en **Preview** — no confirmado explícitamente todavía (solo importa si se sigue usando `sanity-migration` como rama de preview en la cuenta nueva).
+- [x] Deploy inicial disparado y verificado sin errores (31/07).
 
 ## 3. Deploy Hook + Webhook de Sanity → cuenta nueva
 
@@ -89,11 +89,11 @@ npx sanity cors add https://<nombre-del-proyecto-nuevo>.pages.dev --no-credentia
 
 Navegar la URL `.pages.dev` de la cuenta nueva en los 3 idiomas y confirmar:
 
-- [ ] Home (con el Hero — probar los 3 tipos de fuente de video si se cargaron), casos (listado + detalle + paginación), carreras (listado + detalle), clientes.
-- [ ] Selector de idioma (ES/PT/EN) en todas las páginas de arriba.
-- [ ] Formulario de contacto — probarlo de verdad, confirmar que llega el email (recordar la limitación de sandbox de Resend: solo entrega al email de la cuenta de Resend hasta verificar el dominio).
-- [ ] Imágenes, galería y video de YouTube en un caso.
-- [ ] Nada roto visualmente (revisar mobile también).
+- [x] Home (con el Hero), casos (listado + detalle + paginación), carreras (listado + detalle), clientes — confirmado por el usuario (03/08).
+- [x] Selector de idioma (ES/PT/EN) en todas las páginas de arriba.
+- [x] Formulario de contacto probado — funciona, pero **limitado al modo sandbox de Resend** (solo entrega al email de la cuenta de Resend) porque `contenidosad.com` todavía no está verificado como dominio propio ahí. Mailjet (el fallback) sigue bloqueado por el proveedor, así que hoy el envío depende 100% de Resend. Ver pendiente en la sección 7 para levantar esta limitación.
+- [x] Imágenes, galería y video de YouTube en un caso.
+- [x] Nada roto visualmente.
 
 ## 6. Conectar el dominio real (`contenidosad.com`)
 
@@ -118,7 +118,7 @@ Este es el paso que **de verdad** prende el sitio nuevo para el público — tod
 - [ ] Decidir cuándo apagar `contenidosad.com`/`contentad.net` como WordPress (se puede dejar corriendo en paralelo sin costo/riesgo mientras se confirma que todo anda bien en Sanity — no hay apuro).
 - [ ] Decidir qué hacer con el proyecto viejo de Cloudflare (cuenta actual) — dar de baja o dejarlo como respaldo.
 - [ ] Considerar revocar el token de escritura de `migration/.env` en sanity.io/manage una vez que no se vaya a re-correr la migración nunca más.
-- [ ] Si `contenidosad.com` sigue en modo sandbox de Resend, verificar el dominio ahí para poder mandar el formulario de contacto a cualquier destinatario (ver [MANUAL.md § 11](MANUAL.md#11-variables-de-entorno)).
+- [ ] Verificar `contenidosad.com` en Resend para levantar la limitación de sandbox del formulario de contacto (ver [MANUAL.md § 11](MANUAL.md#11-variables-de-entorno)) — **en curso**: no depende del resto del cutover, se puede resolver en paralelo apenas se ubique quién administra el DNS del dominio hoy (no es Cloudflare todavía). Primer paso: confirmar si el DNS vive en AWS Route 53 (el hosting de WordPress está en AWS) o en el panel del registrador. Por seguridad, no hace falta pedir acceso al DNS — alcanza con pedirle a quien lo administre que cargue los 2-3 registros puntuales que da Resend al hacer "Add Domain".
 
 ### Si algo sale mal
 
