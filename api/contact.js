@@ -25,6 +25,22 @@ function escapeHtml(str) {
   return str.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+/** Arma "Ciudad, Región, País" a partir de los headers de geolocalización que Vercel ya resuelve por IP — sin servicios externos. */
+function geoUbicacion(headers) {
+  const city = headers['x-vercel-ip-city'] ? decodeURIComponent(headers['x-vercel-ip-city']) : '';
+  const region = headers['x-vercel-ip-country-region'] ?? '';
+  const countryCode = headers['x-vercel-ip-country'] ?? '';
+  let countryName = countryCode;
+  if (countryCode) {
+    try {
+      countryName = new Intl.DisplayNames(['es'], { type: 'region' }).of(countryCode) ?? countryCode;
+    } catch {
+      // Código de país no reconocido por Intl — usar el código tal cual.
+    }
+  }
+  return [city, region, countryName].filter(Boolean).join(', ');
+}
+
 async function sendViaMailjet({ key, secret, fromEmail, fromName, toList, bccList, subject, replyName, replyEmail, html }) {
   const message = {
     From:     { Email: fromEmail, Name: fromName },
@@ -105,6 +121,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'Faltan campos obligatorios.' });
   }
 
+  const ubicacion = geoUbicacion(req.headers);
+
   const MJ_KEY    = process.env.MJ_APIKEY_PUBLIC;
   const MJ_SECRET = process.env.MJ_APIKEY_PRIVATE;
   const RESEND_KEY = process.env.RESEND_API_KEY;
@@ -148,9 +166,10 @@ export default async function handler(req, res) {
     </table>
   `;
 
-  const htmlOrigen = (_utmSource || _utmMedium || _utmCampaign || _utmTerm || _utmContent || _dispositivo) ? `
+  const htmlOrigen = (ubicacion || _utmSource || _utmMedium || _utmCampaign || _utmTerm || _utmContent || _dispositivo) ? `
     <h3>Origen del contacto</h3>
     <table cellpadding="6" style="border-collapse:collapse;">
+      ${ubicacion    ? `<tr><td><strong>Ubicación:</strong></td><td>${escapeHtml(ubicacion)}</td></tr>` : ''}
       ${_utmSource   ? `<tr><td><strong>Fuente:</strong></td><td>${escapeHtml(_utmSource)}</td></tr>` : ''}
       ${_utmMedium   ? `<tr><td><strong>Medio:</strong></td><td>${escapeHtml(_utmMedium)}</td></tr>` : ''}
       ${_utmCampaign ? `<tr><td><strong>Campaña:</strong></td><td>${escapeHtml(_utmCampaign)}</td></tr>` : ''}

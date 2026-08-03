@@ -571,7 +571,7 @@ Las variables se configuran **en dos lugares**:
 | `RESEND_FROM_EMAIL` | email | Remitente de Resend — `onboarding@resend.dev` hasta verificar un dominio propio ahí (Mailjet y Resend no comparten remitente, cada uno tiene el suyo verificado) |
 | `CONTACT_FROM_NAME` | string | Nombre del remitente |
 | `CONTACT_TO` | emails (csv) | Destinatarios "vendedores" — reciben el email **sin** datos de UTM/origen |
-| `CONTACT_TO_MARKETING` | emails (csv) | Destinatarios "marketing" — reciben el email **con** datos de UTM/origen, para medir. Opcional: si no está, simplemente no se manda ese segundo email. Replica el "Mail 1 / Mail 2" que había en Contact Form 7 (WordPress) |
+| `CONTACT_TO_MARKETING` | emails (csv) | Destinatarios "marketing" — reciben el email **con** datos de UTM/origen y **ubicación geográfica** (ciudad/región/país, resuelta por IP sin servicios externos — ver nota abajo), para medir. Opcional: si no está, simplemente no se manda ese segundo email. Replica el "Mail 1 / Mail 2" que había en Contact Form 7 (WordPress) |
 | `CONTACT_BCC` | emails (csv) | Copia oculta — solo aplica al email de marketing |
 
 ### Ejemplo de `.env` local
@@ -606,6 +606,16 @@ CONTACT_BCC=copia@empresa.com
 1. https://resend.com/domains → **Add Domain** → `contenidosad.com`
 2. Agregar los registros DNS (SPF/DKIM) que Resend indica, sin tocar nameservers ni el hosting actual
 3. Una vez verificado, cambiar `RESEND_FROM_EMAIL` a una dirección de ese dominio en Cloudflare — hasta entonces, el remitente por default (`onboarding@resend.dev`) solo entrega al email con el que se creó la cuenta de Resend (esto solo afecta al fallback; el envío principal por Mailjet ya manda a cualquier destinatario sin esta restricción)
+
+### Ubicación geográfica en el email de marketing (sin servicios externos)
+
+El email a `CONTACT_TO_MARKETING` incluye ciudad/región/país del visitante, resueltos por IP — pero **no** llama a ningún servicio externo tipo db-ip.com (que usaba WordPress). En cambio:
+
+- **Cloudflare Pages Functions**: cada request trae un objeto `request.cf` con el geo ya calculado por la red de Cloudflare (`cf.city`, `cf.region`, `cf.country`) — gratis, sin API key, sin llamada HTTP adicional.
+- **Vercel** (fallback): el equivalente son los headers `x-vercel-ip-city`, `x-vercel-ip-country-region`, `x-vercel-ip-country`.
+- El código de país (`MX`, `AR`, etc.) se convierte a nombre completo (`México`, `Argentina`) con la API nativa `Intl.DisplayNames` de JavaScript — tampoco requiere ninguna librería ni servicio.
+
+Ver `geoUbicacion()` en `functions/api/contact.js` / `api/contact.js`.
 
 ### Importante
 

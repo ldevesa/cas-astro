@@ -156,7 +156,7 @@ El formulario usa **Mailjet** para el envío, con **Resend como fallback automá
 
 **Envío doble (vendedores + marketing):** cada envío del formulario dispara **2 emails independientes**, replicando el "Mail 1 / Mail 2" que tenían configurado en Contact Form 7 (WordPress):
 - **Vendedores** (`CONTACT_TO`) → mismo contenido, **sin** la sección de origen/UTMs.
-- **Marketing** (`CONTACT_TO_MARKETING`) → el mismo contenido **con** la sección de origen/UTMs, para medir.
+- **Marketing** (`CONTACT_TO_MARKETING`) → el mismo contenido **con** la sección de origen/UTMs, para medir. Incluye además la **ubicación geográfica** (ciudad, región, país) resuelta por IP — usando el geo que Cloudflare (`request.cf`) o Vercel (headers `x-vercel-ip-*`) ya calculan gratis por cada request, sin llamar a ningún servicio externo de geolocalización (ej. db-ip.com, que usaba WordPress).
 
 Cada uno de los 2 se manda por separado con su propio Mailjet→Resend, así que si uno falla del todo el otro se intenta igual — el formulario muestra éxito si al menos uno de los dos llegó. Si `CONTACT_TO_MARKETING` no está configurada, simplemente no se manda ese segundo email (no rompe nada).
 

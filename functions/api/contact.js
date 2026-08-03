@@ -26,6 +26,21 @@ function escapeHtml(str) {
   return str.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+/** Arma "Ciudad, Región, País" a partir del geo que Cloudflare ya resuelve por IP (request.cf) — sin servicios externos. */
+function geoUbicacion(cf) {
+  if (!cf) return '';
+  const countryCode = cf.country ?? '';
+  let countryName = countryCode;
+  if (countryCode) {
+    try {
+      countryName = new Intl.DisplayNames(['es'], { type: 'region' }).of(countryCode) ?? countryCode;
+    } catch {
+      // Código de país no reconocido por Intl — usar el código tal cual.
+    }
+  }
+  return [cf.city, cf.region, countryName].filter(Boolean).join(', ');
+}
+
 async function sendViaMailjet({ key, secret, fromEmail, fromName, toList, bccList, subject, replyName, replyEmail, html }) {
   const message = {
     From:     { Email: fromEmail, Name: fromName },
@@ -99,6 +114,8 @@ export async function onRequestPost({ request, env }) {
     return Response.json({ ok: false, error: 'Faltan campos obligatorios.' }, { status: 400 });
   }
 
+  const ubicacion = geoUbicacion(request.cf);
+
   const MJ_KEY    = env.MJ_APIKEY_PUBLIC;
   const MJ_SECRET = env.MJ_APIKEY_PRIVATE;
   const RESEND_KEY = env.RESEND_API_KEY;
@@ -142,9 +159,10 @@ export async function onRequestPost({ request, env }) {
     </table>
   `;
 
-  const htmlOrigen = (utmSource || utmMedium || utmCampaign || utmTerm || utmContent || dispositivo) ? `
+  const htmlOrigen = (ubicacion || utmSource || utmMedium || utmCampaign || utmTerm || utmContent || dispositivo) ? `
     <h3>Origen del contacto</h3>
     <table cellpadding="6" style="border-collapse:collapse;">
+      ${ubicacion   ? `<tr><td><strong>Ubicación:</strong></td><td>${escapeHtml(ubicacion)}</td></tr>` : ''}
       ${utmSource   ? `<tr><td><strong>Fuente:</strong></td><td>${escapeHtml(utmSource)}</td></tr>` : ''}
       ${utmMedium   ? `<tr><td><strong>Medio:</strong></td><td>${escapeHtml(utmMedium)}</td></tr>` : ''}
       ${utmCampaign ? `<tr><td><strong>Campaña:</strong></td><td>${escapeHtml(utmCampaign)}</td></tr>` : ''}
