@@ -48,8 +48,9 @@ Mismo gotcha de siempre: Cloudflare separa variables por scope, y si solo se car
 | `RESEND_API_KEY` | Secreto | opcional — habilita el fallback a Resend si Mailjet falla |
 | `RESEND_FROM_EMAIL` | Texto | `onboarding@resend.dev` (remitente de Resend, distinto al de Mailjet — hasta verificar un dominio propio ahí, ver [MANUAL.md § 11](MANUAL.md#11-variables-de-entorno)) |
 | `CONTACT_FROM_NAME` | Texto | `CAS` |
-| `CONTACT_TO` | Texto | destinatarios del formulario, separados por coma |
-| `CONTACT_BCC` | Texto | opcional |
+| `CONTACT_TO` | Texto | destinatarios "vendedores" (sin UTMs), separados por coma |
+| `CONTACT_TO_MARKETING` | Texto | destinatarios "marketing" (con UTMs), separados por coma — opcional, replica el "Mail 1 / Mail 2" de Contact Form 7 (WordPress) |
+| `CONTACT_BCC` | Texto | opcional — copia oculta del email de marketing |
 
 - [x] Las variables cargadas en **Production** (31/07) — confirmado, `cas-sitio.pages.dev` sirve contenido de Sanity sin errores.
 - [ ] Las variables cargadas en **Preview** — no confirmado explícitamente todavía (solo importa si se sigue usando `sanity-migration` como rama de preview en la cuenta nueva).

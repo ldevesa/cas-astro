@@ -527,7 +527,7 @@ Si necesitás cambiar:
 
 ### El formulario de contacto no envía emails
 
-El envío intenta **Mailjet primero y Resend como fallback automático** si Mailjet falla (ver `functions/api/contact.js`). Si ambos fallan, el visitante ve "Error al enviar el mensaje."
+Cada envío manda **2 emails independientes** — uno a `CONTACT_TO` (vendedores, sin UTMs) y otro a `CONTACT_TO_MARKETING` (con UTMs, opcional). Cada uno intenta **Mailjet primero y Resend como fallback automático** si Mailjet falla (ver `functions/api/contact.js`) — son independientes entre sí, así que uno puede fallar sin afectar al otro. El visitante solo ve "Error al enviar el mensaje" si **los dos** emails fallan del todo.
 
 **Causa 1:** variables de entorno mal configuradas.
 **Solución:** Cloudflare → Settings → Environment variables → verificar `MJ_APIKEY_PUBLIC`, `MJ_APIKEY_PRIVATE`, `CONTACT_*` (en el scope correcto, Production o Preview según corresponda).
@@ -570,8 +570,9 @@ Las variables se configuran **en dos lugares**:
 | `CONTACT_FROM_EMAIL` | email | Remitente de Mailjet (`info@contenidosad.com`, ya verificado ahí) |
 | `RESEND_FROM_EMAIL` | email | Remitente de Resend — `onboarding@resend.dev` hasta verificar un dominio propio ahí (Mailjet y Resend no comparten remitente, cada uno tiene el suyo verificado) |
 | `CONTACT_FROM_NAME` | string | Nombre del remitente |
-| `CONTACT_TO` | emails (csv) | Destinatarios principales |
-| `CONTACT_BCC` | emails (csv) | Destinatarios en copia oculta |
+| `CONTACT_TO` | emails (csv) | Destinatarios "vendedores" — reciben el email **sin** datos de UTM/origen |
+| `CONTACT_TO_MARKETING` | emails (csv) | Destinatarios "marketing" — reciben el email **con** datos de UTM/origen, para medir. Opcional: si no está, simplemente no se manda ese segundo email. Replica el "Mail 1 / Mail 2" que había en Contact Form 7 (WordPress) |
+| `CONTACT_BCC` | emails (csv) | Copia oculta — solo aplica al email de marketing |
 
 ### Ejemplo de `.env` local
 
@@ -584,7 +585,8 @@ CONTACT_FROM_EMAIL=info@contenidosad.com
 RESEND_API_KEY=re_tu_api_key_aqui
 RESEND_FROM_EMAIL=onboarding@resend.dev
 CONTACT_FROM_NAME=CAS
-CONTACT_TO=mail1@empresa.com,mail2@empresa.com
+CONTACT_TO=vendedor1@empresa.com,vendedor2@empresa.com
+CONTACT_TO_MARKETING=marketing@empresa.com
 CONTACT_BCC=copia@empresa.com
 ```
 

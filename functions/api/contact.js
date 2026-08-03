@@ -1,16 +1,22 @@
 /**
  * Cloudflare Pages Function — POST /api/contact
- * Recibe el formulario de contacto y lo envía via Mailjet, con Resend como
- * fallback automático si Mailjet falla.
+ * Recibe el formulario de contacto y manda 2 emails independientes,
+ * replicando el "Mail 1 / Mail 2" que tenían en Contact Form 7 (WordPress):
+ *
+ * - Vendedores (CONTACT_TO): sin datos de UTM/origen del contacto.
+ * - Marketing (CONTACT_TO_MARKETING): con esos datos, para medir.
+ *
+ * Cada uno se manda vía Mailjet, con Resend como fallback automático si
+ * Mailjet falla — y son independientes entre sí: si uno de los dos falla
+ * del todo (agotando su propio fallback), el otro se intenta igual. La
+ * respuesta es éxito si al menos uno de los dos se mandó.
  *
  * Mailjet bloqueó la cuenta en julio 2026 (problema del proveedor, no de
  * config), así que Resend pasó a ser el principal por un tiempo. Con
  * Mailjet desbloqueado y sus keys renovadas (agosto 2026), vuelve a ser el
- * proveedor principal — pero Resend queda como fallback automático, ya
- * que quedó integrado y probado y el bloqueo de Mailjet puede repetirse.
- * Cada proveedor usa su propio remitente verificado (ver FROM_EMAIL_MJ /
- * FROM_EMAIL_RESEND más abajo) — no comparten el mismo remitente porque
- * cada uno tiene verificado un dominio distinto.
+ * proveedor principal. Cada proveedor usa su propio remitente verificado
+ * (ver FROM_EMAIL_MJ / FROM_EMAIL_RESEND más abajo) — no comparten el
+ * mismo remitente porque cada uno tiene verificado un dominio distinto.
  * Cloudflare Pages Functions no soporta sockets TCP crudos, así que
  * cualquier proveedor tiene que hablar por API HTTP, no SMTP directo.
  * Ver MANUAL.md para más contexto.
@@ -107,8 +113,9 @@ export async function onRequestPost({ request, env }) {
   // de ese dominio para poder mandar a cualquiera también desde el fallback.
   const FROM_EMAIL_RESEND = env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev';
   const FROM_NAME = env.CONTACT_FROM_NAME ?? 'CAS';
-  const toRaw      = env.CONTACT_TO  ?? 'info@contenidosad.com';
-  const bccRaw     = env.CONTACT_BCC ?? '';
+  const toVendedoresRaw = env.CONTACT_TO ?? 'info@contenidosad.com';
+  const toMarketingRaw  = env.CONTACT_TO_MARKETING ?? '';
+  const bccRaw = env.CONTACT_BCC ?? '';
 
   const mailjetConfigured = !!MJ_KEY && !!MJ_SECRET;
   if (!mailjetConfigured && !resendFallbackEnabled) {
@@ -117,10 +124,11 @@ export async function onRequestPost({ request, env }) {
 
   const parseEmails = (raw) => raw.split(',').map(e => e.trim()).filter(Boolean);
 
-  const toList  = parseEmails(toRaw);
+  const toVendedores = parseEmails(toVendedoresRaw);
+  const toMarketing  = parseEmails(toMarketingRaw);
   const bccList = parseEmails(bccRaw);
 
-  const htmlBody = `
+  const htmlBase = `
     <h2>Nuevo mensaje desde el sitio CAS</h2>
     <table cellpadding="6" style="border-collapse:collapse;">
       <tr><td><strong>Nombre:</strong></td><td>${escapeHtml(nombre)}</td></tr>
@@ -132,7 +140,9 @@ export async function onRequestPost({ request, env }) {
       ${servicio ? `<tr><td><strong>Servicio:</strong></td><td>${escapeHtml(servicio)}</td></tr>` : ''}
       <tr><td valign="top"><strong>Mensaje:</strong></td><td>${escapeHtml(mensaje).replace(/\n/g, '<br>')}</td></tr>
     </table>
-    ${(utmSource || utmMedium || utmCampaign || utmTerm || utmContent || dispositivo) ? `
+  `;
+
+  const htmlOrigen = (utmSource || utmMedium || utmCampaign || utmTerm || utmContent || dispositivo) ? `
     <h3>Origen del contacto</h3>
     <table cellpadding="6" style="border-collapse:collapse;">
       ${utmSource   ? `<tr><td><strong>Fuente:</strong></td><td>${escapeHtml(utmSource)}</td></tr>` : ''}
@@ -142,22 +152,26 @@ export async function onRequestPost({ request, env }) {
       ${utmContent  ? `<tr><td><strong>Contenido del anuncio:</strong></td><td>${escapeHtml(utmContent)}</td></tr>` : ''}
       ${dispositivo ? `<tr><td><strong>Dispositivo:</strong></td><td>${escapeHtml(dispositivo)}</td></tr>` : ''}
     </table>
-    ` : ''}
-  `;
+  ` : '';
 
   const subject = `[CAS Sitio] Mensaje de ${nombre}${empresa ? ` — ${empresa}` : ''}`;
-  const shared = { fromName: FROM_NAME, toList, bccList, subject, replyName: nombre, replyEmail: email, html: htmlBody };
 
-  let sent = false;
-  if (mailjetConfigured) {
-    sent = await sendViaMailjet({ key: MJ_KEY, secret: MJ_SECRET, fromEmail: FROM_EMAIL_MJ, ...shared });
-  }
-  if (!sent && resendFallbackEnabled) {
-    console.error('Mailjet falló o no está configurado, reintentando con Resend.');
-    sent = await sendViaResend({ key: RESEND_KEY, fromEmail: FROM_EMAIL_RESEND, ...shared });
-  }
+  const trySend = async (toList, bccList, html) => {
+    let sent = false;
+    if (mailjetConfigured) {
+      sent = await sendViaMailjet({ key: MJ_KEY, secret: MJ_SECRET, fromEmail: FROM_EMAIL_MJ, fromName: FROM_NAME, toList, bccList, subject, replyName: nombre, replyEmail: email, html });
+    }
+    if (!sent && resendFallbackEnabled) {
+      console.error('Mailjet falló o no está configurado, reintentando con Resend.');
+      sent = await sendViaResend({ key: RESEND_KEY, fromEmail: FROM_EMAIL_RESEND, fromName: FROM_NAME, toList, bccList, subject, replyName: nombre, replyEmail: email, html });
+    }
+    return sent;
+  };
 
-  if (!sent) {
+  const sentVendedores = toVendedores.length > 0 ? await trySend(toVendedores, [], htmlBase) : false;
+  const sentMarketing  = toMarketing.length  > 0 ? await trySend(toMarketing, bccList, htmlBase + htmlOrigen) : false;
+
+  if (!sentVendedores && !sentMarketing) {
     return Response.json({ ok: false, error: 'Error al enviar el mensaje.' }, { status: 500 });
   }
 

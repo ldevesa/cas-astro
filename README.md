@@ -154,13 +154,19 @@ El formulario usa **Mailjet** para el envío, con **Resend como fallback automá
 
 **Remitentes separados por proveedor:** Mailjet y Resend tienen verificados dominios remitentes distintos, así que **no comparten la misma variable** — `CONTACT_FROM_EMAIL` es el remitente de Mailjet (`info@contenidosad.com`, ya verificado ahí), y `RESEND_FROM_EMAIL` es el de Resend (`onboarding@resend.dev` mientras no se verifique `contenidosad.com` ahí también — ver [MANUAL.md § "Origen del contacto"](MANUAL.md); en modo sandbox, Resend solo entrega al email con el que se creó esa cuenta).
 
+**Envío doble (vendedores + marketing):** cada envío del formulario dispara **2 emails independientes**, replicando el "Mail 1 / Mail 2" que tenían configurado en Contact Form 7 (WordPress):
+- **Vendedores** (`CONTACT_TO`) → mismo contenido, **sin** la sección de origen/UTMs.
+- **Marketing** (`CONTACT_TO_MARKETING`) → el mismo contenido **con** la sección de origen/UTMs, para medir.
+
+Cada uno de los 2 se manda por separado con su propio Mailjet→Resend, así que si uno falla del todo el otro se intenta igual — el formulario muestra éxito si al menos uno de los dos llegó. Si `CONTACT_TO_MARKETING` no está configurada, simplemente no se manda ese segundo email (no rompe nada).
+
 ### Flujo
 
 1. El usuario completa el formulario y hace click en "Enviar"
 2. El navegador hace un `fetch POST` a `/api/contact` con los datos en `FormData` (incluye los campos UTM capturados en `Layout.astro`, ver sección de arriba)
 3. La **Cloudflare Pages Function** en `functions/api/contact.js` recibe el request
-4. La función llama a la API REST de Mailjet con Basic auth (o a la de Resend, si Mailjet falla)
-5. El proveedor envía el email a los destinatarios configurados
+4. La función arma 2 versiones del email (con y sin origen/UTMs) y llama a la API REST de Mailjet con Basic auth para cada una (o a la de Resend, si Mailjet falla en alguna)
+5. Cada proveedor envía su email a la lista de destinatarios que corresponda
 6. El formulario muestra un mensaje de éxito y redirige a `/gracias` (o `/pt/gracias`, `/en/gracias`)
 
 ### Campos del formulario
@@ -187,8 +193,9 @@ Estas variables se configuran en el panel de Cloudflare Pages (Settings → Envi
 | `RESEND_API_KEY` | API key de Resend (fallback si Mailjet falla) |
 | `RESEND_FROM_EMAIL` | Remitente de Resend — usar `onboarding@resend.dev` hasta verificar un dominio propio en Resend |
 | `CONTACT_FROM_NAME` | Nombre del remitente (ej: `CAS`) |
-| `CONTACT_TO` | Destinatarios principales, separados por coma |
-| `CONTACT_BCC` | Destinatarios en copia oculta, separados por coma |
+| `CONTACT_TO` | Destinatarios "vendedores" (sin UTMs), separados por coma |
+| `CONTACT_TO_MARKETING` | Destinatarios "marketing" (con UTMs), separados por coma — opcional, si no está no se manda ese segundo email |
+| `CONTACT_BCC` | Copia oculta del email de marketing, separados por coma |
 
 Ejemplo para desarrollo local en `.env`:
 ```env
@@ -198,7 +205,8 @@ CONTACT_FROM_EMAIL=info@contenidosad.com
 RESEND_API_KEY=re_tu_api_key_aqui
 RESEND_FROM_EMAIL=onboarding@resend.dev
 CONTACT_FROM_NAME=CAS
-CONTACT_TO=mail1@empresa.com,mail2@empresa.com
+CONTACT_TO=vendedor1@empresa.com,vendedor2@empresa.com
+CONTACT_TO_MARKETING=marketing@empresa.com
 CONTACT_BCC=copia@empresa.com
 ```
 
