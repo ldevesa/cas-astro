@@ -80,6 +80,9 @@ const gtmId       = seguimiento.googleTagManagerId;
         <iframe src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`} height="0" width="0" style="display:none;visibility:hidden"></iframe>
       </noscript>
     )}
+    {seguimiento.scriptsPersonalizadosBody && (
+      <Fragment set:html={seguimiento.scriptsPersonalizadosBody} />
+    )}
 
     <!-- ── Navigation ── -->
     <header class="bg-surface-container/70 backdrop-blur-xl sticky top-0 z-50 w-full">

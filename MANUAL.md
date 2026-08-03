@@ -336,7 +336,8 @@ Studio → **Configuración de seguimiento** (documento único, arriba de la lis
 
 - **ID de Google Tag Manager** (`GTM-XXXXXXX`) — cargarlo acá una sola vez. A partir de ahí, Analytics, Facebook Pixel, Hotjar, etc. se agregan o cambian **directamente en el panel de Tag Manager** (tagmanager.google.com), sin volver a tocar el sitio ni pedirle nada a nadie del equipo técnico.
 - **Código de verificación de Google Search Console** — solo el código (el valor de la meta tag que da Google al verificar la propiedad del sitio), no la etiqueta HTML completa.
-- **Scripts personalizados** — para pegar tal cual cualquier snippet que te pasen y que no vaya a través de Tag Manager (un Pixel de Facebook standalone, Hotjar, lo que sea). Se pega el código completo (incluyendo las etiquetas `<script>`) tal como te lo dieron; se inserta automáticamente antes del cierre de `</head>` en todas las páginas.
+- **Scripts personalizados — head** — para pegar tal cual cualquier snippet que te pasen y que no vaya a través de Tag Manager (un Pixel de Facebook standalone, Hotjar, lo que sea). Se pega el código completo (incluyendo las etiquetas `<script>`) tal como te lo dieron; se inserta automáticamente antes del cierre de `</head>` en todas las páginas.
+- **Scripts personalizados — body** — para cuando el snippet que te pasan viene en **2 partes** (una para el `<head>`, otra para el `<body>`, como el propio Tag Manager). Pegá acá la parte que el proveedor indique que va en el `<body>` — se inserta justo después de que abre esa etiqueta.
 
 Publicar el documento dispara el rebuild automático como cualquier otro contenido — no hace falta commit ni deploy manual.
 

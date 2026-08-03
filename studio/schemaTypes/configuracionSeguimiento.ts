@@ -23,8 +23,15 @@ export const configuracionSeguimientoType = defineType({
     }),
     defineField({
       name: 'scriptsPersonalizados',
-      title: 'Scripts personalizados',
+      title: 'Scripts personalizados — head',
       description: 'Para pegar tal cual cualquier snippet suelto que no pase por Tag Manager (Pixel de Facebook standalone, Hotjar, etc.). Se inserta antes del cierre de </head> en todas las páginas del sitio.',
+      type: 'text',
+      rows: 10,
+    }),
+    defineField({
+      name: 'scriptsPersonalizadosBody',
+      title: 'Scripts personalizados — body',
+      description: 'Para la segunda mitad de un snippet que viene en 2 partes (una para el <head>, otra para el <body>) — pegar acá tal cual la parte que el proveedor indique poner en el <body>. Se inserta justo después de que abre la etiqueta <body>, en todas las páginas.',
       type: 'text',
       rows: 10,
     }),
