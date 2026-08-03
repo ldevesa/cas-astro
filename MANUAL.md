@@ -61,7 +61,8 @@ Cada vez que cambia algo (código en GitHub o contenido en Sanity), hay que **re
 | **Cloudflare Pages** | Hosting + deploys | https://dash.cloudflare.com → Workers & Pages |
 | **Sanity** | CMS (casos, clientes, carreras) y gestión del proyecto | https://sanity.io/manage (proyecto `cas-sitio`, org TDT) |
 | **Sanity Studio** | Editar contenido | https://cas-sitio.sanity.studio (deployado — no hace falta correr nada local) |
-| **Resend** | Envío de emails del formulario | https://resend.com |
+| **Mailjet** | Envío de emails del formulario (principal) | https://app.mailjet.com |
+| **Resend** | Envío de emails del formulario (fallback) | https://resend.com |
 | **Dominio** | Registro del dominio `contenidosad.com` | Donde esté registrado el dominio |
 
 Asegurate de tener usuario y contraseña de cada uno antes de operar.
@@ -526,16 +527,16 @@ Si necesitás cambiar:
 
 ### El formulario de contacto no envía emails
 
-El envío intenta **Resend primero y Mailjet como fallback automático** si Resend falla (ver `functions/api/contact.js`). Si ambos fallan, el visitante ve "Error al enviar el mensaje."
+El envío intenta **Mailjet primero y Resend como fallback automático** si Mailjet falla (ver `functions/api/contact.js`). Si ambos fallan, el visitante ve "Error al enviar el mensaje."
 
 **Causa 1:** variables de entorno mal configuradas.
-**Solución:** Cloudflare → Settings → Environment variables → verificar `RESEND_API_KEY`, `CONTACT_*` (en el scope correcto, Production o Preview según corresponda).
+**Solución:** Cloudflare → Settings → Environment variables → verificar `MJ_APIKEY_PUBLIC`, `MJ_APIKEY_PRIVATE`, `CONTACT_*` (en el scope correcto, Production o Preview según corresponda).
 
-**Causa 2:** API de Resend caída, cuenta bloqueada, o (el caso más común) modo sandbox — mientras no se verifique un dominio propio en Resend, solo se puede enviar al email con el que se creó la cuenta. Si esto pasa, debería entrar en juego el fallback a Mailjet automáticamente (revisar los logs de la función, ver más abajo).
-**Solución:** Verificar en https://resend.com/emails el estado de los envíos y en https://resend.com/domains si el dominio está verificado.
+**Causa 2:** API de Mailjet caída, cuenta bloqueada, o keys inválidas/expiradas. Si esto pasa, debería entrar en juego el fallback a Resend automáticamente (revisar los logs de la función, ver más abajo).
+**Solución:** Verificar en https://app.mailjet.com → API → Request logs el estado de los envíos y de la cuenta.
 
-**Causa 3:** El fallback a Mailjet tampoco funciona — la cuenta de Mailjet sigue bloqueada, las keys (`MJ_APIKEY_PUBLIC`/`MJ_APIKEY_PRIVATE`) no están cargadas, o `MAILJET_FALLBACK_ENABLED=false`.
-**Solución:** Revisar los **Registros en tiempo real** de la función en Cloudflare (Implementaciones → deployment → Functions) — el código loguea `Resend error:` seguido de `Resend falló o no está configurado, reintentando con Mailjet.` y, si el fallback también falla, `Mailjet error:` con el motivo real de cada proveedor.
+**Causa 3:** El fallback a Resend tampoco funciona — falta `RESEND_API_KEY`, o `RESEND_FALLBACK_ENABLED=false`, o (el caso más común) modo sandbox de Resend — mientras no se verifique un dominio propio ahí, solo entrega al email con el que se creó esa cuenta.
+**Solución:** Revisar los **Registros en tiempo real** de la función en Cloudflare (Implementaciones → deployment → Functions) — el código loguea `Mailjet error:` seguido de `Mailjet falló o no está configurado, reintentando con Resend.` y, si el fallback también falla, `Resend error:` con el motivo real de cada proveedor.
 
 **Causa 4:** Después de editar las env vars, no se redeployó.
 **Solución:** Redeployar.
@@ -562,11 +563,12 @@ Las variables se configuran **en dos lugares**:
 | :--- | :--- | :--- |
 | `PUBLIC_SANITY_PROJECT_ID` | string | ID del proyecto de Sanity |
 | `PUBLIC_SANITY_DATASET` | string | Dataset a consumir (`production`) |
-| `RESEND_API_KEY` | string | API key de Resend (proveedor principal) |
-| `MJ_APIKEY_PUBLIC` | string | API key pública de Mailjet (fallback, opcional) |
-| `MJ_APIKEY_PRIVATE` | string | API key privada de Mailjet (fallback, opcional) |
-| `MAILJET_FALLBACK_ENABLED` | string | `false` para desactivar el fallback a Mailjet sin borrar las keys (default: activado si hay keys cargadas) |
-| `CONTACT_FROM_EMAIL` | email | Remitente del email del form — `onboarding@resend.dev` hasta verificar un dominio propio |
+| `MJ_APIKEY_PUBLIC` | string | API key pública de Mailjet (proveedor principal) |
+| `MJ_APIKEY_PRIVATE` | string | API key privada de Mailjet (proveedor principal) |
+| `RESEND_API_KEY` | string | API key de Resend (fallback, opcional) |
+| `RESEND_FALLBACK_ENABLED` | string | `false` para desactivar el fallback a Resend sin borrar la key (default: activado si hay key cargada) |
+| `CONTACT_FROM_EMAIL` | email | Remitente de Mailjet (`info@contenidosad.com`, ya verificado ahí) |
+| `RESEND_FROM_EMAIL` | email | Remitente de Resend — `onboarding@resend.dev` hasta verificar un dominio propio ahí (Mailjet y Resend no comparten remitente, cada uno tiene el suyo verificado) |
 | `CONTACT_FROM_NAME` | string | Nombre del remitente |
 | `CONTACT_TO` | emails (csv) | Destinatarios principales |
 | `CONTACT_BCC` | emails (csv) | Destinatarios en copia oculta |
@@ -576,23 +578,32 @@ Las variables se configuran **en dos lugares**:
 ```env
 PUBLIC_SANITY_PROJECT_ID=21wszpvy
 PUBLIC_SANITY_DATASET=production
+MJ_APIKEY_PUBLIC=tu_api_key_aqui
+MJ_APIKEY_PRIVATE=tu_api_secret_aqui
+CONTACT_FROM_EMAIL=info@contenidosad.com
 RESEND_API_KEY=re_tu_api_key_aqui
-CONTACT_FROM_EMAIL=onboarding@resend.dev
+RESEND_FROM_EMAIL=onboarding@resend.dev
 CONTACT_FROM_NAME=CAS
 CONTACT_TO=mail1@empresa.com,mail2@empresa.com
 CONTACT_BCC=copia@empresa.com
 ```
+
+### Cómo obtener las API keys de Mailjet
+
+1. Entrar a https://app.mailjet.com
+2. Cuenta (esquina superior derecha) → **API Keys**
+3. Copiar **API Key** y **Secret Key**
 
 ### Cómo obtener la API key de Resend
 
 1. Entrar a https://resend.com/api-keys
 2. **Create API Key** → copiar el valor (empieza con `re_`, solo se muestra una vez)
 
-### Cómo verificar un dominio propio en Resend (para levantar el límite del modo sandbox)
+### Cómo verificar un dominio propio en Resend (para levantar el límite del modo sandbox del fallback)
 
 1. https://resend.com/domains → **Add Domain** → `contenidosad.com`
 2. Agregar los registros DNS (SPF/DKIM) que Resend indica, sin tocar nameservers ni el hosting actual
-3. Una vez verificado, cambiar `CONTACT_FROM_EMAIL` a una dirección de ese dominio (ej. `info@contenidosad.com`) en Cloudflare — hasta entonces, el remitente por default (`onboarding@resend.dev`) solo entrega al email con el que se creó la cuenta de Resend
+3. Una vez verificado, cambiar `RESEND_FROM_EMAIL` a una dirección de ese dominio en Cloudflare — hasta entonces, el remitente por default (`onboarding@resend.dev`) solo entrega al email con el que se creó la cuenta de Resend (esto solo afecta al fallback; el envío principal por Mailjet ya manda a cualquier destinatario sin esta restricción)
 
 ### Importante
 

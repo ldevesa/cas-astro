@@ -1,42 +1,22 @@
 /**
  * Vercel Serverless Function — POST /api/contact
- * Recibe el formulario de contacto y lo envía via Resend, con Mailjet como
- * fallback automático si Resend falla.
+ * Recibe el formulario de contacto y lo envía via Mailjet, con Resend como
+ * fallback automático si Mailjet falla.
  *
  * Mailjet bloqueó la cuenta en julio 2026 (problema del proveedor, no de
- * config) y Resend pasó a ser el proveedor principal — pero como Mailjet
- * puede desbloquearse en cualquier momento, se dejaron ambas integraciones
- * vivas: Resend se intenta primero, y solo si falla se reintenta con
- * Mailjet (si hay keys cargadas y el fallback no está desactivado).
+ * config), así que Resend pasó a ser el principal por un tiempo. Con
+ * Mailjet desbloqueado y sus keys renovadas (agosto 2026), vuelve a ser el
+ * proveedor principal — pero Resend queda como fallback automático, ya
+ * que quedó integrado y probado y el bloqueo de Mailjet puede repetirse.
+ * Cada proveedor usa su propio remitente verificado (ver FROM_EMAIL_MJ /
+ * FROM_EMAIL_RESEND más abajo) — no comparten el mismo remitente porque
+ * cada uno tiene verificado un dominio distinto.
  * Ver functions/api/contact.js (el equivalente para Cloudflare) y
  * MANUAL.md para más contexto.
  */
 /** Escapa HTML para no inyectar markup/scripts en el email armado a partir de datos del visitante. */
 function escapeHtml(str) {
   return str.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-
-async function sendViaResend({ key, fromEmail, fromName, toList, bccList, subject, replyName, replyEmail, html }) {
-  const message = {
-    from:     `${fromName} <${fromEmail}>`,
-    to:       toList,
-    reply_to: `${replyName} <${replyEmail}>`,
-    subject,
-    html,
-  };
-  if (bccList.length > 0) message.bcc = bccList;
-
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-    body: JSON.stringify(message),
-  });
-
-  if (!res.ok) {
-    console.error('Resend error:', await res.text());
-    return false;
-  }
-  return true;
 }
 
 async function sendViaMailjet({ key, secret, fromEmail, fromName, toList, bccList, subject, replyName, replyEmail, html }) {
@@ -60,6 +40,29 @@ async function sendViaMailjet({ key, secret, fromEmail, fromName, toList, bccLis
 
   if (!res.ok) {
     console.error('Mailjet error:', await res.text());
+    return false;
+  }
+  return true;
+}
+
+async function sendViaResend({ key, fromEmail, fromName, toList, bccList, subject, replyName, replyEmail, html }) {
+  const message = {
+    from:     `${fromName} <${fromEmail}>`,
+    to:       toList,
+    reply_to: `${replyName} <${replyEmail}>`,
+    subject,
+    html,
+  };
+  if (bccList.length > 0) message.bcc = bccList;
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+    body: JSON.stringify(message),
+  });
+
+  if (!res.ok) {
+    console.error('Resend error:', await res.text());
     return false;
   }
   return true;
@@ -96,22 +99,25 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'Faltan campos obligatorios.' });
   }
 
+  const MJ_KEY    = process.env.MJ_APIKEY_PUBLIC;
+  const MJ_SECRET = process.env.MJ_APIKEY_PRIVATE;
   const RESEND_KEY = process.env.RESEND_API_KEY;
-  const MJ_KEY      = process.env.MJ_APIKEY_PUBLIC;
-  const MJ_SECRET   = process.env.MJ_APIKEY_PRIVATE;
-  // Desactivar el fallback a Mailjet sin borrar las keys: MAILJET_FALLBACK_ENABLED=false
-  const mailjetFallbackEnabled = process.env.MAILJET_FALLBACK_ENABLED !== 'false' && !!MJ_KEY && !!MJ_SECRET;
+  // Desactivar el fallback a Resend sin borrar la key: RESEND_FALLBACK_ENABLED=false
+  const resendFallbackEnabled = process.env.RESEND_FALLBACK_ENABLED !== 'false' && !!RESEND_KEY;
 
+  // Cada proveedor tiene verificado un remitente distinto — no se comparten.
+  const FROM_EMAIL_MJ     = process.env.CONTACT_FROM_EMAIL ?? 'info@contenidosad.com';
   // onboarding@resend.dev funciona sin verificar dominio, pero en modo sandbox
   // Resend solo entrega al email con el que se creó la cuenta — cuando se
-  // verifique contenidosad.com en Resend, cambiar CONTACT_FROM_EMAIL a algo
-  // de ese dominio (ej. info@contenidosad.com) para poder mandar a cualquiera.
-  const FROM_EMAIL = process.env.CONTACT_FROM_EMAIL ?? 'onboarding@resend.dev';
-  const FROM_NAME  = process.env.CONTACT_FROM_NAME  ?? 'CAS';
+  // verifique contenidosad.com en Resend, cambiar RESEND_FROM_EMAIL a algo
+  // de ese dominio para poder mandar a cualquiera también desde el fallback.
+  const FROM_EMAIL_RESEND = process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev';
+  const FROM_NAME = process.env.CONTACT_FROM_NAME ?? 'CAS';
   const toRaw      = process.env.CONTACT_TO  ?? 'info@contenidosad.com';
   const bccRaw     = process.env.CONTACT_BCC ?? '';
 
-  if (!RESEND_KEY && !mailjetFallbackEnabled) {
+  const mailjetConfigured = !!MJ_KEY && !!MJ_SECRET;
+  if (!mailjetConfigured && !resendFallbackEnabled) {
     return res.status(500).json({ ok: false, error: 'Configuración de email incompleta.' });
   }
 
@@ -146,15 +152,15 @@ export default async function handler(req, res) {
   `;
 
   const subject = `[CAS Sitio] Mensaje de ${_nombre}${_empresa ? ` — ${_empresa}` : ''}`;
-  const shared = { fromEmail: FROM_EMAIL, fromName: FROM_NAME, toList, bccList, subject, replyName: _nombre, replyEmail: _email, html: htmlBody };
+  const shared = { fromName: FROM_NAME, toList, bccList, subject, replyName: _nombre, replyEmail: _email, html: htmlBody };
 
   let sent = false;
-  if (RESEND_KEY) {
-    sent = await sendViaResend({ key: RESEND_KEY, ...shared });
+  if (mailjetConfigured) {
+    sent = await sendViaMailjet({ key: MJ_KEY, secret: MJ_SECRET, fromEmail: FROM_EMAIL_MJ, ...shared });
   }
-  if (!sent && mailjetFallbackEnabled) {
-    console.error('Resend falló o no está configurado, reintentando con Mailjet.');
-    sent = await sendViaMailjet({ key: MJ_KEY, secret: MJ_SECRET, ...shared });
+  if (!sent && resendFallbackEnabled) {
+    console.error('Mailjet falló o no está configurado, reintentando con Resend.');
+    sent = await sendViaResend({ key: RESEND_KEY, fromEmail: FROM_EMAIL_RESEND, ...shared });
   }
 
   if (!sent) {

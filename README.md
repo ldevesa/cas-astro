@@ -15,7 +15,7 @@ Sitio web institucional de CAS construido con **Astro + Tailwind CSS**, conectad
 | [`@sanity/image-url`](https://www.sanity.io/docs/image-url) | URLs de imágenes optimizadas servidas por el CDN de Sanity |
 | [`sanity-plugin-media`](https://github.com/sanity-io/sanity-plugin-media) | Browser de todos los assets del proyecto dentro del Studio (equivalente a "Media" de WordPress) |
 | [amCharts 5](https://www.amcharts.com) | Globo 3D y mapas de cobertura global |
-| [Resend](https://resend.com) | Envío de emails del formulario de contacto |
+| [Mailjet](https://www.mailjet.com) + [Resend](https://resend.com) (fallback) | Envío de emails del formulario de contacto |
 | [Cloudflare Pages](https://pages.cloudflare.com) | Hosting + Functions (API serverless) |
 | TypeScript | Tipado en capa de datos |
 
@@ -146,21 +146,21 @@ El selector de idioma en el nav detecta automáticamente la URL actual y genera 
 
 ## Formulario de contacto
 
-El formulario usa **Resend** para el envío, con **Mailjet como fallback automático** si Resend falla. No depende de Sanity ni de ningún servidor SMTP.
+El formulario usa **Mailjet** para el envío, con **Resend como fallback automático** si Mailjet falla. No depende de Sanity ni de ningún servidor SMTP.
 
-**Por qué Resend y no Mailjet como principal:** Mailjet bloqueó la cuenta (problema de ellos, no de configuración) — se migró a Resend en julio 2026. Cloudflare Pages Functions no soporta sockets TCP crudos, así que cualquier proveedor (Resend, Mailjet, Gmail, lo que sea) tiene que hablar por API HTTP, no SMTP directo.
+**Historial:** Mailjet bloqueó la cuenta en julio 2026 (problema de ellos, no de configuración) y Resend pasó a ser el principal temporalmente. En agosto 2026, con Mailjet desbloqueado y las keys renovadas, volvió a ser el proveedor principal — pero Resend quedó como fallback automático, ya que el código estaba integrado y probado, y el bloqueo de Mailjet puede repetirse. Cloudflare Pages Functions no soporta sockets TCP crudos, así que cualquier proveedor (Mailjet, Resend, Gmail, lo que sea) tiene que hablar por API HTTP, no SMTP directo.
 
-**Por qué se dejó Mailjet como fallback:** el bloqueo de Mailjet puede revertirse en cualquier momento, y ya estaba integrado y probado — en vez de descartar ese código, se intenta primero Resend y, si falla, se reintenta automáticamente con Mailjet en el mismo request (ver `functions/api/contact.js`). Se puede desactivar sin borrar las keys con la variable `MAILJET_FALLBACK_ENABLED=false`.
+**Cómo funciona el fallback:** se intenta primero Mailjet y, si falla, se reintenta automáticamente con Resend en el mismo request (ver `functions/api/contact.js`). Se puede desactivar el fallback sin borrar la key con la variable `RESEND_FALLBACK_ENABLED=false`.
 
-**Estado del dominio remitente:** hasta que se verifique `contenidosad.com` en Resend (agregar unos registros DNS, sin tocar nameservers ni el hosting actual — ver [MANUAL.md § "Origen del contacto"](MANUAL.md)), el remitente por default es `onboarding@resend.dev`, que en modo sandbox **solo entrega al email con el que se creó la cuenta de Resend**. Verificar el dominio para poder mandar a cualquier destinatario.
+**Remitentes separados por proveedor:** Mailjet y Resend tienen verificados dominios remitentes distintos, así que **no comparten la misma variable** — `CONTACT_FROM_EMAIL` es el remitente de Mailjet (`info@contenidosad.com`, ya verificado ahí), y `RESEND_FROM_EMAIL` es el de Resend (`onboarding@resend.dev` mientras no se verifique `contenidosad.com` ahí también — ver [MANUAL.md § "Origen del contacto"](MANUAL.md); en modo sandbox, Resend solo entrega al email con el que se creó esa cuenta).
 
 ### Flujo
 
 1. El usuario completa el formulario y hace click en "Enviar"
 2. El navegador hace un `fetch POST` a `/api/contact` con los datos en `FormData` (incluye los campos UTM capturados en `Layout.astro`, ver sección de arriba)
 3. La **Cloudflare Pages Function** en `functions/api/contact.js` recibe el request
-4. La función llama a la API REST de Resend con un Bearer token
-5. Resend envía el email a los destinatarios configurados
+4. La función llama a la API REST de Mailjet con Basic auth (o a la de Resend, si Mailjet falla)
+5. El proveedor envía el email a los destinatarios configurados
 6. El formulario muestra un mensaje de éxito y redirige a `/gracias` (o `/pt/gracias`, `/en/gracias`)
 
 ### Campos del formulario
@@ -181,16 +181,22 @@ Estas variables se configuran en el panel de Cloudflare Pages (Settings → Envi
 
 | Variable | Descripción |
 | :--- | :--- |
-| `RESEND_API_KEY` | API key de Resend |
-| `CONTACT_FROM_EMAIL` | Email remitente — usar `onboarding@resend.dev` hasta verificar un dominio propio en Resend |
+| `MJ_APIKEY_PUBLIC` | API key pública de Mailjet (proveedor principal) |
+| `MJ_APIKEY_PRIVATE` | API key privada de Mailjet |
+| `CONTACT_FROM_EMAIL` | Remitente de Mailjet (`info@contenidosad.com`, ya verificado ahí) |
+| `RESEND_API_KEY` | API key de Resend (fallback si Mailjet falla) |
+| `RESEND_FROM_EMAIL` | Remitente de Resend — usar `onboarding@resend.dev` hasta verificar un dominio propio en Resend |
 | `CONTACT_FROM_NAME` | Nombre del remitente (ej: `CAS`) |
 | `CONTACT_TO` | Destinatarios principales, separados por coma |
 | `CONTACT_BCC` | Destinatarios en copia oculta, separados por coma |
 
 Ejemplo para desarrollo local en `.env`:
 ```env
+MJ_APIKEY_PUBLIC=tu_api_key_aqui
+MJ_APIKEY_PRIVATE=tu_api_secret_aqui
+CONTACT_FROM_EMAIL=info@contenidosad.com
 RESEND_API_KEY=re_tu_api_key_aqui
-CONTACT_FROM_EMAIL=onboarding@resend.dev
+RESEND_FROM_EMAIL=onboarding@resend.dev
 CONTACT_FROM_NAME=CAS
 CONTACT_TO=mail1@empresa.com,mail2@empresa.com
 CONTACT_BCC=copia@empresa.com
@@ -331,9 +337,9 @@ cp .env.example .env
 | :--- | :--- |
 | `PUBLIC_SANITY_PROJECT_ID` | ID del proyecto de Sanity (ver `studio/sanity.config.ts`) |
 | `PUBLIC_SANITY_DATASET` | Dataset a consumir (`production`) |
-| `RESEND_API_KEY` | Resend (proveedor principal del formulario) |
-| `MJ_APIKEY_PUBLIC` / `MJ_APIKEY_PRIVATE` | Mailjet (fallback automático si Resend falla — opcional) |
-| `CONTACT_*` | Formulario de contacto |
+| `MJ_APIKEY_PUBLIC` / `MJ_APIKEY_PRIVATE` | Mailjet (proveedor principal del formulario) |
+| `RESEND_API_KEY` | Resend (fallback automático si Mailjet falla — opcional) |
+| `CONTACT_*` / `RESEND_FROM_EMAIL` | Formulario de contacto |
 
 Para producción, las variables se configuran en el panel de Cloudflare Pages (no en archivos subidos al repo) — **por separado para el scope Production y el scope Preview**, ver [MANUAL.md](MANUAL.md#5-cloudflare-pages).
 
@@ -374,7 +380,7 @@ Desde `studio/`:
 | Build output directory | `dist` |
 | Node.js version | `22` |
 
-4. En "Environment variables" agregar `PUBLIC_SANITY_PROJECT_ID`, `PUBLIC_SANITY_DATASET` y las variables de Resend, tanto en **Production** como en **Preview**
+4. En "Environment variables" agregar `PUBLIC_SANITY_PROJECT_ID`, `PUBLIC_SANITY_DATASET` y las variables de Mailjet/Resend, tanto en **Production** como en **Preview**
 5. Deploy
 
 Cloudflare asigna un dominio `.pages.dev` automáticamente. El dominio propio se vincula desde Settings → Custom Domains.
