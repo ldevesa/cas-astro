@@ -1,13 +1,22 @@
 /**
  * Vercel Serverless Function — POST /api/contact
- * Recibe el formulario de contacto y lo envía via Resend, con Mailjet como
- * fallback automático si Resend falla.
+ * Recibe el formulario de contacto y manda 2 emails independientes,
+ * replicando el "Mail 1 / Mail 2" que tenían en Contact Form 7 (WordPress):
+ *
+ * - Vendedores (CONTACT_TO): sin datos de UTM/origen del contacto.
+ * - Marketing (CONTACT_TO_MARKETING): con esos datos, para medir.
+ *
+ * Cada uno se manda vía Mailjet, con Resend como fallback automático si
+ * Mailjet falla — y son independientes entre sí: si uno de los dos falla
+ * del todo (agotando su propio fallback), el otro se intenta igual. La
+ * respuesta es éxito si al menos uno de los dos se mandó.
  *
  * Mailjet bloqueó la cuenta en julio 2026 (problema del proveedor, no de
- * config) y Resend pasó a ser el proveedor principal — pero como Mailjet
- * puede desbloquearse en cualquier momento, se dejaron ambas integraciones
- * vivas: Resend se intenta primero, y solo si falla se reintenta con
- * Mailjet (si hay keys cargadas y el fallback no está desactivado).
+ * config), así que Resend pasó a ser el principal por un tiempo. Con
+ * Mailjet desbloqueado y sus keys renovadas (agosto 2026), vuelve a ser el
+ * proveedor principal. Cada proveedor usa su propio remitente verificado
+ * (ver FROM_EMAIL_MJ / FROM_EMAIL_RESEND más abajo) — no comparten el
+ * mismo remitente porque cada uno tiene verificado un dominio distinto.
  * Ver functions/api/contact.js (el equivalente para Cloudflare) y
  * MANUAL.md para más contexto.
  */
@@ -16,27 +25,20 @@ function escapeHtml(str) {
   return str.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-async function sendViaResend({ key, fromEmail, fromName, toList, bccList, subject, replyName, replyEmail, html }) {
-  const message = {
-    from:     `${fromName} <${fromEmail}>`,
-    to:       toList,
-    reply_to: `${replyName} <${replyEmail}>`,
-    subject,
-    html,
-  };
-  if (bccList.length > 0) message.bcc = bccList;
-
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-    body: JSON.stringify(message),
-  });
-
-  if (!res.ok) {
-    console.error('Resend error:', await res.text());
-    return false;
+/** Arma "Ciudad, Región, País" a partir de los headers de geolocalización que Vercel ya resuelve por IP — sin servicios externos. */
+function geoUbicacion(headers) {
+  const city = headers['x-vercel-ip-city'] ? decodeURIComponent(headers['x-vercel-ip-city']) : '';
+  const region = headers['x-vercel-ip-country-region'] ?? '';
+  const countryCode = headers['x-vercel-ip-country'] ?? '';
+  let countryName = countryCode;
+  if (countryCode) {
+    try {
+      countryName = new Intl.DisplayNames(['es'], { type: 'region' }).of(countryCode) ?? countryCode;
+    } catch {
+      // Código de país no reconocido por Intl — usar el código tal cual.
+    }
   }
-  return true;
+  return [city, region, countryName].filter(Boolean).join(', ');
 }
 
 async function sendViaMailjet({ key, secret, fromEmail, fromName, toList, bccList, subject, replyName, replyEmail, html }) {
@@ -60,6 +62,29 @@ async function sendViaMailjet({ key, secret, fromEmail, fromName, toList, bccLis
 
   if (!res.ok) {
     console.error('Mailjet error:', await res.text());
+    return false;
+  }
+  return true;
+}
+
+async function sendViaResend({ key, fromEmail, fromName, toList, bccList, subject, replyName, replyEmail, html }) {
+  const message = {
+    from:     `${fromName} <${fromEmail}>`,
+    to:       toList,
+    reply_to: `${replyName} <${replyEmail}>`,
+    subject,
+    html,
+  };
+  if (bccList.length > 0) message.bcc = bccList;
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+    body: JSON.stringify(message),
+  });
+
+  if (!res.ok) {
+    console.error('Resend error:', await res.text());
     return false;
   }
   return true;
@@ -96,31 +121,38 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'Faltan campos obligatorios.' });
   }
 
-  const RESEND_KEY = process.env.RESEND_API_KEY;
-  const MJ_KEY      = process.env.MJ_APIKEY_PUBLIC;
-  const MJ_SECRET   = process.env.MJ_APIKEY_PRIVATE;
-  // Desactivar el fallback a Mailjet sin borrar las keys: MAILJET_FALLBACK_ENABLED=false
-  const mailjetFallbackEnabled = process.env.MAILJET_FALLBACK_ENABLED !== 'false' && !!MJ_KEY && !!MJ_SECRET;
+  const ubicacion = geoUbicacion(req.headers);
 
+  const MJ_KEY    = process.env.MJ_APIKEY_PUBLIC;
+  const MJ_SECRET = process.env.MJ_APIKEY_PRIVATE;
+  const RESEND_KEY = process.env.RESEND_API_KEY;
+  // Desactivar el fallback a Resend sin borrar la key: RESEND_FALLBACK_ENABLED=false
+  const resendFallbackEnabled = process.env.RESEND_FALLBACK_ENABLED !== 'false' && !!RESEND_KEY;
+
+  // Cada proveedor tiene verificado un remitente distinto — no se comparten.
+  const FROM_EMAIL_MJ     = process.env.CONTACT_FROM_EMAIL ?? 'info@contenidosad.com';
   // onboarding@resend.dev funciona sin verificar dominio, pero en modo sandbox
   // Resend solo entrega al email con el que se creó la cuenta — cuando se
-  // verifique contenidosad.com en Resend, cambiar CONTACT_FROM_EMAIL a algo
-  // de ese dominio (ej. info@contenidosad.com) para poder mandar a cualquiera.
-  const FROM_EMAIL = process.env.CONTACT_FROM_EMAIL ?? 'onboarding@resend.dev';
-  const FROM_NAME  = process.env.CONTACT_FROM_NAME  ?? 'CAS';
-  const toRaw      = process.env.CONTACT_TO  ?? 'info@contenidosad.com';
-  const bccRaw     = process.env.CONTACT_BCC ?? '';
+  // verifique contenidosad.com en Resend, cambiar RESEND_FROM_EMAIL a algo
+  // de ese dominio para poder mandar a cualquiera también desde el fallback.
+  const FROM_EMAIL_RESEND = process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev';
+  const FROM_NAME = process.env.CONTACT_FROM_NAME ?? 'CAS';
+  const toVendedoresRaw = process.env.CONTACT_TO ?? 'info@contenidosad.com';
+  const toMarketingRaw  = process.env.CONTACT_TO_MARKETING ?? '';
+  const bccRaw = process.env.CONTACT_BCC ?? '';
 
-  if (!RESEND_KEY && !mailjetFallbackEnabled) {
+  const mailjetConfigured = !!MJ_KEY && !!MJ_SECRET;
+  if (!mailjetConfigured && !resendFallbackEnabled) {
     return res.status(500).json({ ok: false, error: 'Configuración de email incompleta.' });
   }
 
   const parseEmails = (raw) => raw.split(',').map(e => e.trim()).filter(Boolean);
 
-  const toList  = parseEmails(toRaw);
+  const toVendedores = parseEmails(toVendedoresRaw);
+  const toMarketing  = parseEmails(toMarketingRaw);
   const bccList = parseEmails(bccRaw);
 
-  const htmlBody = `
+  const htmlBase = `
     <h2>Nuevo mensaje desde el sitio CAS</h2>
     <table cellpadding="6" style="border-collapse:collapse;">
       <tr><td><strong>Nombre:</strong></td><td>${escapeHtml(_nombre)}</td></tr>
@@ -132,9 +164,12 @@ export default async function handler(req, res) {
       ${_servicio ? `<tr><td><strong>Servicio:</strong></td><td>${escapeHtml(_servicio)}</td></tr>` : ''}
       <tr><td valign="top"><strong>Mensaje:</strong></td><td>${escapeHtml(_mensaje).replace(/\n/g, '<br>')}</td></tr>
     </table>
-    ${(_utmSource || _utmMedium || _utmCampaign || _utmTerm || _utmContent || _dispositivo) ? `
+  `;
+
+  const htmlOrigen = (ubicacion || _utmSource || _utmMedium || _utmCampaign || _utmTerm || _utmContent || _dispositivo) ? `
     <h3>Origen del contacto</h3>
     <table cellpadding="6" style="border-collapse:collapse;">
+      ${ubicacion    ? `<tr><td><strong>Ubicación:</strong></td><td>${escapeHtml(ubicacion)}</td></tr>` : ''}
       ${_utmSource   ? `<tr><td><strong>Fuente:</strong></td><td>${escapeHtml(_utmSource)}</td></tr>` : ''}
       ${_utmMedium   ? `<tr><td><strong>Medio:</strong></td><td>${escapeHtml(_utmMedium)}</td></tr>` : ''}
       ${_utmCampaign ? `<tr><td><strong>Campaña:</strong></td><td>${escapeHtml(_utmCampaign)}</td></tr>` : ''}
@@ -142,22 +177,26 @@ export default async function handler(req, res) {
       ${_utmContent  ? `<tr><td><strong>Contenido del anuncio:</strong></td><td>${escapeHtml(_utmContent)}</td></tr>` : ''}
       ${_dispositivo ? `<tr><td><strong>Dispositivo:</strong></td><td>${escapeHtml(_dispositivo)}</td></tr>` : ''}
     </table>
-    ` : ''}
-  `;
+  ` : '';
 
   const subject = `[CAS Sitio] Mensaje de ${_nombre}${_empresa ? ` — ${_empresa}` : ''}`;
-  const shared = { fromEmail: FROM_EMAIL, fromName: FROM_NAME, toList, bccList, subject, replyName: _nombre, replyEmail: _email, html: htmlBody };
 
-  let sent = false;
-  if (RESEND_KEY) {
-    sent = await sendViaResend({ key: RESEND_KEY, ...shared });
-  }
-  if (!sent && mailjetFallbackEnabled) {
-    console.error('Resend falló o no está configurado, reintentando con Mailjet.');
-    sent = await sendViaMailjet({ key: MJ_KEY, secret: MJ_SECRET, ...shared });
-  }
+  const trySend = async (toList, bccList, html) => {
+    let sent = false;
+    if (mailjetConfigured) {
+      sent = await sendViaMailjet({ key: MJ_KEY, secret: MJ_SECRET, fromEmail: FROM_EMAIL_MJ, fromName: FROM_NAME, toList, bccList, subject, replyName: _nombre, replyEmail: _email, html });
+    }
+    if (!sent && resendFallbackEnabled) {
+      console.error('Mailjet falló o no está configurado, reintentando con Resend.');
+      sent = await sendViaResend({ key: RESEND_KEY, fromEmail: FROM_EMAIL_RESEND, fromName: FROM_NAME, toList, bccList, subject, replyName: _nombre, replyEmail: _email, html });
+    }
+    return sent;
+  };
 
-  if (!sent) {
+  const sentVendedores = toVendedores.length > 0 ? await trySend(toVendedores, [], htmlBase) : false;
+  const sentMarketing  = toMarketing.length  > 0 ? await trySend(toMarketing, bccList, htmlBase + htmlOrigen) : false;
+
+  if (!sentVendedores && !sentMarketing) {
     return res.status(500).json({ ok: false, error: 'Error al enviar el mensaje.' });
   }
 

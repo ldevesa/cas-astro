@@ -42,13 +42,15 @@ Mismo gotcha de siempre: Cloudflare separa variables por scope, y si solo se car
 | :--- | :--- | :--- |
 | `PUBLIC_SANITY_PROJECT_ID` | Texto | `21wszpvy` |
 | `PUBLIC_SANITY_DATASET` | Texto | `production` |
-| `RESEND_API_KEY` | Secreto | la key de Resend |
-| `CONTACT_FROM_EMAIL` | Texto | `onboarding@resend.dev` (hasta verificar un dominio propio en Resend — ver [MANUAL.md § 11](MANUAL.md#11-variables-de-entorno)) |
+| `MJ_APIKEY_PUBLIC` | Secreto | la key pública de Mailjet (proveedor principal) |
+| `MJ_APIKEY_PRIVATE` | Secreto | la key privada de Mailjet |
+| `CONTACT_FROM_EMAIL` | Texto | `info@contenidosad.com` (remitente verificado en Mailjet) |
+| `RESEND_API_KEY` | Secreto | opcional — habilita el fallback a Resend si Mailjet falla |
+| `RESEND_FROM_EMAIL` | Texto | `onboarding@resend.dev` (remitente de Resend, distinto al de Mailjet — hasta verificar un dominio propio ahí, ver [MANUAL.md § 11](MANUAL.md#11-variables-de-entorno)) |
 | `CONTACT_FROM_NAME` | Texto | `CAS` |
-| `CONTACT_TO` | Texto | destinatarios del formulario, separados por coma |
-| `CONTACT_BCC` | Texto | opcional |
-| `MJ_APIKEY_PUBLIC` | Secreto | opcional — habilita el fallback a Mailjet si Resend falla |
-| `MJ_APIKEY_PRIVATE` | Secreto | opcional — ídem |
+| `CONTACT_TO` | Texto | destinatarios "vendedores" (sin UTMs), separados por coma |
+| `CONTACT_TO_MARKETING` | Texto | destinatarios "marketing" (con UTMs), separados por coma — opcional, replica el "Mail 1 / Mail 2" de Contact Form 7 (WordPress) |
+| `CONTACT_BCC` | Texto | opcional — copia oculta del email de marketing |
 
 - [x] Las variables cargadas en **Production** (31/07) — confirmado, `cas-sitio.pages.dev` sirve contenido de Sanity sin errores.
 - [ ] Las variables cargadas en **Preview** — no confirmado explícitamente todavía (solo importa si se sigue usando `sanity-migration` como rama de preview en la cuenta nueva).
@@ -91,7 +93,8 @@ Navegar la URL `.pages.dev` de la cuenta nueva en los 3 idiomas y confirmar:
 
 - [x] Home (con el Hero), casos (listado + detalle + paginación), carreras (listado + detalle), clientes — confirmado por el usuario (03/08).
 - [x] Selector de idioma (ES/PT/EN) en todas las páginas de arriba.
-- [x] Formulario de contacto probado — funciona, pero **limitado al modo sandbox de Resend** (solo entrega al email de la cuenta de Resend) porque `contenidosad.com` todavía no está verificado como dominio propio ahí. Mailjet (el fallback) sigue bloqueado por el proveedor, así que hoy el envío depende 100% de Resend. Ver pendiente en la sección 7 para levantar esta limitación.
+- [x] Formulario de contacto probado con Resend como principal (confirmado 03/08, antes del swap).
+- [ ] Re-probar el formulario con **Mailjet** como principal (swap hecho el 03/08, desbloqueado y con keys renovadas — pendiente de deploy y de una prueba real). Resend queda como fallback automático si Mailjet vuelve a fallar, pero ese fallback sigue limitado a modo sandbox (solo entrega al email de la cuenta de Resend) hasta verificar `contenidosad.com` ahí — ver pendiente en la sección 7.
 - [x] Imágenes, galería y video de YouTube en un caso.
 - [x] Nada roto visualmente.
 
