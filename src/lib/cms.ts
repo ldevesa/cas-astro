@@ -51,6 +51,7 @@ interface CasoDoc {
   imagenDestacada?: SanityImageRef;
   galeria?: SanityImageRef[];
   videoYoutubeId?: string;
+  categorias?: string[];
 }
 
 export interface Caso {
@@ -65,13 +66,14 @@ export interface Caso {
   imagenAlt: string;
   galeria: { url: string; alt: string }[];
   videoYoutubeId: string;
+  categorias: string[];
 }
 
 const CASO_PROJECTION = /* groq */ `{
   "id": _id,
   "slug": slug.current,
   titulo, subtitulo, resumen, mercado, contenido, videoYoutubeId,
-  imagenDestacada, galeria
+  imagenDestacada, galeria, categorias
 }`;
 
 function mapCaso(doc: CasoDoc, lang: Lang): Caso {
@@ -88,8 +90,13 @@ function mapCaso(doc: CasoDoc, lang: Lang): Caso {
     imagenAlt: doc.imagenDestacada?.alt || titulo,
     galeria: (doc.galeria ?? []).map((img) => ({ url: imageUrl(img), alt: img.alt || titulo })),
     videoYoutubeId: doc.videoYoutubeId ?? '',
+    categorias: doc.categorias ?? [],
   };
 }
+
+/** Categorías válidas — mismos valores que la lista del schema en studio/schemaTypes/caso.ts. */
+export const CATEGORIAS_CASO = ['experiencia', 'contenido-digital', 'trade', 'creatividad'] as const;
+export type CategoriaCaso = (typeof CATEGORIAS_CASO)[number];
 
 // Orden por sourceId de WordPress (desc) como aproximación estable a "más reciente primero":
 // los documentos migrados no conservan la fecha original de publicación de WordPress.
@@ -138,6 +145,15 @@ export async function getCasosPage(page = 1, perPage = 6, lang: Lang = 'es'): Pr
     total,
     totalPages: Math.max(1, Math.ceil(total / perPage)),
   };
+}
+
+const CASOS_POR_CATEGORIA_QUERY = defineQuery(
+  `*[_type == "caso" && $categoria in categorias] | order(migracion.sourceId desc) ${CASO_PROJECTION}`
+);
+
+export async function getCasosPorCategoria(categoria: string, lang: Lang = 'es'): Promise<Caso[]> {
+  const docs = await sanityClient.fetch<CasoDoc[]>(CASOS_POR_CATEGORIA_QUERY, { categoria });
+  return docs.map((d) => mapCaso(d, lang));
 }
 
 // ── Carreras ─────────────────────────────────────────────────────────────────
@@ -288,4 +304,23 @@ export async function getPaginaHome(lang: Lang = 'es'): Promise<PaginaHome> {
     .map((b) => mapBloque(b, lang))
     .filter((b): b is BloqueHome => b !== undefined);
   return { bloques };
+}
+
+// ── Configuración de seguimiento (GTM, Search Console, scripts sueltos) ──────
+
+export interface ConfiguracionSeguimiento {
+  googleTagManagerId?: string;
+  googleSiteVerification?: string;
+  scriptsPersonalizados?: string;
+  scriptsPersonalizadosBody?: string;
+  scriptsPersonalizadosFinBody?: string;
+}
+
+const CONFIGURACION_SEGUIMIENTO_QUERY = defineQuery(
+  `*[_type == "configuracionSeguimiento" && _id == "configuracionSeguimiento"][0]{ googleTagManagerId, googleSiteVerification, scriptsPersonalizados, scriptsPersonalizadosBody, scriptsPersonalizadosFinBody }`
+);
+
+export async function getConfiguracionSeguimiento(): Promise<ConfiguracionSeguimiento> {
+  const doc = await sanityClient.fetch<ConfiguracionSeguimiento | null>(CONFIGURACION_SEGUIMIENTO_QUERY);
+  return doc ?? {};
 }

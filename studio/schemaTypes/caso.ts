@@ -68,6 +68,21 @@ export const casoType = defineType({
       description: 'Solo el ID del video (lo que va después de /embed/)',
       type: 'string',
     }),
+    defineField({
+      name: 'categorias',
+      title: 'Categorías / Servicios',
+      description: 'A qué servicio(s) de la Home corresponde este caso — se usa para el filtro en /casos/categoria/... Se puede dejar vacío mientras no esté definido, y un caso puede tener más de una.',
+      type: 'array',
+      of: [{type: 'string'}],
+      options: {
+        list: [
+          {title: 'Experiencia', value: 'experiencia'},
+          {title: 'Contenido Digital', value: 'contenido-digital'},
+          {title: 'Trade', value: 'trade'},
+          {title: 'Creatividad', value: 'creatividad'},
+        ],
+      },
+    }),
     migracionField,
   ],
   preview: {

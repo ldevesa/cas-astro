@@ -218,7 +218,7 @@ Cloudflare Pages separa las variables en **dos scopes independientes: Production
 3. Nombre: `Sanity publish` (o el que quieras)
 4. Rama a compilar: `main` (la rama de producción) o `sanity-migration` (para preview)
 5. Copiar la URL que genera (`https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/...`)
-6. En Sanity: [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook" → dataset `production`, pegar esa URL como destino, trigger en Create/Update/Delete, filtro GROQ `_type in ["caso", "cliente", "carrera", "paginaHome"]` (ver detalle en sección 6).
+6. En Sanity: [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook" → dataset `production`, pegar esa URL como destino, trigger en Create/Update/Delete, filtro GROQ `_type in ["caso", "cliente", "carrera", "paginaHome", "configuracionSeguimiento"]` (ver detalle en sección 6).
 7. Para confirmar que quedó bien: publicar cualquier cambio chico en el Studio y, en el webhook (sanity.io/manage → API → Webhooks → click en **"Edit webhook"** → el historial de intentos está más abajo en esa misma pantalla, o probar la pestaña **Activity** del proyecto si no aparece ahí), revisar el log de intentos — debería mostrar `"resultCode": 200` y un ID de deployment. Ese deployment se ve en la **URL alias de la rama** (`https://<rama>.cas-astro.pages.dev`, sin ningún hash adelante) — la URL con hash de un deployment puntual queda congelada para siempre y nunca muestra contenido nuevo.
 
 **Importante:** el filtro GROQ solo dispara para los `_type` que están listados ahí. **Cada vez que se agregue un tipo de documento nuevo en `studio/schemaTypes/` hay que sumarlo al filtro** — si no, publicar cambios en ese tipo nuevo no va a disparar ningún rebuild, y va a parecer que "no anda" cuando en realidad el webhook ni se está ejecutando (se ve en que el historial de intentos no tiene ninguna entrada reciente).
@@ -298,8 +298,9 @@ No hace falta entrar a un caso puntual para encontrar una imagen — se puede bu
 6. **Imagen destacada**: obligatoria, aparece en el listado y como portada del caso.
 7. **Galería**: opcional, agregar imágenes con el botón "+".
 8. **ID de video de YouTube**: opcional, solo el ID (lo que va después de `/embed/` en la URL de YouTube), no el link completo.
-9. **Publish** (arriba a la derecha).
-10. Redeployar el sitio para que se vea el cambio (ver sección 7).
+9. **Categorías / Servicios**: opcional — a qué servicio(s) de la Home corresponde (Experiencia, Contenido Digital, Trade, Creatividad). Se usa para que los ítems de "Servicios Interactivos" en la Home filtren y muestren solo los casos de esa categoría en `/casos/categoria/...`. Un caso puede tener más de una, o ninguna todavía si no está decidido.
+10. **Publish** (arriba a la derecha).
+11. Redeployar el sitio para que se vea el cambio (ver sección 7).
 
 ### Agregar un cliente
 
@@ -329,6 +330,22 @@ Para editarlos:
 1. Abrir [src/lib/site-data.ts](src/lib/site-data.ts)
 2. Editar el array `offices` o `socialLinks` dentro de `getStaticSiteData()`
 3. Commit + push
+
+### Códigos de seguimiento (Google Tag Manager, Search Console, scripts sueltos)
+
+Studio → **Configuración de seguimiento** (documento único, arriba de la lista de contenido, al lado de "Página Home"):
+
+- **ID de Google Tag Manager** (`GTM-XXXXXXX`) — cargarlo acá una sola vez. A partir de ahí, Analytics, Facebook Pixel, Hotjar, etc. se agregan o cambian **directamente en el panel de Tag Manager** (tagmanager.google.com), sin volver a tocar el sitio ni pedirle nada a nadie del equipo técnico.
+- **Código de verificación de Google Search Console** — solo el código (el valor de la meta tag que da Google al verificar la propiedad del sitio), no la etiqueta HTML completa.
+- **Scripts personalizados — antes de `</head>`** — para pegar tal cual cualquier snippet que te pasen y que no vaya a través de Tag Manager (un Pixel de Facebook standalone, Hotjar, lo que sea). Se pega el código completo (incluyendo las etiquetas `<script>`) tal como te lo dieron.
+- **Scripts personalizados — después de `<body>`** — para cuando el snippet que te pasan viene en **2 partes** (una para el `<head>`, otra para el inicio del `<body>`, como el propio Tag Manager). Pegá acá la parte que el proveedor indique que va ahí.
+- **Scripts personalizados — antes de `</body>`** — para scripts que necesitan que toda la página ya esté cargada antes de ejecutarse (algunos widgets de chat, ciertos tags de medición). El proveedor del snippet suele aclarar si lo necesita así.
+
+Con estos 3 campos quedan cubiertos los lugares habituales donde un proveedor de tracking pide insertar su código — si tenés dudas de cuál corresponde, fijate qué dice la documentación del snippet que te pasaron (casi siempre lo aclaran).
+
+Publicar el documento dispara el rebuild automático como cualquier otro contenido — no hace falta commit ni deploy manual.
+
+**Importante para quien administre el sitio (dev):** si en algún momento se agrega OTRO tipo de documento nuevo en Sanity (además de este), hay que sumarlo al filtro del webhook en sanity.io/manage — ver [MANUAL.md § 5](#5-cloudflare-pages) y el recordatorio en [CLAUDE.md](CLAUDE.md).
 
 ---
 

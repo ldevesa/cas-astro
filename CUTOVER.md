@@ -65,7 +65,7 @@ El webhook actual en Sanity apunta al Deploy Hook de la cuenta **vieja** — hay
    - Dataset: `production`
    - URL: la del Deploy Hook recién creado
    - Trigger: Create / Update / Delete
-   - Filtro: `_type in ["caso", "cliente", "carrera", "paginaHome"]`
+   - Filtro: `_type in ["caso", "cliente", "carrera", "paginaHome", "configuracionSeguimiento"]`
 3. Probar: publicar cualquier cambio en el Studio y confirmar que dispara un deployment nuevo en el proyecto de la cuenta nueva
 
 **Recordatorio permanente:** cada `_type` de documento nuevo que se agregue en Sanity hay que sumarlo a este filtro, en los dos webhooks (viejo y nuevo, mientras convivan) — si no, publicar contenido de ese tipo no dispara ningún rebuild y parece que "no anda".
