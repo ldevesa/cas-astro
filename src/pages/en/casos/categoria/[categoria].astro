@@ -1,0 +1,72 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getCasosPorCategoria, CATEGORIAS_CASO } from '../../../../lib/cms';
+
+export async function getStaticPaths() {
+  return CATEGORIAS_CASO.map((categoria) => ({ params: { categoria } }));
+}
+
+const CATEGORIA_LABELS: Record<string, string> = {
+  experiencia: 'Experience',
+  'contenido-digital': 'Digital Content',
+  trade: 'Trade',
+  creatividad: 'Creativity',
+};
+
+const { categoria } = Astro.params;
+const casos = await getCasosPorCategoria(categoria!, 'en');
+const label = CATEGORIA_LABELS[categoria!] ?? categoria!;
+---
+
+<Layout
+  title={`${label} | Cases | CAS`}
+  description={`${label} cases — Contenidos Advertising.`}
+>
+  <section class="bg-[#131313] pt-32 pb-24">
+    <div class="max-w-screen-2xl mx-auto px-8">
+
+      <!-- Header -->
+      <div class="mb-16">
+        <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-4">Work</p>
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <h1 class="font-['Space_Grotesk'] text-4xl md:text-6xl font-black tracking-tight text-white leading-[0.95]">
+            {label}
+          </h1>
+          <p class="font-['Inter'] text-xs uppercase tracking-[0.2em] text-gray-500">
+            {casos.length} {casos.length === 1 ? 'case' : 'cases'}
+          </p>
+        </div>
+      </div>
+
+      {casos.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {casos.map(caso => (
+            <a href={`/en/casos/${caso.slug}`} class="case-card group block">
+              <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-6">
+                <img
+                  alt={caso.imagenAlt}
+                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  src={caso.imagenUrl}
+                  loading="lazy"
+                />
+              </div>
+              <div class="space-y-2">
+                <h2 class="font-['Space_Grotesk'] text-2xl font-bold tracking-tight text-white group-hover:text-[#ffb876] transition-colors">{caso.titulo}</h2>
+                {caso.resumen && (
+                  <p class="text-gray-500 text-sm font-['Plus_Jakarta_Sans'] line-clamp-2">{caso.resumen}</p>
+                )}
+              </div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p class="font-['Plus_Jakarta_Sans'] text-gray-500">No cases tagged as "{label}" yet.</p>
+      )}
+
+      <div class="mt-20 text-center">
+        <a class="inline-block bg-white text-black font-['Space_Grotesk'] font-black uppercase tracking-widest px-12 py-5 hover:bg-[#ffb876] transition-all duration-300" href="/en/casos">See all cases</a>
+      </div>
+
+    </div>
+  </section>
+</Layout>

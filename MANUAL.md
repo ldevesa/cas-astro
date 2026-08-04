@@ -298,8 +298,9 @@ No hace falta entrar a un caso puntual para encontrar una imagen — se puede bu
 6. **Imagen destacada**: obligatoria, aparece en el listado y como portada del caso.
 7. **Galería**: opcional, agregar imágenes con el botón "+".
 8. **ID de video de YouTube**: opcional, solo el ID (lo que va después de `/embed/` en la URL de YouTube), no el link completo.
-9. **Publish** (arriba a la derecha).
-10. Redeployar el sitio para que se vea el cambio (ver sección 7).
+9. **Categorías / Servicios**: opcional — a qué servicio(s) de la Home corresponde (Experiencia, Contenido Digital, Trade, Creatividad). Se usa para que los ítems de "Servicios Interactivos" en la Home filtren y muestren solo los casos de esa categoría en `/casos/categoria/...`. Un caso puede tener más de una, o ninguna todavía si no está decidido.
+10. **Publish** (arriba a la derecha).
+11. Redeployar el sitio para que se vea el cambio (ver sección 7).
 
 ### Agregar un cliente
 
