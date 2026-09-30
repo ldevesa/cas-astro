@@ -526,6 +526,11 @@ Si necesitás cambiar:
 **Causa 2:** Caché del navegador.
 **Solución:** Ctrl+F5 (refresh forzado) o probar en modo incógnito.
 
+### El deploy falla con errores de `astro check`
+
+**Causa:** desde el 30/09/2026 `npm run build` corre primero `astro check` (verificación de tipos) y se frena si encuentra errores — a propósito, para no publicar código roto. El sitio anterior sigue online.
+**Solución:** correr `npm run check` localmente, corregir los errores que lista (archivo y línea) y volver a pushear.
+
 **Causa 3:** Caché del CDN.
 **Solución:** Cloudflare → Caching → "Purge everything".
 

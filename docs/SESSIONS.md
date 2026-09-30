@@ -39,6 +39,8 @@ Las entradas anteriores al 30/09/2026 están reconstruidas desde `git log` y CLA
 - **T13 hecho:** `src/globals.d.ts` declara `window.am5`, `am5map`, `am5geodata_worldLow`, `initCasGlobe`; en `CoberturaGlobo.astro` `s.onload = () => resolve()` (mismo comportamiento). `astro check`: 8 → **0 errores**. Build OK (258 páginas).
 - Commit + push `a24e863` (T13).
 - **T11 hecho:** `studio/schemaTypes/categoriasCaso.ts` (fuente única, solo datos, con nombres es/pt/en). Lo importan `caso.ts` (options.list) y `cms.ts` (`CATEGORIAS_CASO`, nueva `categoriaLabel()`); las 3 páginas de categoría dejan sus mapas de etiquetas locales. Verificado: `astro check` 0 errores, `tsc` + `sanity build` del Studio OK, HTML de las 258 páginas idéntico.
+- Push `e73d437` (T11). Aclarado: no hace falta redeployar el Studio por T11 (misma lista visible).
+- **T14 hecho:** `package.json`: `build` = `astro check && astro build`, nuevo script `check`. Probado: build OK (38 s local, check ~8 s); con un error de tipos agregado a propósito el build sale con exit 1. MANUAL § 10 con el troubleshooting nuevo. **A confirmar en el primer deploy de Cloudflare** que instala devDependencies (`@astrojs/check`, `typescript`); si falla con "cannot find @astrojs/check", revisar `NODE_ENV`/`NPM_CONFIG_PRODUCTION` en las variables.
 - **Pendiente:** siguiente tarea de PLAN, con aprobación.
 
 ## 2026-09-14 — Imagen

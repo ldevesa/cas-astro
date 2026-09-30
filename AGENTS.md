@@ -28,9 +28,9 @@ Todos desde la raíz, salvo indicación.
 | Tarea | Comando |
 | :--- | :--- |
 | Dev server | `npm run dev` → http://localhost:4321 |
-| Build (243+ páginas, pide datos a Sanity) | `npm run build` |
+| Build (258 páginas, pide datos a Sanity) — corre `astro check` antes y se frena si hay errores | `npm run build` |
 | Preview del build | `npm run preview` |
-| Chequeo de tipos | `npx astro check` |
+| Chequeo de tipos (solo) | `npm run check` |
 | Studio local | `cd studio && npm run dev` → http://localhost:3333 |
 | Deploy del Studio | `cd studio && npx sanity deploy -y` (el `appId` ya está en `sanity.cli.ts`) |
 | Validar documentos en Sanity | `cd studio && npx sanity documents validate` |
@@ -82,8 +82,7 @@ public/_headers         ← headers de Cloudflare (seguridad + cache)
 
 Un cambio está terminado cuando:
 
-1. `npm run build` pasa y la cantidad de páginas no bajó sin motivo.
-2. `npx astro check` no suma errores sobre la línea base.
+1. `npm run build` pasa (incluye `astro check` con 0 errores) y la cantidad de páginas no bajó sin motivo.
 3. Se verificó en `npm run preview` en **los 3 idiomas** las páginas afectadas (incluido fallback a ES si falta traducción).
 4. Si tocó schemas: `cd studio && npx sanity documents validate` sin errores nuevos, y Studio redeployado si corresponde.
 5. Si agregó `_type`, variable de entorno u origen: R5 / R8 / R7 cumplidas o anotadas como pendiente manual en `docs/PLAN.md`.
