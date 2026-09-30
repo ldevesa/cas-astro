@@ -38,6 +38,25 @@ function imageUrl(image: SanityImageRef | undefined): string {
   return builder.image(image).auto('format').url();
 }
 
+const SRCSET_WIDTHS = [400, 800, 1200, 1600];
+
+/**
+ * srcset con versiones más chicas de la imagen, para que el navegador baje solo
+ * el tamaño que necesita. El ancho original viene en el _ref del asset
+ * (image-<hash>-<ancho>x<alto>-<ext>); nunca se piden versiones más grandes que el original.
+ */
+function imageSrcset(image: SanityImageRef | undefined): string | undefined {
+  const ref = image?.asset?._ref;
+  if (!ref) return undefined;
+  const originalWidth = Number(ref.match(/-(\d+)x\d+-\w+$/)?.[1]);
+  if (!originalWidth) return undefined;
+  const widths = SRCSET_WIDTHS.filter((w) => w < originalWidth);
+  if (originalWidth <= SRCSET_WIDTHS[SRCSET_WIDTHS.length - 1]) widths.push(originalWidth);
+  return widths
+    .map((w) => `${builder.image(image!).width(w).auto('format').url()} ${w}w`)
+    .join(', ');
+}
+
 // ── Casos ────────────────────────────────────────────────────────────────────
 
 interface CasoDoc {
@@ -64,7 +83,9 @@ export interface Caso {
   contenido: PortableTextBlock[] | undefined;
   imagenUrl: string;
   imagenAlt: string;
-  galeria: { url: string; alt: string }[];
+  /** srcset para <img>; undefined si no se puede calcular (Astro omite el atributo). */
+  imagenSrcset?: string;
+  galeria: { url: string; srcset?: string; alt: string }[];
   videoYoutubeId: string;
   categorias: string[];
 }
@@ -88,7 +109,8 @@ function mapCaso(doc: CasoDoc, lang: Lang): Caso {
     contenido: pickLocaleBlocks(doc.contenido, lang),
     imagenUrl: imageUrl(doc.imagenDestacada),
     imagenAlt: doc.imagenDestacada?.alt || titulo,
-    galeria: (doc.galeria ?? []).map((img) => ({ url: imageUrl(img), alt: img.alt || titulo })),
+    imagenSrcset: imageSrcset(doc.imagenDestacada),
+    galeria: (doc.galeria ?? []).map((img) => ({ url: imageUrl(img), srcset: imageSrcset(img), alt: img.alt || titulo })),
     videoYoutubeId: doc.videoYoutubeId ?? '',
     categorias: doc.categorias ?? [],
   };

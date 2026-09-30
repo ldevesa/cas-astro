@@ -24,7 +24,7 @@ const hasNext = totalPages > 1;
         {casos.map(caso => (
           <a href={`/en/casos/${caso.slug}`} class="case-card group block">
             <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-6">
-              <img alt={caso.imagenAlt} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={caso.imagenUrl} loading="lazy" />
+              <img alt={caso.imagenAlt} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={caso.imagenUrl} srcset={caso.imagenSrcset} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" loading="lazy" />
             </div>
             <div class="space-y-2">
               <h2 class="font-['Space_Grotesk'] text-2xl font-bold tracking-tight text-white group-hover:text-[#ffb876] transition-colors">{caso.titulo}</h2>

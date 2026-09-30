@@ -99,7 +99,7 @@ const casos = await getCasos('es', 6);
               <img
                 alt={caso.imagenAlt}
                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                src={caso.imagenUrl}
+                src={caso.imagenUrl} srcset={caso.imagenSrcset} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                 loading="lazy"
               />
               <div class="absolute inset-0 bg-linear-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">

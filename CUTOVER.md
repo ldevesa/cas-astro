@@ -54,7 +54,7 @@ Mismo gotcha de siempre: Cloudflare separa variables por scope, y si solo se car
 | `CONTACT_BCC` | Texto | opcional — copia oculta del email de marketing |
 
 - [x] Las variables cargadas en **Production** (31/07) — confirmado, `cas-sitio.pages.dev` sirve contenido de Sanity sin errores.
-- [ ] Las variables cargadas en **Preview** — no confirmado explícitamente todavía (solo importa si se sigue usando `sanity-migration` como rama de preview en la cuenta nueva).
+- [x] Las variables cargadas en **Preview** — confirmado (30/09): `sanity-migration` es la rama de desarrollo y deploya como preview en la cuenta nueva.
 - [x] Deploy inicial disparado y verificado sin errores (31/07).
 
 ## 3. Deploy Hook + Webhook de Sanity → cuenta nueva

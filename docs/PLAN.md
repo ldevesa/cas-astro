@@ -29,7 +29,6 @@ El sitio sigue en desarrollo (funciona en `cas-sitio.pages.dev`), todavía no ha
 
 | ID | Tarea | Por qué | Esf. |
 | :--- | :--- | :--- | :--- |
-| T7 | **Imágenes responsivas desde Sanity:** en `cms.ts` generar `.width()` + `srcset` (400/800/1200/1600) y `loading="lazy"` fuera del hero | Hoy `imageUrl()` sirve el original a resolución completa (solo `.auto('format')`) → LCP pesado, sobre todo en listados y galerías | M |
 | T9 | **Webhook sin filtro por `_type`** (o filtro `!(_id in path("drafts.**"))`) | Elimina de raíz el gotcha recurrente R5: cualquier tipo nuevo dispara rebuild. El costo (algún rebuild de más) es irrelevante a este volumen | S |
 | T10 | **Sanity TypeGen** (`sanity schema extract` + `sanity typegen generate`) y usar los tipos generados en `cms.ts` en lugar de interfaces a mano; script `npm run typegen` | Hoy `CasoDoc`, `BloqueDoc`, etc. se escriben a mano y pueden desincronizarse del schema sin que nada avise | M |
 | T11 | Fuente única de categorías: exportar la lista desde un archivo compartido (p. ej. `shared/categorias.ts`) importado por Studio y sitio | Elimina la sincronización manual de R6 | S |

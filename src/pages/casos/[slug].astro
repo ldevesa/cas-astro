@@ -39,7 +39,7 @@ const gallery   = caso.galeria;
        HERO
   ══════════════════════════════════════════════ -->
   <section class="relative w-full h-[70vh] min-h-120 flex items-end overflow-hidden">
-    <img src={heroImg} alt={heroAlt} class="absolute inset-0 w-full h-full object-cover" />
+    <img src={heroImg} srcset={caso.imagenSrcset} sizes="100vw" fetchpriority="high" alt={heroAlt} class="absolute inset-0 w-full h-full object-cover" />
     <div class="absolute inset-0 bg-linear-to-t from-surface-lowest via-surface-lowest/60 to-transparent"></div>
     <div class="relative z-10 w-full max-w-screen-2xl mx-auto px-8 pb-16">
       <a
@@ -99,7 +99,7 @@ const gallery   = caso.galeria;
             </div>
           )}
           <div class="overflow-hidden rounded-2xl aspect-4/3">
-            <img src={heroImg} alt={heroAlt} class="w-full h-full object-cover" loading="eager" />
+            <img src={heroImg} srcset={caso.imagenSrcset} sizes="(min-width: 1024px) 40vw, 100vw" alt={heroAlt} class="w-full h-full object-cover" loading="eager" />
           </div>
         </aside>
       </div>
@@ -140,7 +140,7 @@ const gallery   = caso.galeria;
               class={`overflow-hidden rounded-xl bg-[#131313] ${i === 0 ? 'col-span-2 md:col-span-2 aspect-video' : 'aspect-4/3'}`}
             >
               <img
-                src={img.url}
+                src={img.url} srcset={img.srcset} sizes={i === 0 ? '(min-width: 768px) 66vw, 100vw' : '(min-width: 768px) 33vw, 50vw'}
                 alt={`${title} — foto ${i + 1}`}
                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 loading="lazy"
@@ -173,7 +173,7 @@ const gallery   = caso.galeria;
             <a href={`/casos/${c.slug}`} class="group block">
               <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-5">
                 <img
-                  src={c.imagenUrl}
+                  src={c.imagenUrl} srcset={c.imagenSrcset} sizes="(min-width: 768px) 33vw, 100vw"
                   alt={c.imagenAlt}
                   class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
