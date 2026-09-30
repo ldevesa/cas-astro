@@ -49,6 +49,8 @@ Tipos de objeto de idioma: `localeString`, `localeText`, `localeBlockContent` �
 | `heroBloque` | objeto | `titulo`, `mostrarTitulo`, `fuenteVideo` (incrustado/vimeo/youtube), `video` (file), `videoUrl`, `efectoActivo` | Efecto ASCII solo con `incrustado` |
 | `configuracionSeguimiento` | singleton | `googleTagManagerId`, `googleSiteVerification`, `scriptsPersonalizados` (head), `…Body` (inicio body), `…FinBody` (fin body) | HTML crudo de confianza, sin escapar |
 
+Singletons (`paginaHome`, `configuracionSeguimiento`): en el Studio solo se editan, publican, descartan cambios o restauran versiones; no aparecen en "Crear nuevo" ni se pueden duplicar, borrar o despublicar (`SINGLETON_TYPES` en `studio/sanity.config.ts`).
+
 Categorías de caso válidas: `experiencia`, `contenido-digital`, `trade`, `creatividad` (provisorias, el equipo define la taxonomía final).
 
 ## 5. Rutas

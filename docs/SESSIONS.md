@@ -27,6 +27,9 @@ Las entradas anteriores al 30/09/2026 están reconstruidas desde `git log` y CLA
 - Commit `ebdc275` con harness + T1 + T2 + T2b + T5b.
 - **Aclaración al usuario:** el sitio publicado no consulta Sanity; solo el build lo hace (y el navegador baja imágenes/videos de `cdn.sanity.io`).
 - **T8 hecho:** `casos/[slug].astro` (ES/EN/PT) recibe `caso` y `related` por props desde `getStaticPaths` (sin `getCasoBySlug` por página); `getConfiguracionSeguimiento()` cachea la promesa solo en build (`import.meta.env.PROD`). ~950 → ~15 requests por build. Verificado: HTML de las 258 páginas idéntico al build anterior (`diff -r` sin diferencias), build 167 s → 32 s, `astro check` en línea base.
+- Commit `bb255b2` con T8.
+- **T12 hecho:** `studio/sanity.config.ts` saca `paginaHome` y `configuracionSeguimiento` de las plantillas de "Crear nuevo" y limita sus acciones a publicar / descartar cambios / restaurar. `tsc` y `sanity build` OK. Se discutió y anotó en PLAN (T20b) la idea de "Home con alternativas" para el futuro.
+- Studio redeployado en https://cas-sitio.sanity.studio con T12.
 - **Pendiente:** siguiente tarea de PLAN, con aprobación.
 
 ## 2026-09-14 — Imagen

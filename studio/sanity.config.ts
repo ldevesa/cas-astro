@@ -5,6 +5,12 @@ import {media} from 'sanity-plugin-media'
 import {CodeIcon} from '@sanity/icons/Code'
 import {schemaTypes} from './schemaTypes'
 
+// Documentos únicos: el sitio lee exactamente el _id fijo, así que una copia
+// quedaría ignorada en silencio. Se editan y publican, pero no se crean desde
+// "Crear nuevo", ni se duplican, borran o despublican.
+const SINGLETON_TYPES = new Set(['paginaHome', 'configuracionSeguimiento'])
+const SINGLETON_ACTIONS = new Set(['publish', 'discardChanges', 'restore'])
+
 export default defineConfig({
   name: 'default',
   title: 'cas-sitio',
@@ -40,5 +46,13 @@ export default defineConfig({
 
   schema: {
     types: schemaTypes,
+    templates: (templates) => templates.filter(({schemaType}) => !SINGLETON_TYPES.has(schemaType)),
+  },
+
+  document: {
+    actions: (input, context) =>
+      SINGLETON_TYPES.has(context.schemaType)
+        ? input.filter(({action}) => action && SINGLETON_ACTIONS.has(action))
+        : input,
   },
 })
