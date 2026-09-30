@@ -18,6 +18,9 @@ const {
   ogImage = '/og-default.jpg',
 } = Astro.props;
 
+// Las redes sociales exigen URL absoluta en og:image; las de Sanity ya lo son y quedan igual.
+const ogImageUrl = new URL(ogImage, Astro.site).href;
+
 const locale = Astro.currentLocale ?? 'es';
 const lang   = getLang(locale);
 const t      = useTranslations(locale);
@@ -51,7 +54,7 @@ const gtmId       = seguimiento.googleTagManagerId;
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImage} />
+    <meta property="og:image" content={ogImageUrl} />
     {seguimiento.googleSiteVerification && (
       <meta name="google-site-verification" content={seguimiento.googleSiteVerification} />
     )}

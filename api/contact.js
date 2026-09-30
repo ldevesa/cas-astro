@@ -97,8 +97,15 @@ export default async function handler(req, res) {
 
   const {
     nombre, name, empresa, company, email, telefono, phone, cargo, role, pais, country, servicio, service, mensaje, message,
-    utm_source, utm_medium, utm_campaign, utm_term, utm_content, dispositivo,
+    utm_source, utm_medium, utm_campaign, utm_term, utm_content, dispositivo, website,
   } = req.body;
+
+  // Honeypot: campo "website" oculto en el formulario; solo un bot lo completa.
+  // Se responde ok para que el bot no reintente, pero no se manda nada.
+  if (website?.trim()) {
+    console.warn('Honeypot activado: envío descartado.');
+    return res.status(200).json({ ok: true });
+  }
 
   const _nombre   = nombre?.trim()   ?? name?.trim()    ?? '';
   const _empresa  = empresa?.trim()  ?? company?.trim() ?? '';

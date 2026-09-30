@@ -42,6 +42,7 @@ Mismo gotcha de siempre: Cloudflare separa variables por scope, y si solo se car
 | :--- | :--- | :--- |
 | `PUBLIC_SANITY_PROJECT_ID` | Texto | `21wszpvy` |
 | `PUBLIC_SANITY_DATASET` | Texto | `production` |
+| `PUBLIC_SITE_URL` | Texto | opcional hasta tener dominio (default `https://cas-sitio.pages.dev`). **Al conectar el dominio real (paso 6), cargarla con esa URL** |
 | `MJ_APIKEY_PUBLIC` | Secreto | la key pública de Mailjet (proveedor principal) |
 | `MJ_APIKEY_PRIVATE` | Secreto | la key privada de Mailjet |
 | `CONTACT_FROM_EMAIL` | Texto | `info@contenidosad.com` (remitente verificado en Mailjet) |

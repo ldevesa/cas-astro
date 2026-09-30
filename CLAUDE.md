@@ -1,5 +1,7 @@
 # CAS — Migración a Sanity CMS
 
+@AGENTS.md
+
 Este directorio es un **git worktree** separado del proyecto principal (`../cas-astro`), en la rama `sanity-migration`. Es una copia de trabajo aislada para experimentar con la migración de contenido de WordPress a Sanity.io **sin arriesgar el sitio en producción**, que sigue corriendo desde `../cas-astro` en la rama `main`.
 
 ## Por qué se hace esta migración

@@ -345,6 +345,7 @@ cp .env.example .env
 | :--- | :--- |
 | `PUBLIC_SANITY_PROJECT_ID` | ID del proyecto de Sanity (ver `studio/sanity.config.ts`) |
 | `PUBLIC_SANITY_DATASET` | Dataset a consumir (`production`) |
+| `PUBLIC_SITE_URL` | Opcional. URL pública del sitio (base de `og:image`). Sin definir usa `https://cas-sitio.pages.dev`; cambiarla al tener dominio definitivo |
 | `MJ_APIKEY_PUBLIC` / `MJ_APIKEY_PRIVATE` | Mailjet (proveedor principal del formulario) |
 | `RESEND_API_KEY` | Resend (fallback automático si Mailjet falla — opcional) |
 | `CONTACT_*` / `RESEND_FROM_EMAIL` | Formulario de contacto |

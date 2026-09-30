@@ -93,6 +93,13 @@ async function sendViaResend({ key, fromEmail, fromName, toList, bccList, subjec
 export async function onRequestPost({ request, env }) {
   const data = await request.formData();
 
+  // Honeypot: campo "website" oculto en el formulario; solo un bot lo completa.
+  // Se responde ok para que el bot no reintente, pero no se manda nada.
+  if (data.get('website')?.trim()) {
+    console.warn('Honeypot activado: envío descartado.');
+    return Response.json({ ok: true });
+  }
+
   const nombre   = data.get('nombre')?.trim()   ?? data.get('name')?.trim()    ?? '';
   const empresa  = data.get('empresa')?.trim()  ?? data.get('company')?.trim() ?? '';
   const email    = data.get('email')?.trim()    ?? '';

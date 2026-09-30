@@ -580,6 +580,7 @@ Las variables se configuran **en dos lugares**:
 | :--- | :--- | :--- |
 | `PUBLIC_SANITY_PROJECT_ID` | string | ID del proyecto de Sanity |
 | `PUBLIC_SANITY_DATASET` | string | Dataset a consumir (`production`) |
+| `PUBLIC_SITE_URL` | string | Opcional. URL pública del sitio (base de `og:image`). Sin definir usa `https://cas-sitio.pages.dev`; cambiarla al tener dominio definitivo |
 | `MJ_APIKEY_PUBLIC` | string | API key pública de Mailjet (proveedor principal) |
 | `MJ_APIKEY_PRIVATE` | string | API key privada de Mailjet (proveedor principal) |
 | `RESEND_API_KEY` | string | API key de Resend (fallback, opcional) |

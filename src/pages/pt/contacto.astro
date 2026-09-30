@@ -33,6 +33,10 @@ const { offices } = getStaticSiteData();
             <input type="hidden" name="utm_term" />
             <input type="hidden" name="utm_content" />
             <input type="hidden" name="dispositivo" />
+            <!-- Honeypot anti-spam: invisible para personas; si llega con valor, contact.js descarta el envío -->
+            <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">
+              <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+            </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
