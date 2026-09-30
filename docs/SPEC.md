@@ -51,7 +51,7 @@ Tipos de objeto de idioma: `localeString`, `localeText`, `localeBlockContent` �
 
 Singletons (`paginaHome`, `configuracionSeguimiento`): en el Studio solo se editan, publican, descartan cambios o restauran versiones; no aparecen en "Crear nuevo" ni se pueden duplicar, borrar o despublicar (`SINGLETON_TYPES` en `studio/sanity.config.ts`).
 
-Categorías de caso válidas: `experiencia`, `contenido-digital`, `trade`, `creatividad` (provisorias, el equipo define la taxonomía final).
+Categorías de caso válidas: `experiencia`, `contenido-digital`, `trade`, `creatividad` (provisorias, el equipo define la taxonomía final). Fuente única: `studio/schemaTypes/categoriasCaso.ts`.
 
 ## 5. Rutas
 

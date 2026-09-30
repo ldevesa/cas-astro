@@ -1,21 +1,14 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
-import { getCasosPorCategoria, CATEGORIAS_CASO } from '../../../../lib/cms';
+import { getCasosPorCategoria, CATEGORIAS_CASO, categoriaLabel } from '../../../../lib/cms';
 
 export async function getStaticPaths() {
   return CATEGORIAS_CASO.map((categoria) => ({ params: { categoria } }));
 }
 
-const CATEGORIA_LABELS: Record<string, string> = {
-  experiencia: 'Experiência',
-  'contenido-digital': 'Conteúdo Digital',
-  trade: 'Trade',
-  creatividad: 'Criatividade',
-};
-
 const { categoria } = Astro.params;
 const casos = await getCasosPorCategoria(categoria!, 'pt');
-const label = CATEGORIA_LABELS[categoria!] ?? categoria!;
+const label = categoriaLabel(categoria!, 'pt');
 ---
 
 <Layout

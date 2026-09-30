@@ -30,7 +30,6 @@ El sitio sigue en desarrollo (funciona en `cas-sitio.pages.dev`), todavía no ha
 | ID | Tarea | Por qué | Esf. |
 | :--- | :--- | :--- | :--- |
 | T10 | **Sanity TypeGen** (`sanity schema extract` + `sanity typegen generate`) y usar los tipos generados en `cms.ts` en lugar de interfaces a mano; script `npm run typegen` | Hoy `CasoDoc`, `BloqueDoc`, etc. se escriben a mano y pueden desincronizarse del schema sin que nada avise | M |
-| T11 | Fuente única de categorías: exportar la lista desde un archivo compartido (p. ej. `shared/categorias.ts`) importado por Studio y sitio | Elimina la sincronización manual de R6 | S |
 | T14 | Scripts en `package.json`: `check`, `typegen`; y un GitHub Action (o paso en Cloudflare) que corra `check` + `build` en PR | Hoy la única verificación es el build de Cloudflare, que no corre el chequeo de tipos | S |
 | T15 | Actualizar dependencias menores: `astro` 7.0.7→7.3.x, `sanity`/`@sanity/vision` 6.4→6.17 (raíz **y** studio juntos), `@sanity/astro` 3.5.1, `groq`, `tailwindcss` 4.3. **No** saltar todavía a TypeScript 7, `@sanity/client` 8, `astro-portabletext` 1.0 ni `sanity-plugin-media` 6 (majors, revisar changelog aparte) | Mantenimiento; la brecha de sanity 6.4→6.17 ya es grande | M |
 

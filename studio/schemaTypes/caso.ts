@@ -1,6 +1,7 @@
 import {defineField, defineType} from 'sanity'
 import {CaseIcon} from '@sanity/icons/Case'
 import {migracionField} from './objects/migracion'
+import {CATEGORIAS_CASO} from './categoriasCaso'
 
 export const casoType = defineType({
   name: 'caso',
@@ -75,12 +76,7 @@ export const casoType = defineType({
       type: 'array',
       of: [{type: 'string'}],
       options: {
-        list: [
-          {title: 'Experiencia', value: 'experiencia'},
-          {title: 'Contenido Digital', value: 'contenido-digital'},
-          {title: 'Trade', value: 'trade'},
-          {title: 'Creatividad', value: 'creatividad'},
-        ],
+        list: CATEGORIAS_CASO.map(({value, title}) => ({title: title.es, value})),
       },
     }),
     migracionField,

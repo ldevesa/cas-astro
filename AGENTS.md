@@ -70,9 +70,9 @@ public/_headers         ← headers de Cloudflare (seguridad + cache)
 - **R4 — Slugs siempre en español** en los 3 idiomas (`/en/casos/<slug-es>`).
 - **R5 — Webhook Sanity→Cloudflare:** filtro por exclusión `!(_type in ["sanity.imageAsset", "sanity.fileAsset"])` (desde 30/09/2026): cualquier documento publicado dispara rebuild, salvo subir imágenes/archivos. Los `_type` nuevos **no** requieren tocar el webhook. No volver a una lista de tipos permitidos.
 - **R6 — Listas duplicadas que deben mantenerse sincronizadas:**
-  - categorías de caso: `options.list` en `studio/schemaTypes/caso.ts` ⇄ `CATEGORIAS_CASO` en `src/lib/cms.ts`
   - formulario: `functions/api/contact.js` ⇄ `api/contact.js`
   - dependencias `sanity`/`react`/`styled-components` en raíz ⇄ `studio/package.json` (mismas versiones)
+- **R6b — Categorías de caso: fuente única** en `studio/schemaTypes/categoriasCaso.ts` (valor + nombre en es/pt/en). La usan el schema y `cms.ts`; agregar una categoría ahí genera su página `/casos/categoria/<valor>` en los 3 idiomas. Los links de la Home a cada categoría siguen escritos a mano en los 3 `index.astro`. Ese archivo no puede importar `sanity`.
 - **R7 — Nuevo origen que sirva video de Sanity con el shader ⇒ agregarlo a CORS** (`sanity cors add`). `curl` no detecta el problema; solo el navegador con `crossOrigin="anonymous"`.
 - **R8 — Secretos:** nunca commitear `.env`, `migration/.env` ni tokens. Las variables de Cloudflare van en **Production y Preview** (scopes separados).
 - **R9 — Scripts puntuales contra el dataset** (patches, backfills): usar el token de `migration/.env`, correrlos desde el scratchpad o borrarlos después, y anotarlos en `docs/SESSIONS.md`. El dataset `production` es el único: no hay staging.

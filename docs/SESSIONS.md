@@ -37,6 +37,8 @@ Las entradas anteriores al 30/09/2026 están reconstruidas desde `git log` y CLA
 - **T9 verificado:** publicar Configuración de seguimiento (con un ID de GTM de prueba) disparó deploy. Ojo: dataset único → la prueba quedó publicada también en producción; el usuario tiene que restaurar el valor original.
 - Push de `8d447ed` y `075eb1d`. El usuario borró el GTM de prueba en el Studio.
 - **T13 hecho:** `src/globals.d.ts` declara `window.am5`, `am5map`, `am5geodata_worldLow`, `initCasGlobe`; en `CoberturaGlobo.astro` `s.onload = () => resolve()` (mismo comportamiento). `astro check`: 8 → **0 errores**. Build OK (258 páginas).
+- Commit + push `a24e863` (T13).
+- **T11 hecho:** `studio/schemaTypes/categoriasCaso.ts` (fuente única, solo datos, con nombres es/pt/en). Lo importan `caso.ts` (options.list) y `cms.ts` (`CATEGORIAS_CASO`, nueva `categoriaLabel()`); las 3 páginas de categoría dejan sus mapas de etiquetas locales. Verificado: `astro check` 0 errores, `tsc` + `sanity build` del Studio OK, HTML de las 258 páginas idéntico.
 - **Pendiente:** siguiente tarea de PLAN, con aprobación.
 
 ## 2026-09-14 — Imagen

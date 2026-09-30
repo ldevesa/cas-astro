@@ -2,6 +2,7 @@ import { sanityClient } from 'sanity:client';
 import { defineQuery } from 'groq';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import type { PortableTextBlock } from '@portabletext/types';
+import { CATEGORIAS_CASO as CATEGORIAS } from '../../studio/schemaTypes/categoriasCaso';
 
 export type Lang = 'es' | 'pt' | 'en';
 
@@ -116,9 +117,16 @@ function mapCaso(doc: CasoDoc, lang: Lang): Caso {
   };
 }
 
-/** Categorías válidas — mismos valores que la lista del schema en studio/schemaTypes/caso.ts. */
-export const CATEGORIAS_CASO = ['experiencia', 'contenido-digital', 'trade', 'creatividad'] as const;
-export type CategoriaCaso = (typeof CATEGORIAS_CASO)[number];
+// Categorías de caso: fuente única compartida con el Studio (ver el archivo para cómo agregarlas).
+export type { CategoriaCaso } from '../../studio/schemaTypes/categoriasCaso';
+
+/** Valores (slugs) de las categorías de caso, para getStaticPaths. */
+export const CATEGORIAS_CASO = CATEGORIAS.map((c) => c.value);
+
+/** Nombre visible de una categoría en el idioma pedido; si no existe, devuelve el slug. */
+export function categoriaLabel(categoria: string, lang: Lang): string {
+  return CATEGORIAS.find((c) => c.value === categoria)?.title[lang] ?? categoria;
+}
 
 // Orden por sourceId de WordPress (desc) como aproximación estable a "más reciente primero":
 // los documentos migrados no conservan la fecha original de publicación de WordPress.
