@@ -32,6 +32,9 @@ Las entradas anteriores al 30/09/2026 están reconstruidas desde `git log` y CLA
 - Studio redeployado en https://cas-sitio.sanity.studio con T12.
 - Commit `c3eb62d` (T12) + push de los 3 commits a `sanity-migration`. El usuario confirma: `sanity-migration` = desarrollo con preview en Cloudflare (variables Preview OK, marcado en CUTOVER), `main` = producción.
 - **T7 hecho:** `imageSrcset()` en `cms.ts` (400/800/1200/1600 sin superar el ancho original, leído del `_ref`); `Caso.imagenSrcset` y `galeria[].srcset`. 33 `<img>` en 24 páginas (ES/EN/PT) con `srcset` + `sizes` según layout; hero del detalle con `fetchpriority="high"`. `loading="lazy"` ya estaba en todas las demás (39 antes y después, no se agregó ninguno). Logos de clientes sin cambios (ya son 200×200). Verificado: build OK (258 páginas), fuera de `srcset`/`sizes`/`fetchpriority`/`loading` el HTML es idéntico; `astro check` en línea base. Peso medido de las 6 fotos del listado de casos: 368 KB → 243 KB (800w) / 79 KB (400w). No se verificó visualmente en navegador (sin herramienta de browser en la sesión).
+- Push de `a86ccea` (T7).
+- **T9 hecho (manual, por el usuario):** el filtro real del webhook era `_type in ["caso","cliente","carrera","paginaHome"]` — le faltaba `configuracionSeguimiento` aunque CUTOVER lo daba por hecho, así que publicar GTM/scripts no disparaba rebuild. Reemplazado por `!(_type in ["sanity.imageAsset", "sanity.fileAsset"])`. Probado publicando un cambio en un caso → deploy nuevo en Cloudflare. Docs actualizadas (AGENTS R5, CUTOVER, CLAUDE, README, MANUAL).
+- **Pendiente de verificar:** publicar un cambio en Configuración de seguimiento y confirmar el deploy (es el tipo que antes no disparaba).
 - **Pendiente:** siguiente tarea de PLAN, con aprobación.
 
 ## 2026-09-14 — Imagen

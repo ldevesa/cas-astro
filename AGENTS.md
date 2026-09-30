@@ -68,7 +68,7 @@ public/_headers         ← headers de Cloudflare (seguridad + cache)
 - **R2c — Imágenes de Sanity con `srcset` + `sizes`.** Toda `<img>` con foto de caso usa `srcset={caso.imagenSrcset}` (o `img.srcset` en galería) y un `sizes` acorde al ancho real en pantalla; `loading="lazy"` salvo la imagen principal (hero, `fetchpriority="high"`). Los logos de clientes son 200×200 y no lo necesitan.
 - **R3 — Cambios de página = 3 archivos.** Toda página existe en `src/pages/`, `src/pages/en/` y `src/pages/pt/`. Un cambio de estructura/markup se replica en los 3 (hoy ya divergieron: p. ej. `index.astro` tiene 406/335/343 líneas). Textos de UI compartidos van en `src/i18n/ui.ts`.
 - **R4 — Slugs siempre en español** en los 3 idiomas (`/en/casos/<slug-es>`).
-- **R5 — Nuevo `_type` de documento en Sanity ⇒ actualizar el filtro del webhook** en sanity.io/manage (no se puede por código). Si no, publicar ese tipo "no hace nada". Filtro actual: `_type in ["caso","cliente","carrera","paginaHome","configuracionSeguimiento"]`.
+- **R5 — Webhook Sanity→Cloudflare:** filtro por exclusión `!(_type in ["sanity.imageAsset", "sanity.fileAsset"])` (desde 30/09/2026): cualquier documento publicado dispara rebuild, salvo subir imágenes/archivos. Los `_type` nuevos **no** requieren tocar el webhook. No volver a una lista de tipos permitidos.
 - **R6 — Listas duplicadas que deben mantenerse sincronizadas:**
   - categorías de caso: `options.list` en `studio/schemaTypes/caso.ts` ⇄ `CATEGORIAS_CASO` en `src/lib/cms.ts`
   - formulario: `functions/api/contact.js` ⇄ `api/contact.js`

@@ -218,10 +218,10 @@ Cloudflare Pages separa las variables en **dos scopes independientes: Production
 3. Nombre: `Sanity publish` (o el que quieras)
 4. Rama a compilar: `main` (la rama de producción) o `sanity-migration` (para preview)
 5. Copiar la URL que genera (`https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/...`)
-6. En Sanity: [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook" → dataset `production`, pegar esa URL como destino, trigger en Create/Update/Delete, filtro GROQ `_type in ["caso", "cliente", "carrera", "paginaHome", "configuracionSeguimiento"]` (ver detalle en sección 6).
+6. En Sanity: [sanity.io/manage](https://sanity.io/manage) → proyecto → **API** → **Webhooks** → "Create webhook" → dataset `production`, pegar esa URL como destino, trigger en Create/Update/Delete, filtro GROQ `!(_type in ["sanity.imageAsset", "sanity.fileAsset"])` (ver detalle en sección 6).
 7. Para confirmar que quedó bien: publicar cualquier cambio chico en el Studio y, en el webhook (sanity.io/manage → API → Webhooks → click en **"Edit webhook"** → el historial de intentos está más abajo en esa misma pantalla, o probar la pestaña **Activity** del proyecto si no aparece ahí), revisar el log de intentos — debería mostrar `"resultCode": 200` y un ID de deployment. Ese deployment se ve en la **URL alias de la rama** (`https://<rama>.cas-astro.pages.dev`, sin ningún hash adelante) — la URL con hash de un deployment puntual queda congelada para siempre y nunca muestra contenido nuevo.
 
-**Importante:** el filtro GROQ solo dispara para los `_type` que están listados ahí. **Cada vez que se agregue un tipo de documento nuevo en `studio/schemaTypes/` hay que sumarlo al filtro** — si no, publicar cambios en ese tipo nuevo no va a disparar ningún rebuild, y va a parecer que "no anda" cuando en realidad el webhook ni se está ejecutando (se ve en que el historial de intentos no tiene ninguna entrada reciente).
+**Importante:** el filtro es por exclusión: dispara con cualquier documento publicado salvo subir imágenes/archivos (que solo se ven cuando se publica el caso que los usa). No reemplazarlo por una lista de tipos permitidos: así fue como publicar la Configuración de seguimiento dejó de disparar rebuilds sin que nadie lo notara.
 
 Resultado: cada vez que se publica un documento en el Studio, el sitio se actualiza solo en 1-2 minutos.
 
@@ -345,7 +345,7 @@ Con estos 3 campos quedan cubiertos los lugares habituales donde un proveedor de
 
 Publicar el documento dispara el rebuild automático como cualquier otro contenido — no hace falta commit ni deploy manual.
 
-**Importante para quien administre el sitio (dev):** si en algún momento se agrega OTRO tipo de documento nuevo en Sanity (además de este), hay que sumarlo al filtro del webhook en sanity.io/manage — ver [MANUAL.md § 5](#5-cloudflare-pages) y el recordatorio en [CLAUDE.md](CLAUDE.md).
+**Nota para dev:** los tipos de documento nuevos disparan rebuild solos (filtro por exclusión del webhook, ver [MANUAL.md § 5](#5-cloudflare-pages)).
 
 ---
 

@@ -66,13 +66,13 @@ El webhook actual en Sanity apunta al Deploy Hook de la cuenta **vieja** — hay
    - Dataset: `production`
    - URL: la del Deploy Hook recién creado
    - Trigger: Create / Update / Delete
-   - Filtro: `_type in ["caso", "cliente", "carrera", "paginaHome", "configuracionSeguimiento"]`
+   - Filtro: `!(_type in ["sanity.imageAsset", "sanity.fileAsset"])` (todo documento salvo subidas de imágenes/archivos)
 3. Probar: publicar cualquier cambio en el Studio y confirmar que dispara un deployment nuevo en el proyecto de la cuenta nueva
 
-**Recordatorio permanente:** cada `_type` de documento nuevo que se agregue en Sanity hay que sumarlo a este filtro, en los dos webhooks (viejo y nuevo, mientras convivan) — si no, publicar contenido de ese tipo no dispara ningún rebuild y parece que "no anda".
+**Nota (30/09):** el filtro era una lista de tipos permitidos y en la práctica le faltaba `configuracionSeguimiento` (publicar GTM/scripts no disparaba rebuild). Se cambió a filtro por exclusión — los tipos nuevos ya no requieren tocar el webhook.
 
 - [x] Deploy Hook creado en la cuenta nueva (31/07).
-- [x] Webhook nuevo creado en Sanity (`Cloudflare (main)`), apuntando a ese Deploy Hook, dataset `production`, filtro correcto (31/07).
+- [x] Webhook nuevo creado en Sanity (`Cloudflare (main)`), apuntando a ese Deploy Hook, dataset `production`, filtro por exclusión desde 30/09, probado publicando un caso.
 - [ ] Probado de punta a punta.
 - [x] Webhook viejo (`Cloudflare rebuild`, apunta al proyecto de Cloudflare ya borrado) eliminado en sanity.io/manage (31/07).
 

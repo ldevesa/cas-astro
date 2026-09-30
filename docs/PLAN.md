@@ -29,7 +29,6 @@ El sitio sigue en desarrollo (funciona en `cas-sitio.pages.dev`), todavía no ha
 
 | ID | Tarea | Por qué | Esf. |
 | :--- | :--- | :--- | :--- |
-| T9 | **Webhook sin filtro por `_type`** (o filtro `!(_id in path("drafts.**"))`) | Elimina de raíz el gotcha recurrente R5: cualquier tipo nuevo dispara rebuild. El costo (algún rebuild de más) es irrelevante a este volumen | S |
 | T10 | **Sanity TypeGen** (`sanity schema extract` + `sanity typegen generate`) y usar los tipos generados en `cms.ts` en lugar de interfaces a mano; script `npm run typegen` | Hoy `CasoDoc`, `BloqueDoc`, etc. se escriben a mano y pueden desincronizarse del schema sin que nada avise | M |
 | T11 | Fuente única de categorías: exportar la lista desde un archivo compartido (p. ej. `shared/categorias.ts`) importado por Studio y sitio | Elimina la sincronización manual de R6 | S |
 | T13 | Tipar `window.am5`/`am5map` (`declare global`) en `CoberturaGlobo.astro` | Lleva la línea base de `astro check` a 0 errores y permite usarlo como gate | S |
