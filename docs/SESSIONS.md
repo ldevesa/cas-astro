@@ -35,6 +35,8 @@ Las entradas anteriores al 30/09/2026 están reconstruidas desde `git log` y CLA
 - Push de `a86ccea` (T7).
 - **T9 hecho (manual, por el usuario):** el filtro real del webhook era `_type in ["caso","cliente","carrera","paginaHome"]` — le faltaba `configuracionSeguimiento` aunque CUTOVER lo daba por hecho, así que publicar GTM/scripts no disparaba rebuild. Reemplazado por `!(_type in ["sanity.imageAsset", "sanity.fileAsset"])`. Probado publicando un cambio en un caso → deploy nuevo en Cloudflare. Docs actualizadas (AGENTS R5, CUTOVER, CLAUDE, README, MANUAL).
 - **T9 verificado:** publicar Configuración de seguimiento (con un ID de GTM de prueba) disparó deploy. Ojo: dataset único → la prueba quedó publicada también en producción; el usuario tiene que restaurar el valor original.
+- Push de `8d447ed` y `075eb1d`. El usuario borró el GTM de prueba en el Studio.
+- **T13 hecho:** `src/globals.d.ts` declara `window.am5`, `am5map`, `am5geodata_worldLow`, `initCasGlobe`; en `CoberturaGlobo.astro` `s.onload = () => resolve()` (mismo comportamiento). `astro check`: 8 → **0 errores**. Build OK (258 páginas).
 - **Pendiente:** siguiente tarea de PLAN, con aprobación.
 
 ## 2026-09-14 — Imagen

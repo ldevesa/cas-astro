@@ -39,7 +39,7 @@ Todos desde la raíz, salvo indicación.
 
 `tsconfig.json` excluye `studio/` y `migration/` a propósito: son paquetes npm aparte, y si se incluyen `astro check` se queda sin memoria.
 
-**Línea base conocida de `astro check`:** 8 errores, todos en `src/components/CoberturaGlobo.astro` (`window.am5` / `window.am5map` sin tipar). Cualquier error nuevo fuera de ese archivo es una regresión.
+**Línea base de `astro check`: 0 errores** (desde 30/09/2026). Cualquier error es una regresión. Globales de scripts cargados en runtime (amCharts, globo) se declaran en `src/globals.d.ts`.
 
 Variables locales: copiar `.env.example` → `.env` (`PUBLIC_SANITY_PROJECT_ID`, `PUBLIC_SANITY_DATASET`). Sin ellas el build falla con `Configuration must contain projectId`.
 
