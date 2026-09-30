@@ -41,7 +41,11 @@ Las entradas anteriores al 30/09/2026 están reconstruidas desde `git log` y CLA
 - **T11 hecho:** `studio/schemaTypes/categoriasCaso.ts` (fuente única, solo datos, con nombres es/pt/en). Lo importan `caso.ts` (options.list) y `cms.ts` (`CATEGORIAS_CASO`, nueva `categoriaLabel()`); las 3 páginas de categoría dejan sus mapas de etiquetas locales. Verificado: `astro check` 0 errores, `tsc` + `sanity build` del Studio OK, HTML de las 258 páginas idéntico.
 - Push `e73d437` (T11). Aclarado: no hace falta redeployar el Studio por T11 (misma lista visible).
 - **T14 hecho:** `package.json`: `build` = `astro check && astro build`, nuevo script `check`. Probado: build OK (38 s local, check ~8 s); con un error de tipos agregado a propósito el build sale con exit 1. MANUAL § 10 con el troubleshooting nuevo. **A confirmar en el primer deploy de Cloudflare** que instala devDependencies (`@astrojs/check`, `typescript`); si falla con "cannot find @astrojs/check", revisar `NODE_ENV`/`NPM_CONFIG_PRODUCTION` en las variables.
-- **Pendiente:** siguiente tarea de PLAN, con aprobación.
+- **Cierre de sesión — para retomar:**
+  1. Confirmar que el deploy de preview de `e44c9c6` pasó en Cloudflare (primer build con `astro check`).
+  2. Siguiente propuesta: **T18** (mandar los 2 emails del formulario en paralelo).
+  3. Después, en orden: T15 (actualizar dependencias), T10 (TypeGen), T16 (consolidar páginas por idioma, grande).
+  4. Nada pendiente de mergear a `main` todavía: todo está en `sanity-migration`, decisión del usuario cuándo pasarlo a producción.
 
 ## 2026-09-14 — Imagen
 
