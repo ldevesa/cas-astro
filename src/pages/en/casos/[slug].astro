@@ -1,32 +1,24 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { getAllCasos, getCasoBySlug, type Caso } from '../../../lib/cms';
+import { getAllCasos, type Caso } from '../../../lib/cms';
 import { PortableText } from 'astro-portabletext';
 
 export async function getStaticPaths() {
+  // Una sola query por idioma: el caso y sus relacionados viajan como props,
+  // en vez de volver a pedirlos a Sanity por slug en cada página.
   const casos = await getAllCasos('en');
   return casos.map((c, i) => ({
+    // Decodificamos el slug para que Astro lo matchee correctamente cuando hay caracteres especiales
     params: { slug: decodeURIComponent(c.slug) },
     props: {
-      relatedSlugs: [...casos.slice(0, i), ...casos.slice(i + 1)]
-        .slice(0, 3)
-        .map(r => decodeURIComponent(r.slug)),
+      caso: c,
+      related: [...casos.slice(0, i), ...casos.slice(i + 1)].slice(0, 3),
     },
   }));
 }
 
-interface Props { relatedSlugs?: string[]; }
-const { relatedSlugs = [] } = Astro.props;
-const { slug } = Astro.params;
-
-const [caso, ...relatedResults] = await Promise.all([
-  getCasoBySlug(slug, 'en'),
-  ...relatedSlugs.map((s: string) => getCasoBySlug(s, 'en')),
-]);
-
-if (!caso) return Astro.redirect('/en/casos');
-
-const related = relatedResults.filter((c): c is Caso => c !== null && c !== undefined);
+interface Props { caso: Caso; related: Caso[]; }
+const { caso, related } = Astro.props;
 const heroImg     = caso.imagenUrl;
 const heroAlt     = caso.imagenAlt;
 const title       = caso.titulo;

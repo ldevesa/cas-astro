@@ -24,7 +24,10 @@ Las entradas anteriores al 30/09/2026 están reconstruidas desde `git log` y CLA
 - **T2 hecho:** `public/og-default.jpg` creado (1200×630, 147 KB) recortando `public/img/experiencia-marca.jpg` con sharp — provisorio, reemplazar por una imagen de marca cuando exista. Detectado T2b (og:image relativa).
 - **T2b hecho:** `site` en `astro.config.mjs` sale de `PUBLIC_SITE_URL` (default `https://cas-sitio.pages.dev`, antes estaba fijo en `contenidosad.com`); `Layout.astro` arma `og:image` absoluta con `new URL(ogImage, Astro.site)`. Documentado en `.env.example`, README, MANUAL y CUTOVER. Verificado: build OK (258 `index.html`), og:image absoluta en Home/EN contacto, casos siguen con URL de Sanity; `astro check` en línea base.
 - **T5b hecho:** honeypot `website` en los 3 `contacto.astro` (fuera de pantalla, `aria-hidden`, `tabindex=-1`, `autocomplete=off`) + chequeo en `functions/api/contact.js` y `api/contact.js`. Probado simulando el handler de Cloudflare: bot → 200 sin emails; persona → 1 email. `astro check` en línea base.
-- **Pendiente:** tareas de "Ahora" en PLAN, una por una con aprobación. Nada commiteado todavía.
+- Commit `ebdc275` con harness + T1 + T2 + T2b + T5b.
+- **Aclaración al usuario:** el sitio publicado no consulta Sanity; solo el build lo hace (y el navegador baja imágenes/videos de `cdn.sanity.io`).
+- **T8 hecho:** `casos/[slug].astro` (ES/EN/PT) recibe `caso` y `related` por props desde `getStaticPaths` (sin `getCasoBySlug` por página); `getConfiguracionSeguimiento()` cachea la promesa solo en build (`import.meta.env.PROD`). ~950 → ~15 requests por build. Verificado: HTML de las 258 páginas idéntico al build anterior (`diff -r` sin diferencias), build 167 s → 32 s, `astro check` en línea base.
+- **Pendiente:** siguiente tarea de PLAN, con aprobación.
 
 ## 2026-09-14 — Imagen
 

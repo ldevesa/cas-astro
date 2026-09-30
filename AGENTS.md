@@ -64,6 +64,7 @@ public/_headers         ← headers de Cloudflare (seguridad + cache)
 
 - **R1 — No tocar `../cas-astro`.** Es otro worktree (rama `main`). Este worktree trabaja en `sanity-migration`. Merge a `main` = decisión explícita del usuario.
 - **R2 — Todo acceso a Sanity pasa por `src/lib/cms.ts`.** Las páginas reciben objetos planos ya resueltos por idioma (`caso.titulo`, `caso.imagenUrl`); no escribir GROQ en `.astro`. Fallback de idioma: `lang` → `es`.
+- **R2b — Pocas queries por build.** En rutas dinámicas, traer todo en `getStaticPaths` y pasarlo por `props`; no volver a pedir a Sanity por slug en cada página. Datos globales que usa el Layout se cachean en build (ver `getConfiguracionSeguimiento`).
 - **R3 — Cambios de página = 3 archivos.** Toda página existe en `src/pages/`, `src/pages/en/` y `src/pages/pt/`. Un cambio de estructura/markup se replica en los 3 (hoy ya divergieron: p. ej. `index.astro` tiene 406/335/343 líneas). Textos de UI compartidos van en `src/i18n/ui.ts`.
 - **R4 — Slugs siempre en español** en los 3 idiomas (`/en/casos/<slug-es>`).
 - **R5 — Nuevo `_type` de documento en Sanity ⇒ actualizar el filtro del webhook** en sanity.io/manage (no se puede por código). Si no, publicar ese tipo "no hace nada". Filtro actual: `_type in ["caso","cliente","carrera","paginaHome","configuracionSeguimiento"]`.

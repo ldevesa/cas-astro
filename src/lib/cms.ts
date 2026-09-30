@@ -320,7 +320,15 @@ const CONFIGURACION_SEGUIMIENTO_QUERY = defineQuery(
   `*[_type == "configuracionSeguimiento" && _id == "configuracionSeguimiento"][0]{ googleTagManagerId, googleSiteVerification, scriptsPersonalizados, scriptsPersonalizadosBody, scriptsPersonalizadosFinBody }`
 );
 
-export async function getConfiguracionSeguimiento(): Promise<ConfiguracionSeguimiento> {
-  const doc = await sanityClient.fetch<ConfiguracionSeguimiento | null>(CONFIGURACION_SEGUIMIENTO_QUERY);
-  return doc ?? {};
+// Layout.astro la pide en cada página: en el build se trae una sola vez y se reutiliza.
+// En dev no se cachea, para que un cambio en el Studio se vea al recargar.
+let configuracionSeguimientoCache: Promise<ConfiguracionSeguimiento> | undefined;
+
+export function getConfiguracionSeguimiento(): Promise<ConfiguracionSeguimiento> {
+  if (import.meta.env.PROD && configuracionSeguimientoCache) return configuracionSeguimientoCache;
+  const promise = sanityClient
+    .fetch<ConfiguracionSeguimiento | null>(CONFIGURACION_SEGUIMIENTO_QUERY)
+    .then((doc) => doc ?? {});
+  if (import.meta.env.PROD) configuracionSeguimientoCache = promise;
+  return promise;
 }
