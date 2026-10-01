@@ -1,0 +1,30 @@
+---
+// Tarjeta de caso de los listados. Un solo lugar para su diseño: se usa en
+// todas las grillas de casos y en los 3 idiomas.
+import type { Caso, Lang } from '../lib/cms';
+import { getLocalePath } from '../i18n/utils';
+
+interface Props {
+  caso: Caso;
+  lang: Lang;
+}
+
+const { caso, lang } = Astro.props;
+---
+
+<a href={getLocalePath(lang, `/casos/${caso.slug}`)} class="case-card group block">
+  <div class="relative overflow-hidden aspect-4/3 rounded-2xl mb-6">
+    <img
+      alt={caso.imagenAlt}
+      class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+      src={caso.imagenUrl}
+      srcset={caso.imagenSrcset}
+      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+      loading="lazy"
+    />
+  </div>
+  <div class="space-y-2">
+    <h2 class="font-['Space_Grotesk'] text-2xl font-bold tracking-tight text-white group-hover:text-[#ffb876] transition-colors">{caso.titulo}</h2>
+    {caso.resumen && <p class="text-gray-500 text-sm font-['Plus_Jakarta_Sans'] line-clamp-2">{caso.resumen}</p>}
+  </div>
+</a>

@@ -153,6 +153,9 @@ export async function getCasoBySlug(slug: string, lang: Lang = 'es'): Promise<Ca
   return doc ? mapCaso(doc, lang) : null;
 }
 
+/** Casos por página en el listado paginado (/casos, /casos/N). */
+export const CASOS_POR_PAGINA = 6;
+
 export interface CasosPage {
   casos: Caso[];
   total: number;

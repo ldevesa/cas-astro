@@ -1,0 +1,46 @@
+---
+// Paginación numerada (← Anterior · 1 2 3 … · Siguiente →), textos en src/i18n/ui.ts.
+// `basePath` es la ruta de la página 1 (ej. '/casos'); la página N es `${basePath}/${N}`.
+import type { Lang } from '../lib/cms';
+import { useTranslations, getLocalePath } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  basePath: string;
+  currentPage: number;
+  totalPages: number;
+}
+
+const { lang, basePath, currentPage, totalPages } = Astro.props;
+const t = useTranslations(lang);
+
+const pageUrl = (n: number) => getLocalePath(lang, n === 1 ? basePath : `${basePath}/${n}`);
+const hasPrev = currentPage > 1;
+const hasNext = currentPage < totalPages;
+
+const linkClass = "font-['Space_Grotesk'] font-bold uppercase tracking-widest text-xs px-6 py-3 border border-white/20 text-white hover:border-[#ffb876] hover:text-[#ffb876] transition-all";
+const disabledClass = "font-['Space_Grotesk'] font-bold uppercase tracking-widest text-xs px-6 py-3 border border-white/5 text-gray-700 cursor-not-allowed";
+---
+
+<nav class="mt-20 flex items-center justify-center gap-3" aria-label={t.pagination.ariaLabel}>
+  {hasPrev
+    ? <a href={pageUrl(currentPage - 1)} class={linkClass}>{t.pagination.prev}</a>
+    : <span class={disabledClass}>{t.pagination.prev}</span>}
+
+  <div class="flex gap-2">
+    {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+      <a
+        href={pageUrl(n)}
+        class={`w-10 h-10 flex items-center justify-center font-['Space_Grotesk'] font-bold text-sm transition-all ${
+          n === currentPage
+            ? 'bg-[#f69220] text-black'
+            : 'border border-white/20 text-gray-400 hover:border-[#ffb876] hover:text-[#ffb876]'
+        }`}
+      >{n}</a>
+    ))}
+  </div>
+
+  {hasNext
+    ? <a href={pageUrl(currentPage + 1)} class={linkClass}>{t.pagination.next}</a>
+    : <span class={disabledClass}>{t.pagination.next}</span>}
+</nav>

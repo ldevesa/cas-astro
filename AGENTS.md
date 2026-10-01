@@ -51,8 +51,9 @@ src/
   lib/site-data.ts    ← datos estáticos (oficinas, redes) — no vienen del CMS
   i18n/ui.ts, utils.ts← strings de UI y helpers de rutas por idioma
   layouts/Layout.astro← <head>, nav, footer, GTM/scripts de seguimiento, captura de UTMs
-  components/         ← HeroShader (Three.js ASCII), CoberturaGlobo (amCharts), ClientesCarousel
-  pages/              ← páginas ES; pages/en/ y pages/pt/ son COPIAS por idioma (ver regla R3)
+  components/         ← piezas reutilizables (CasoCard, Paginacion) + HeroShader, CoberturaGlobo, ClientesCarousel
+  views/              ← diseño de cada página, UNA vez para los 3 idiomas (recibe `lang`) — ver R3
+  pages/              ← rutas: es en la raíz, en/ y pt/. Las ya unificadas son wrappers de pocas líneas que invocan su vista
 functions/api/contact.js ← formulario (Cloudflare Pages Function) — el que corre en producción
 api/contact.js          ← mismo formulario en formato Vercel (respaldo a propósito, no borrar; duplicado a mano)
 studio/                 ← Sanity Studio (paquete npm propio, schemas en studio/schemaTypes/)
@@ -66,7 +67,7 @@ public/_headers         ← headers de Cloudflare (seguridad + cache)
 - **R2 — Todo acceso a Sanity pasa por `src/lib/cms.ts`.** Las páginas reciben objetos planos ya resueltos por idioma (`caso.titulo`, `caso.imagenUrl`); no escribir GROQ en `.astro`. Fallback de idioma: `lang` → `es`.
 - **R2b — Pocas queries por build.** En rutas dinámicas, traer todo en `getStaticPaths` y pasarlo por `props`; no volver a pedir a Sanity por slug en cada página. Datos globales que usa el Layout se cachean en build (ver `getConfiguracionSeguimiento`).
 - **R2c — Imágenes de Sanity con `srcset` + `sizes`.** Toda `<img>` con foto de caso usa `srcset={caso.imagenSrcset}` (o `img.srcset` en galería) y un `sizes` acorde al ancho real en pantalla; `loading="lazy"` salvo la imagen principal (hero, `fetchpriority="high"`). Los logos de clientes son 200×200 y no lo necesitan.
-- **R3 — Cambios de página = 3 archivos.** Toda página existe en `src/pages/`, `src/pages/en/` y `src/pages/pt/`. Un cambio de estructura/markup se replica en los 3 (hoy ya divergieron: p. ej. `index.astro` tiene 406/335/343 líneas). Textos de UI compartidos van en `src/i18n/ui.ts`.
+- **R3 — Una página = una vista (unificación en curso, T16).** Patrón: el diseño va en `src/views/<Pagina>.astro` y recibe `lang`; `src/pages/{,en/,pt/}…` solo la invocan (y tienen su `getStaticPaths` si es ruta dinámica). Textos por idioma en `src/i18n/ui.ts` (los 3 bloques con las mismas claves), links con `getLocalePath(lang, ruta)`. Piezas repetidas (tarjeta de caso, paginación…) en `src/components/`. **Ya unificadas:** listado de casos (`CasosListado`). Las páginas no unificadas todavía existen 3 veces: un cambio ahí se replica en los 3 archivos.
 - **R4 — Slugs siempre en español** en los 3 idiomas (`/en/casos/<slug-es>`).
 - **R5 — Webhook Sanity→Cloudflare:** filtro por exclusión `!(_type in ["sanity.imageAsset", "sanity.fileAsset"])` (desde 30/09/2026): cualquier documento publicado dispara rebuild, salvo subir imágenes/archivos. Los `_type` nuevos **no** requieren tocar el webhook. No volver a una lista de tipos permitidos.
 - **R6 — Listas duplicadas que deben mantenerse sincronizadas:**

@@ -39,10 +39,13 @@ export const ui = {
       works: 'trabajos',
       page: 'página',
       of: 'de',
+      pageTitle: 'Página',
+      metaDescription: 'Conocé todos los casos y trabajos de Contenidos Advertising.',
     },
     pagination: {
       prev: '← Anterior',
       next: 'Siguiente →',
+      ariaLabel: 'Paginación',
     },
     careers: {
       joinTeam: '¡Sumate al equipo!',
@@ -123,10 +126,13 @@ export const ui = {
       works: 'trabalhos',
       page: 'página',
       of: 'de',
+      pageTitle: 'Página',
+      metaDescription: 'Conheça todos os cases e trabalhos da Contenidos Advertising.',
     },
     pagination: {
       prev: '← Anterior',
       next: 'Próxima →',
+      ariaLabel: 'Paginação',
     },
     careers: {
       joinTeam: 'Faça parte do time!',
@@ -207,10 +213,13 @@ export const ui = {
       works: 'works',
       page: 'page',
       of: 'of',
+      pageTitle: 'Page',
+      metaDescription: 'Explore all cases and works by CAS — Contenidos Advertising.',
     },
     pagination: {
       prev: '← Previous',
       next: 'Next →',
+      ariaLabel: 'Pagination',
     },
     careers: {
       joinTeam: 'Join our team!',
