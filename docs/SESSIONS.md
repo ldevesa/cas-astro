@@ -5,6 +5,13 @@ Las entradas anteriores al 30/09/2026 están reconstruidas desde `git log` y CLA
 
 ---
 
+## 2026-10-01 — Formulario en paralelo
+
+- **Decisión del usuario:** Resend se puso porque es gratuito para probar; se mantiene como respaldo mientras funcione.
+- **T18 hecho:** los 2 emails (vendedores / marketing) se mandan con `Promise.all` en `functions/api/contact.js` y `api/contact.js`. Probado simulando el handler con Mailjet lento (1 s por envío) en 4 escenarios (todo OK, Mailjet caído→Resend, marketing falla en ambos, todo falla): mismos envíos y mismas respuestas que antes, tiempo 2.1→1.0 s / 4.0→2.0 s / 3.0→2.0 s / 4.0→2.0 s.
+- PLAN: T6 actualizado (webhook y variables Preview ya resueltos; queda re-probar el formulario real).
+- **Pendiente:** confirmar que el deploy de preview con `astro check` (T14) pasó en Cloudflare.
+
 ## 2026-09-30 — Revisión técnica + harness del proyecto
 
 - **Hecho:** revisión completa del repo. Creados `AGENTS.md` (harness), `docs/SPEC.md`, `docs/PLAN.md`, `docs/SESSIONS.md`.

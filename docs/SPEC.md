@@ -76,7 +76,8 @@ Cada ruta existe en `/`, `/pt/` y `/en/` con el **mismo slug en español**.
 - **RF4 — Formulario de contacto.** Campos obligatorios: nombre, email, mensaje. Por envío se mandan 2 emails independientes:
   - vendedores (`CONTACT_TO`) sin datos de origen;
   - marketing (`CONTACT_TO_MARKETING`, opcional) con UTMs, dispositivo y geo (`request.cf`), + `CONTACT_BCC`.
-  - Cada uno: Mailjet → si falla, Resend (desactivable con `RESEND_FALLBACK_ENABLED=false`). Respuesta OK si llegó al menos uno.
+  - Los 2 se mandan en paralelo. Cada uno: Mailjet → si falla, Resend (desactivable con `RESEND_FALLBACK_ENABLED=false`). Respuesta OK si llegó al menos uno.
+  - Resend es el respaldo gratuito (plan de prueba); se mantiene mientras funcione como rescate.
   - Todo dato del visitante se escapa antes de ir al HTML del email.
   - Anti-spam: honeypot `website` (campo oculto). Si llega con valor → responde `{ok:true}` sin mandar emails.
 - **RF5 — Atribución.** UTMs capturados en cualquier página (ventana deslizante de 3 h en `localStorage`), con detección de buscador orgánico, directo y referral.

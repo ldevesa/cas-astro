@@ -193,8 +193,12 @@ export async function onRequestPost({ request, env }) {
     return sent;
   };
 
-  const sentVendedores = toVendedores.length > 0 ? await trySend(toVendedores, [], htmlBase) : false;
-  const sentMarketing  = toMarketing.length  > 0 ? await trySend(toMarketing, bccList, htmlBase + htmlOrigen) : false;
+  // Los 2 envíos son independientes: van en paralelo, así el visitante espera
+  // solo lo que tarde el más lento (cada uno con su propio fallback a Resend).
+  const [sentVendedores, sentMarketing] = await Promise.all([
+    toVendedores.length > 0 ? trySend(toVendedores, [], htmlBase) : false,
+    toMarketing.length  > 0 ? trySend(toMarketing, bccList, htmlBase + htmlOrigen) : false,
+  ]);
 
   if (!sentVendedores && !sentMarketing) {
     return Response.json({ ok: false, error: 'Error al enviar el mensaje.' }, { status: 500 });

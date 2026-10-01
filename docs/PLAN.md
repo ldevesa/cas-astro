@@ -7,7 +7,7 @@ Esfuerzo: **S** (< 1 h) · **M** (medio día) · **L** (1–3 días). Revisión 
 
 | ID | Tarea | Por qué | Esf. |
 | :--- | :--- | :--- | :--- |
-| T6 | Pendientes manuales de [CUTOVER.md](../CUTOVER.md): probar webhook punta a punta, re-probar formulario con Mailjet principal, variables en Preview | Checklist abierto | — |
+| T6 | Pendiente manual de [CUTOVER.md](../CUTOVER.md): re-probar el formulario real con Mailjet como principal (enviar un mensaje desde el preview y confirmar que llegan los 2 emails) | Único ítem abierto del checklist antes del dominio | — |
 
 ## Cuando haya dominio definitivo
 
@@ -38,7 +38,6 @@ El sitio sigue en desarrollo (funciona en `cas-sitio.pages.dev`), todavía no ha
 | ID | Tarea | Por qué | Esf. |
 | :--- | :--- | :--- | :--- |
 | T16 | **Consolidar páginas por idioma:** mover el markup de cada página a un componente (`src/views/CasoDetalle.astro`, etc.) que recibe `lang`, y dejar en `pages/`, `pages/en/`, `pages/pt/` solo wrappers de 5 líneas. Textos a `ui.ts` | 14 páginas × 3 = 42 archivos que ya divergieron (el `index.astro` ES tiene 406 líneas, EN 335, PT 343; `casos/[slug]` 207 vs 149). Es la mayor fuente de bugs "funciona en ES, no en EN". Hacerlo de a una página | L |
-| T18 | Enviar los 2 emails del formulario en paralelo (`Promise.all`) | Hoy son secuenciales → el visitante espera el doble si Mailjet está lento | S |
 | T19 | Verificar dominio en Resend (DNS) para que el fallback entregue a todos | Hoy el fallback solo llega al dueño de la cuenta (sandbox) | S (manual) |
 | T20b | **Home con alternativas** (idea del usuario, no aprobada aún): varias `paginaHome` duplicables, preview de cada una en una URL oculta (`/preview/<slug>`, noindex), y un singleton "Configuración del sitio" con campo "Home activa" (referencia) para elegir cuál se publica como Home. Implica quitar `paginaHome` de `SINGLETON_TYPES` en `studio/sanity.config.ts` | Permite proponer una Home alternativa, mostrarla para aprobación y activarla sin copiar bloques a mano | L |
 | T20 | Más bloques de page builder (servicios, clientes, CTA) y migrar textos estáticos de la Home a Sanity | Continúa el patrón de `paginaHome`; hoy los textos de la Home viven en 3 archivos `.astro` | L |
