@@ -144,6 +144,18 @@ export async function getAllCasos(lang: Lang = 'es'): Promise<Caso[]> {
   return getCasos(lang);
 }
 
+/**
+ * Todos los casos de un idioma con sus 3 relacionados (los siguientes en el orden del listado),
+ * para el getStaticPaths del detalle: una sola query por idioma.
+ */
+export async function getCasosConRelacionados(lang: Lang = 'es'): Promise<{ caso: Caso; related: Caso[] }[]> {
+  const casos = await getCasos(lang);
+  return casos.map((caso, i) => ({
+    caso,
+    related: [...casos.slice(0, i), ...casos.slice(i + 1)].slice(0, 3),
+  }));
+}
+
 const CASO_BY_SLUG_QUERY = defineQuery(
   `*[_type == "caso" && slug.current == $slug][0] ${CASO_PROJECTION}`
 );
