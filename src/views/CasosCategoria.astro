@@ -1,0 +1,54 @@
+---
+// Casos de una categoría (/casos/categoria/<categoria>) — una sola vista para los 3 idiomas.
+// Las categorías salen de studio/schemaTypes/categoriasCaso.ts; textos en src/i18n/ui.ts (caseCategory).
+import Layout from '../layouts/Layout.astro';
+import CasoCard from '../components/CasoCard.astro';
+import { getCasosPorCategoria, categoriaLabel, type Lang } from '../lib/cms';
+import { useTranslations, getLocalePath } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  categoria: string;
+}
+
+const { lang, categoria } = Astro.props;
+const t = useTranslations(lang);
+const casos = await getCasosPorCategoria(categoria, lang);
+const label = categoriaLabel(categoria, lang);
+const conLabel = (texto: string) => texto.replace('{label}', label);
+---
+
+<Layout
+  title={`${label} | ${t.caseCategory.section} | CAS`}
+  description={conLabel(t.caseCategory.metaDescription)}
+>
+  <section class="bg-[#131313] pt-32 pb-24">
+    <div class="max-w-screen-2xl mx-auto px-8">
+
+      <div class="mb-16">
+        <p class="font-['Inter'] text-xs uppercase tracking-[0.35em] text-[#ffb876] mb-4">{t.cases.label}</p>
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <h1 class="font-['Space_Grotesk'] text-4xl md:text-6xl font-black tracking-tight text-white leading-[0.95]">
+            {label}
+          </h1>
+          <p class="font-['Inter'] text-xs uppercase tracking-[0.2em] text-gray-500">
+            {casos.length} {casos.length === 1 ? t.caseCategory.workSingular : t.caseCategory.workPlural}
+          </p>
+        </div>
+      </div>
+
+      {casos.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {casos.map((caso) => <CasoCard caso={caso} lang={lang} />)}
+        </div>
+      ) : (
+        <p class="font-['Plus_Jakarta_Sans'] text-gray-500">{conLabel(t.caseCategory.empty)}</p>
+      )}
+
+      <div class="mt-20 text-center">
+        <a class="inline-block bg-white text-black font-['Space_Grotesk'] font-black uppercase tracking-widest px-12 py-5 hover:bg-[#ffb876] transition-all duration-300" href={getLocalePath(lang, '/casos')}>{t.caseCategory.viewAll}</a>
+      </div>
+
+    </div>
+  </section>
+</Layout>

@@ -48,6 +48,15 @@ export const ui = {
       next: 'Siguiente →',
       ariaLabel: 'Paginación',
     },
+    caseCategory: {
+      // '{label}' se reemplaza por el nombre de la categoría
+      section: 'Casos',
+      metaDescription: 'Casos de {label} — Contenidos Advertising.',
+      workSingular: 'trabajo',
+      workPlural: 'trabajos',
+      empty: 'Todavía no hay casos categorizados en "{label}".',
+      viewAll: 'Ver todos los casos',
+    },
     careers: {
       joinTeam: '¡Sumate al equipo!',
       viewPosition: 'Ver posición',
@@ -136,6 +145,14 @@ export const ui = {
       next: 'Próxima →',
       ariaLabel: 'Paginação',
     },
+    caseCategory: {
+      section: 'Casos',
+      metaDescription: 'Casos de {label} — Contenidos Advertising.',
+      workSingular: 'trabalho',
+      workPlural: 'trabalhos',
+      empty: 'Ainda não há casos na categoria "{label}".',
+      viewAll: 'Ver todos os casos',
+    },
     careers: {
       joinTeam: 'Faça parte do time!',
       viewPosition: 'Ver vaga',
@@ -223,6 +240,14 @@ export const ui = {
       prev: '← Previous',
       next: 'Next →',
       ariaLabel: 'Pagination',
+    },
+    caseCategory: {
+      section: 'Cases',
+      metaDescription: '{label} cases — Contenidos Advertising.',
+      workSingular: 'case',
+      workPlural: 'cases',
+      empty: 'No cases tagged as "{label}" yet.',
+      viewAll: 'See all cases',
     },
     careers: {
       joinTeam: 'Join our team!',
