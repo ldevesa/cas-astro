@@ -1,0 +1,237 @@
+---
+// Contacto (/contacto) — una sola vista para los 3 idiomas. Textos en src/i18n/ui.ts (contact).
+// Los nombres de campo del formulario son SIEMPRE los mismos (nombre, empresa, email, telefono,
+// cargo, pais, servicio, mensaje) porque functions/api/contact.js los lee así: no traducirlos.
+import Layout from '../layouts/Layout.astro';
+import { getStaticSiteData } from '../lib/site-data';
+import type { Lang } from '../lib/cms';
+import { useTranslations, getLocalePath } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const { offices } = getStaticSiteData();
+
+const input = "w-full bg-[#1a1a1a] border border-white/10 text-white font-['Plus_Jakarta_Sans'] px-4 py-3 rounded-xl focus:outline-none focus:border-[#F69220] transition-colors";
+const label = "block font-['Inter'] text-xs uppercase tracking-wider text-gray-500 mb-2";
+---
+
+<Layout title={t.contact.metaTitle} description={t.contact.metaDescription}>
+
+  <!-- Hero -->
+  <section class="bg-[#0a0a0a] pt-16 pb-20 border-b border-white/5">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <p class="font-['Inter'] text-xs uppercase tracking-[0.4em] text-[#ffb876] mb-4">{t.contact.label}</p>
+      <h1 class="font-['Space_Grotesk'] font-black text-6xl md:text-9xl tracking-tighter leading-[0.9] text-white">
+        {t.contact.title}
+      </h1>
+    </div>
+  </section>
+
+  <!-- Contenido principal -->
+  <section class="bg-[#131313] py-24">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+
+        <!-- Formulario -->
+        <div>
+          <h2 class="font-['Space_Grotesk'] font-black text-3xl text-white tracking-tight mb-2">{t.contact.formTitle}</h2>
+          <p class="font-['Plus_Jakarta_Sans'] text-gray-400 mb-10">{t.contact.formSub}</p>
+
+          <form
+            id="contact-form"
+            class="flex flex-col gap-6"
+            data-thanks-url={getLocalePath(lang, '/gracias')}
+            data-text-submit={t.contact.submit}
+            data-text-sending={t.contact.sending}
+            data-text-sent={t.contact.sent}
+            data-text-error={t.contact.genericError}
+          >
+            <input type="hidden" name="_to" value="info@contenidosad.com" />
+            <input type="hidden" name="utm_source" />
+            <input type="hidden" name="utm_medium" />
+            <input type="hidden" name="utm_campaign" />
+            <input type="hidden" name="utm_term" />
+            <input type="hidden" name="utm_content" />
+            <input type="hidden" name="dispositivo" />
+            <!-- Honeypot anti-spam: invisible para personas; si llega con valor, contact.js descarta el envío -->
+            <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">
+              <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label class={label}>{t.contact.name}</label>
+                <input type="text" name="nombre" required class={input} placeholder={t.contact.namePh} />
+              </div>
+              <div>
+                <label class={label}>{t.contact.company}</label>
+                <input type="text" name="empresa" class={input} placeholder={t.contact.companyPh} />
+              </div>
+            </div>
+
+            <div>
+              <label class={label}>{t.contact.email}</label>
+              <input type="email" name="email" required class={input} placeholder={t.contact.emailPh} />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label class={label}>{t.contact.phone}</label>
+                <input type="tel" name="telefono" class={input} placeholder={t.contact.phonePh} />
+              </div>
+              <div>
+                <label class={label}>{t.contact.role}</label>
+                <input type="text" name="cargo" class={input} placeholder={t.contact.rolePh} />
+              </div>
+            </div>
+
+            <div>
+              <label class={label}>{t.contact.country}</label>
+              <input type="text" name="pais" class={input} placeholder={t.contact.countryPh} />
+            </div>
+
+            <div>
+              <label class={label}>{t.contact.service}</label>
+              <select
+                name="servicio"
+                class="w-full bg-[#1a1a1a] border border-white/10 text-gray-400 font-['Plus_Jakarta_Sans'] px-4 py-3 rounded-xl focus:outline-none focus:border-[#F69220] transition-colors"
+              >
+                <option value="">{t.contact.servicePh}</option>
+                <option value="experiencia">{t.contact.svcExperience}</option>
+                <option value="trade">{t.contact.svcTrade}</option>
+                <option value="digital">{t.contact.svcDigital}</option>
+                <option value="otro">{t.contact.svcOther}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class={label}>{t.contact.message}</label>
+              <textarea
+                name="mensaje"
+                required
+                rows="5"
+                class={`${input} resize-none`}
+                placeholder={t.contact.messagePh}
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              id="submit-btn"
+              class="w-full bg-[#F69220] text-white font-['Space_Grotesk'] font-black uppercase tracking-widest py-4 rounded-xl hover:brightness-110 transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t.contact.submit}
+            </button>
+            <p id="form-msg" class="hidden text-sm font-['Plus_Jakarta_Sans'] text-center"></p>
+          </form>
+        </div>
+
+        <!-- Info de contacto -->
+        <div class="flex flex-col gap-12">
+
+          <!-- Oficinas -->
+          <div>
+            <h3 class="font-['Space_Grotesk'] font-black text-xl text-white uppercase tracking-widest mb-8">{t.contact.offices}</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {offices.map((office) => (
+                <div class="bg-[#111111] border border-white/5 rounded-2xl p-6 hover:border-[#F69220]/30 transition-colors duration-300">
+                  <p class="font-['Space_Grotesk'] text-xs uppercase tracking-[0.2em] text-[#ffb876] mb-2">{office.city}</p>
+                  <p class="font-['Plus_Jakarta_Sans'] text-gray-400 text-sm leading-relaxed">{office.address}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Email directo -->
+          <div class="bg-[#111111] border border-white/5 rounded-2xl p-8">
+            <h3 class="font-['Space_Grotesk'] font-black text-xl text-white mb-4">{t.contact.direct}</h3>
+            <div class="flex flex-col gap-4">
+              <a
+                href="mailto:info@contenidosad.com"
+                class="flex items-center gap-3 font-['Plus_Jakarta_Sans'] text-gray-400 hover:text-[#ffb876] transition-colors group"
+              >
+                <span class="material-symbols-outlined text-xl text-[#F69220]">mail</span>
+                info@contenidosad.com
+              </a>
+              <a
+                href="https://www.linkedin.com/company/contenidosad/"
+                target="_blank"
+                rel="noopener"
+                class="flex items-center gap-3 font-['Plus_Jakarta_Sans'] text-gray-400 hover:text-[#ffb876] transition-colors"
+              >
+                <span class="material-symbols-outlined text-xl text-[#F69220]">open_in_new</span>
+                LinkedIn
+              </a>
+              <a
+                href="https://www.instagram.com/contenidos.ad"
+                target="_blank"
+                rel="noopener"
+                class="flex items-center gap-3 font-['Plus_Jakarta_Sans'] text-gray-400 hover:text-[#ffb876] transition-colors"
+              >
+                <span class="material-symbols-outlined text-xl text-[#F69220]">photo_camera</span>
+                Instagram
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const btn  = document.getElementById('submit-btn') as HTMLButtonElement;
+  const msg  = document.getElementById('form-msg') as HTMLParagraphElement;
+
+  const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+
+  function rellenarUtms() {
+    if (!form) return;
+    UTM_KEYS.forEach((key) => {
+      const val = localStorage.getItem(key);
+      const input = form.querySelector<HTMLInputElement>(`input[name="${key}"]`);
+      if (input && val) input.value = val;
+    });
+    const dispositivoInput = form.querySelector<HTMLInputElement>('input[name="dispositivo"]');
+    if (dispositivoInput) {
+      dispositivoInput.value = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+    }
+  }
+
+  document.addEventListener('astro:page-load', rellenarUtms);
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    // Textos y URL de "gracias" del idioma de la página, vienen en data-* del formulario.
+    const { thanksUrl, textSubmit, textSending, textSent, textError } = form.dataset;
+    btn.disabled = true;
+    btn.textContent = textSending ?? '';
+    msg.className = 'hidden';
+
+    const res = await fetch('/api/contact', { method: 'POST', body: new FormData(form) });
+    const json = await res.json();
+
+    if (json.ok) {
+      msg.textContent = textSent ?? '';
+      msg.className = 'text-sm font-[\'Plus_Jakarta_Sans\'] text-center text-green-400';
+      form.reset();
+      btn.textContent = textSubmit ?? '';
+      btn.disabled = false;
+      UTM_KEYS.forEach((k) => localStorage.removeItem(k));
+      localStorage.removeItem('utm_timestamp');
+      setTimeout(() => { window.location.href = thanksUrl ?? '/gracias'; }, 3000);
+    } else {
+      msg.textContent = json.error ?? textError ?? '';
+      msg.className = 'text-sm font-[\'Plus_Jakarta_Sans\'] text-center text-red-400';
+      btn.textContent = textSubmit ?? '';
+      btn.disabled = false;
+    }
+  });
+</script>

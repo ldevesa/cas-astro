@@ -1,0 +1,28 @@
+---
+// Página de agradecimiento tras enviar el formulario (/gracias) — una sola vista para los 3 idiomas.
+import Layout from '../layouts/Layout.astro';
+import type { Lang } from '../lib/cms';
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<Layout title={t.contact.thanksMetaTitle} description={t.contact.thanksMetaDescription}>
+  <section class="bg-[#131313] min-h-screen flex items-center justify-center px-8">
+    <div class="text-center max-w-lg">
+      <span class="material-symbols-outlined text-6xl text-[#F69220] mb-6 block">check_circle</span>
+      <h1 class="font-['Space_Grotesk'] font-black text-5xl md:text-6xl tracking-tight text-white leading-[0.95] mb-6">{t.contact.thanksTitle}</h1>
+      <p class="font-['Plus_Jakarta_Sans'] text-gray-400 text-lg leading-relaxed mb-10">
+        {t.contact.thanksText}
+      </p>
+      <a href={lang === 'es' ? '/' : `/${lang}/`} class="inline-block bg-[#F69220] text-white font-['Space_Grotesk'] font-black uppercase tracking-widest px-10 py-4 rounded-xl hover:brightness-110 transition-all duration-300">
+        {t.contact.thanksButton}
+      </a>
+    </div>
+  </section>
+</Layout>
