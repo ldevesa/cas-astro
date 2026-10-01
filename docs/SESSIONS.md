@@ -25,7 +25,12 @@ Las entradas anteriores al 30/09/2026 están reconstruidas desde `git log` y CLA
 - **Decisión del usuario:** no unificar las páginas de servicios — los servicios no están definidos y no van a tener nada que ver con lo actual. Anotado T20c (servicios como documentos de Sanity con una plantilla, cuando se definan).
 - **BUG corregido — formulario PT:** `/pt/contacto` enviaba los campos como `nome`/`mensagem` (y `telefono` etc. mezclados), que `contact.js` no reconoce → siempre respondía 400 "Faltan campos obligatorios" y no mandaba nada (venía de la migración). Verificado con el handler antes (ES 200, EN 200, PT 400) y después (los 3 200, email con los 7 campos).
 - **T16 — contacto y gracias hechos:** `src/views/Contacto.astro` (un solo formulario con los mismos nombres de campo en los 3 idiomas; textos y URL de gracias llegan al script por `data-*`) y `src/views/Gracias.astro`; textos en `ui.ts` → `contact` (+11 claves). Mismos `<option value>` en los 3 idiomas (antes EN usaba `experience`/`other`; solo informativo en el email). Verificado: 0 errores, 258 páginas; HTML idéntico salvo los `data-*`, y en los formularios EN/PT los nombres de campo. **Pendiente manual:** envío real desde `/pt/contacto` en el preview.
-- **Pendiente:** solo la Home en T16 (con el rediseño).
+- **Cierre de sesión 01/10 — para retomar:**
+  1. Probar en el preview un envío real desde `/pt/contacto` y `/contacto` (llegan los 2 emails).
+  2. Despublicar la carrera "test" en el Studio.
+  3. Mirar `/en/clientes` y `/pt/clientes` (único cambio visual de la unificación).
+  4. Siguiente tarea sugerida: **T10** (TypeGen). Luego: T21 (limpieza), Home en T16 junto con el rediseño, T20c (servicios en Sanity) cuando se definan.
+  5. Nada pendiente de mergear a `main`: todo en `sanity-migration`, decisión del usuario.
 
 ## 2026-09-30 — Revisión técnica + harness del proyecto
 
