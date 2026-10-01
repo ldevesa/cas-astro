@@ -12,7 +12,8 @@ Las entradas anteriores al 30/09/2026 están reconstruidas desde `git log` y CLA
 - PLAN: T6 actualizado (webhook y variables Preview ya resueltos; queda re-probar el formulario real).
 - **T15 hecho:** sitio: astro 7.0.7→7.3.5, sanity 6.4→6.17, @sanity/astro 3.5.1, @sanity/client 7.27, groq 6.17, tailwindcss 4.3.3, react 19.3, styled-components 6.5.3, @astrojs/check 0.9.10. Studio: sanity/@sanity/vision 6.17, react 19.3, styled-components 6.5.3, sanity-plugin-media 5.0.13. Rangos de package.json subidos a lo instalado. `@astrojs/cloudflare`/`vercel` sin tocar.
   - Verificación: build 0 errores/0 warnings, 258 páginas; Studio tsc + build OK. HTML: fuera de scripts no cambia nada visible — Astro 7.3 quita espacios pegados a comentarios HTML/scripts (todos entre elementos de bloque o flex con gap; ningún espacio ícono↔texto cambió); minificador JS con expresiones equivalentes. CSS (Tailwind 4.3): reescrituras equivalentes (`calc(var(--spacing)*1)`→`var(--spacing)`), prefijos `-webkit-` nuevos para Safari, cambia el stack de `--font-sans` por defecto (no afecta: body usa `--font-body`), desaparecen `.start`/`.end` (falsos positivos, ninguna clase los usa).
-- **Pendiente:** redeploy del Studio con sanity 6.17 (consultar); confirmar que el deploy de preview con `astro check` (T14) pasó en Cloudflare.
+- Studio redeployado con sanity 6.17 en https://cas-sitio.sanity.studio. El usuario confirma que los deploys de preview en Cloudflare pasan (build con `astro check` incluido, T14 OK en Cloudflare: instala devDependencies).
+- **Pendiente:** siguiente tarea de PLAN, con aprobación.
 
 ## 2026-09-30 — Revisión técnica + harness del proyecto
 
