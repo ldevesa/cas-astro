@@ -146,12 +146,12 @@ export const ui = {
       ariaLabel: 'Paginação',
     },
     caseCategory: {
-      section: 'Casos',
-      metaDescription: 'Casos de {label} — Contenidos Advertising.',
+      section: 'Cases',
+      metaDescription: 'Cases de {label} — Contenidos Advertising.',
       workSingular: 'trabalho',
       workPlural: 'trabalhos',
-      empty: 'Ainda não há casos na categoria "{label}".',
-      viewAll: 'Ver todos os casos',
+      empty: 'Ainda não há cases na categoria "{label}".',
+      viewAll: 'Ver todos os cases',
     },
     careers: {
       joinTeam: 'Faça parte do time!',
@@ -244,10 +244,10 @@ export const ui = {
     caseCategory: {
       section: 'Cases',
       metaDescription: '{label} cases — Contenidos Advertising.',
-      workSingular: 'case',
-      workPlural: 'cases',
+      workSingular: 'work',
+      workPlural: 'works',
       empty: 'No cases tagged as "{label}" yet.',
-      viewAll: 'See all cases',
+      viewAll: 'View all cases',
     },
     careers: {
       joinTeam: 'Join our team!',
