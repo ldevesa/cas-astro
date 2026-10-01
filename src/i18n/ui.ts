@@ -103,6 +103,16 @@ export const ui = {
     planning: 'Planificación',
     implementation: 'Implementación',
     control: 'Control',
+    clientsPage: {
+      metaTitle: 'Clientes | CAS Contenidos Advertising',
+      metaDescription: 'Más de 38 marcas líderes confían en CAS para sus experiencias de marca, trade marketing y cartelería digital.',
+      label: 'Quienes confían en nosotros',
+      title: 'Clientes',
+      counter: '{n}+ marcas líderes en Argentina, México, España y Miami',
+      ctaTitle: 'Conocé los proyectos',
+      ctaText: 'Cada marca tiene su historia. Mirá cómo ayudamos a nuestros clientes a conectar con sus audiencias.',
+      ctaButton: 'Ver casos',
+    },
   },
   pt: {
     nav: {
@@ -199,6 +209,16 @@ export const ui = {
     planning: 'Planejamento',
     implementation: 'Implementação',
     control: 'Controle',
+    clientsPage: {
+      metaTitle: 'Clientes | CAS Contenidos Advertising',
+      metaDescription: 'As marcas que confiam na CAS para criar experiências memoráveis.',
+      label: 'Quem confia em nós',
+      title: 'Clientes',
+      counter: '{n}+ marcas líderes na Argentina, México, Espanha e Miami',
+      ctaTitle: 'Conheça os projetos',
+      ctaText: 'Cada marca tem sua história. Veja como ajudamos nossos clientes a se conectar com seus públicos.',
+      ctaButton: 'Ver cases',
+    },
   },
   en: {
     nav: {
@@ -295,5 +315,15 @@ export const ui = {
     planning: 'Planning',
     implementation: 'Implementation',
     control: 'Control',
+    clientsPage: {
+      metaTitle: 'Clients | CAS Contenidos Advertising',
+      metaDescription: 'The brands that trust CAS to create memorable experiences.',
+      label: 'Who trusts us',
+      title: 'Clients',
+      counter: '{n}+ leading brands in Argentina, Mexico, Spain and Miami',
+      ctaTitle: 'Discover our projects',
+      ctaText: 'Every brand has its story. See how we help our clients connect with their audiences.',
+      ctaButton: 'View cases',
+    },
   },
 } as const;
