@@ -1,0 +1,25 @@
+---
+// Etiquetas de una búsqueda (área · nivel · tipo), usadas en el listado y en el detalle de carreras.
+import type { Carrera, Lang } from '../lib/cms';
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  carrera: Carrera;
+  lang: Lang;
+}
+
+const { carrera, lang } = Astro.props;
+const t = useTranslations(lang);
+const nivel = (t.careers.levels as Record<string, string>)[carrera.categoria] ?? carrera.categoria;
+const tipo = (t.careers.types as Record<string, string>)[carrera.tipo] ?? carrera.tipo;
+---
+
+{carrera.areaTrabajo && (
+  <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{carrera.areaTrabajo}</span>
+)}
+{carrera.categoria && (
+  <span class="font-['Inter'] text-xs uppercase tracking-wider text-gray-400 border border-white/10 px-3 py-1 rounded-full">{nivel}</span>
+)}
+{carrera.tipo && (
+  <span class="font-['Inter'] text-xs uppercase tracking-wider px-3 py-1 rounded-full" style="color: #F69220; border: 1px solid rgba(246,146,32,0.3);">{tipo}</span>
+)}
